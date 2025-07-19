@@ -1,0 +1,17 @@
+version: "2"
+sql:
+  - engine: "postgresql"
+    queries: "internal/shared/database/query.sql"
+    schema: "internal/shared/database/schema.sql"
+    gen:
+      go:
+        package: "database"
+        out: "internal/shared/database"
+        sql_package: "pgx/v5"
+        overrides:
+          - column: "*.created_at"
+            go_struct_tag: 'hash:"exclude"'
+          - column: "*.updated_at"
+            go_struct_tag: 'hash:"exclude"'
+          - column: "*.hash"
+            go_struct_tag: 'hash:"exclude"'

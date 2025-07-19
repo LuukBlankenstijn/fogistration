@@ -1,0 +1,39 @@
+name: fogistration
+services:
+  http:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    entrypoint: ["air", "-c", ".air-http.toml"]
+
+  # grpc:
+  #   build: .
+  #   ports:
+  #     - "9090:9090"
+  #   volumes:
+  #     - .:/app
+  #   entrypoint: ["air", "-c", ".air-grpc.toml"]
+
+  dom-judge:
+    build: .
+    volumes:
+      - .:/app
+    entrypoint: ["sleep", "infinity"]
+
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fogistration
+    volumes:
+      - data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  data:
+
