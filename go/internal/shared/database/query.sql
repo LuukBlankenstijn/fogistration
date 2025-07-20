@@ -1,3 +1,6 @@
+-- CONTESTS
+
+
 -- name: ListContests :many
 SELECT * FROM contests
 ORDER BY id;
@@ -35,10 +38,16 @@ DO UPDATE SET
     hash = EXCLUDED.hash;
 
 
+-- TEAMS:
+
+
+-- name: GetTeamById :one
+SELECT * FROM teams
+WHERE id = $1;
+
 -- name: GetTeamHashes :many
 SELECT id, hash FROM teams
 ORDER BY id;
-
 
 -- name: UpsertTeam :exec
 INSERT INTO teams (
@@ -53,7 +62,7 @@ INSERT INTO teams (
 ) VALUES (
     $1, $2, $3, $4, $5, NOW(), NOW(), $6
 )
-ON CONFLICT (id) 
+ON CONFLICT (id)
 DO UPDATE SET
     external_id = EXCLUDED.external_id,
     name = EXCLUDED.name,
@@ -62,9 +71,36 @@ DO UPDATE SET
     updated_at = NOW(),
     hash = EXCLUDED.hash;
 
+-- name: UpdateIp :exec
+UPDATE teams
+SET ip = $2
+WHERE id = $1;
+
+
+-- CONTEST TEAMS
+
+
 -- name: DeleteAllContestTeams :exec
 DELETE FROM contest_teams WHERE contest_id = $1;
 
 -- name: InsertContestTeams :copyfrom
 INSERT INTO contest_teams (contest_id, team_id)
 VALUES ($1, $2);
+
+
+-- COMMANDS
+
+
+-- name: EnqueueCommand :exec
+INSERT INTO message_queue (command_type, payload)
+VALUES ($1, $2);
+
+-- name: DequeueCommand :one
+DELETE FROM message_queue 
+WHERE id = (
+    SELECT id FROM message_queue 
+    ORDER BY created_at ASC 
+    FOR UPDATE SKIP LOCKED 
+    LIMIT 1
+)
+RETURNING id, command_type, payload;

@@ -1,11 +1,11 @@
-package domjudge
+package wrapper
 
 import (
 	"context"
 	"fmt"
 	"slices"
 
-	gen "github.com/LuukBlankenstijn/fogistration/internal/domjudge/client"
+	gen "github.com/LuukBlankenstijn/fogistration/internal/cmdhandler/client"
 )
 
 func (c *Client) ListTeams(
@@ -26,13 +26,13 @@ func (c *Client) ListTeams(
 
 	// Known error payloads
 	if resp.JSON400 != nil {
-		return nil, fmt.Errorf("domjudge: invalid request: %v", *resp.JSON400)
+		return nil, fmt.Errorf("cmdhandler: invalid request: %v", *resp.JSON400)
 	}
 	if resp.JSON403 != nil {
-		return nil, fmt.Errorf("domjudge: unauthorized: %v", *resp.JSON403)
+		return nil, fmt.Errorf("cmdhandler: unauthorized: %v", *resp.JSON403)
 	}
 	if resp.JSON404 != nil {
-		return nil, fmt.Errorf("domjudge: not found: %v", *resp.JSON404)
+		return nil, fmt.Errorf("cmdhandler: not found: %v", *resp.JSON404)
 	}
 
 	return nil, apiResponseErr("GetV4AppApiContestList", resp.HTTPResponse, resp.Body)

@@ -24,6 +24,13 @@ type ContestTeam struct {
 	TeamID    int32
 }
 
+type MessageQueue struct {
+	ID          int32
+	CommandType string
+	Payload     []byte
+	CreatedAt   pgtype.Timestamp `hash:"exclude"`
+}
+
 type Team struct {
 	ID          int32
 	ExternalID  string

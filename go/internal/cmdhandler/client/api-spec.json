@@ -12,11 +12,11 @@
             "name": "GPL2",
             "url": "https://raw.githubusercontent.com/DOMjudge/domjudge/main/COPYING"
         },
-        "version": "9.0.0DEV/9db2edcda"
+        "version": "9.0.0DEV/47efe690d"
     },
     "servers": [
         {
-            "url": "https://judge.gehack.nl",
+            "url": "http://localhost:12345",
             "description": "API used at this contest"
         },
         {
@@ -1271,6 +1271,15 @@
                             "nullable": true
                         }
                     },
+                    {
+                        "name": "strict",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": false
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -6006,16 +6015,16 @@
                     }
                 }
             },
-            "post": {
+            "put": {
                 "tags": [
                     "Users"
                 ],
                 "summary": "Add a new user.",
-                "operationId": "post_v4_app_api_user_add",
+                "operationId": "put_v4_app_api_user_add",
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/AddUser"
                             }
@@ -6085,12 +6094,12 @@
                     }
                 }
             },
-            "put": {
+            "patch": {
                 "tags": [
                     "Users"
                 ],
-                "summary": "Update an existing User or create one with the given ID",
-                "operationId": "put_v4_app_api_user_update",
+                "summary": "Update an existing User",
+                "operationId": "patch_v4_app_api_user_update",
                 "parameters": [
                     {
                         "name": "id",
@@ -6104,7 +6113,7 @@
                 "requestBody": {
                     "required": true,
                     "content": {
-                        "multipart/form-data": {
+                        "application/json": {
                             "schema": {
                                 "$ref": "#/components/schemas/UpdateUser"
                             }
@@ -6142,7 +6151,6 @@
         "schemas": {
             "ClarificationPost": {
                 "required": [
-                    "text",
                     "text"
                 ],
                 "properties": {
@@ -6186,9 +6194,7 @@
             },
             "PatchContest": {
                 "required": [
-                    "id",
-                    "id",
-                    "force"
+                    "id"
                 ],
                 "properties": {
                     "id": {
@@ -6197,27 +6203,26 @@
                     "start_time": {
                         "description": "The new start time of the contest",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "scoreboard_thaw_time": {
                         "description": "The new unfreeze (thaw) time of the contest",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "force": {
                         "description": "Force overwriting the start_time even when in next 30s or the scoreboard_thaw_time when already set or too much in the past",
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "type": "object"
             },
             "TeamCategoryPost": {
                 "required": [
-                    "name",
-                    "name",
-                    "hidden",
-                    "sortorder",
-                    "allow_self_registration"
+                    "name"
                 ],
                 "properties": {
                     "name": {
@@ -6226,27 +6231,32 @@
                     },
                     "hidden": {
                         "description": "Show this group on the scoreboard?",
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": false
                     },
                     "icpc_id": {
                         "description": "The ID in the ICPC CMS for this group",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "sortorder": {
                         "description": "Bundle groups with the same sortorder, create different scoreboards per sortorder",
                         "type": "integer",
+                        "default": 0,
                         "minimum": 0,
                         "nullable": true
                     },
                     "color": {
                         "description": "Color to use for teams in this group on the scoreboard",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "allow_self_registration": {
                         "description": "Whether to allow self registration for this group",
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "type": "object"
@@ -6254,11 +6264,7 @@
             "TeamCategoryPut": {
                 "required": [
                     "id",
-                    "name",
-                    "name",
-                    "hidden",
-                    "sortorder",
-                    "allow_self_registration"
+                    "name"
                 ],
                 "properties": {
                     "name": {
@@ -6267,27 +6273,32 @@
                     },
                     "hidden": {
                         "description": "Show this group on the scoreboard?",
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": false
                     },
                     "icpc_id": {
                         "description": "The ID in the ICPC CMS for this group",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "sortorder": {
                         "description": "Bundle groups with the same sortorder, create different scoreboards per sortorder",
                         "type": "integer",
+                        "default": 0,
                         "minimum": 0,
                         "nullable": true
                     },
                     "color": {
                         "description": "Color to use for teams in this group on the scoreboard",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "allow_self_registration": {
                         "description": "Whether to allow self registration for this group",
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": false
                     },
                     "id": {
                         "description": "The ID of the group. Only allowed with PUT requests",
@@ -6301,26 +6312,32 @@
                 "properties": {
                     "id": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "shortname": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "name": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "formal_name": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "country": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "icpc_id": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     }
                 },
@@ -6328,9 +6345,7 @@
             },
             "PrintTeam": {
                 "required": [
-                    "name",
-                    "original_name",
-                    "file_contents"
+                    "name"
                 ],
                 "properties": {
                     "original_name": {
@@ -6352,10 +6367,7 @@
             },
             "ContestProblemPut": {
                 "required": [
-                    "label",
-                    "label",
-                    "points",
-                    "lazy_eval_results"
+                    "label"
                 ],
                 "properties": {
                     "label": {
@@ -6374,11 +6386,13 @@
                     },
                     "points": {
                         "description": "The number of points for the problem to add. Defaults to 1",
-                        "type": "integer"
+                        "type": "integer",
+                        "default": 1
                     },
                     "lazy_eval_results": {
                         "description": "Whether to use lazy evaluation for this problem. Defaults to the global setting",
-                        "type": "integer"
+                        "type": "integer",
+                        "default": 0
                     }
                 },
                 "type": "object"
@@ -6388,47 +6402,56 @@
                     "problem": {
                         "description": "The problem to submit a solution for",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "problem_id": {
                         "description": "The problem to submit a solution for",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "language": {
                         "description": "The language to submit a solution in",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "language_id": {
                         "description": "The language to submit a solution in",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "team_id": {
                         "description": "The team to submit a solution for. Only used when adding a submission as admin",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "user_id": {
                         "description": "The user to submit a solution for. Only used when adding a submission as admin",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "time": {
                         "description": "The time to use for the submission. Only used when adding a submission as admin",
                         "type": "string",
                         "format": "date-time",
+                        "default": null,
                         "nullable": true
                     },
                     "entry_point": {
                         "description": "The entry point for the submission. Required for languages requiring an entry point",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "id": {
                         "description": "The ID to use for the submission. Only used when adding a submission as admin and only allowed with PUT",
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "files": {
@@ -6437,6 +6460,7 @@
                         "items": {
                             "$ref": "#/components/schemas/AddSubmissionFile"
                         },
+                        "default": null,
                         "maxItems": 1,
                         "minItems": 1,
                         "nullable": true
@@ -6448,55 +6472,63 @@
                             "type": "string",
                             "format": "binary"
                         },
+                        "default": null,
                         "nullable": true
                     }
                 },
                 "type": "object"
             },
             "AddTeam": {
-                "required": [
-                    "group_ids"
-                ],
                 "properties": {
                     "id": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "icpc_id": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "label": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "group_ids": {
                         "type": "array",
                         "items": {
                             "type": "string"
-                        }
+                        },
+                        "default": []
                     },
                     "name": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "display_name": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "public_description": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "members": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "description": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "location": {
+                        "default": null,
                         "nullable": true,
                         "oneOf": [
                             {
@@ -6506,6 +6538,7 @@
                     },
                     "organization_id": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     }
                 },
@@ -6515,12 +6548,13 @@
                 "required": [
                     "username",
                     "name",
-                    "roles",
-                    "username",
-                    "name",
                     "roles"
                 ],
                 "properties": {
+                    "id": {
+                        "type": "string",
+                        "nullable": true
+                    },
                     "username": {
                         "type": "string"
                     },
@@ -6553,68 +6587,71 @@
                         "type": "array",
                         "items": {
                             "type": "string"
-                        }
+                        },
+                        "default": []
                     }
                 },
                 "type": "object"
             },
             "UpdateUser": {
                 "required": [
-                    "id",
-                    "username",
-                    "name",
-                    "roles",
-                    "username",
-                    "name",
-                    "roles",
-                    "id"
+                    "roles"
                 ],
                 "properties": {
+                    "id": {
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
+                    },
                     "username": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     },
                     "name": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     },
                     "email": {
                         "type": "string",
                         "format": "email",
+                        "default": null,
                         "nullable": true
                     },
                     "ip": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "password": {
                         "type": "string",
                         "format": "password",
+                        "default": null,
                         "nullable": true
                     },
                     "enabled": {
                         "type": "boolean",
+                        "default": null,
                         "nullable": true
                     },
                     "team_id": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     },
                     "roles": {
                         "type": "array",
                         "items": {
                             "type": "string"
-                        }
-                    },
-                    "id": {
-                        "type": "string"
+                        },
+                        "default": [],
+                        "nullable": true
                     }
                 },
                 "type": "object"
             },
             "Access": {
-                "required": [
-                    "capabilities",
-                    "endpoints"
-                ],
                 "properties": {
                     "capabilities": {
                         "type": "array",
@@ -6632,12 +6669,6 @@
                 "type": "object"
             },
             "User": {
-                "required": [
-                    "roles",
-                    "username",
-                    "name",
-                    "enabled"
-                ],
                 "properties": {
                     "last_login_time": {
                         "type": "string",
@@ -6681,10 +6712,12 @@
                         "type": "string"
                     },
                     "username": {
-                        "type": "string"
+                        "type": "string",
+                        "default": ""
                     },
                     "name": {
-                        "type": "string"
+                        "type": "string",
+                        "default": ""
                     },
                     "email": {
                         "type": "string",
@@ -6699,16 +6732,13 @@
                         "nullable": true
                     },
                     "enabled": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": true
                     }
                 },
                 "type": "object"
             },
             "Award": {
-                "required": [
-                    "id",
-                    "team_ids"
-                ],
                 "properties": {
                     "id": {
                         "type": "string"
@@ -6726,17 +6756,6 @@
                 "type": "object"
             },
             "Balloon": {
-                "required": [
-                    "balloonid",
-                    "time",
-                    "problem",
-                    "contestproblem",
-                    "team",
-                    "teamid",
-                    "total",
-                    "awards",
-                    "done"
-                ],
                 "properties": {
                     "balloonid": {
                         "type": "integer"
@@ -6787,13 +6806,6 @@
                 "type": "object"
             },
             "Clarification": {
-                "required": [
-                    "time",
-                    "contest_time",
-                    "clarid",
-                    "text",
-                    "answered"
-                ],
                 "properties": {
                     "time": {
                         "type": "string",
@@ -6829,22 +6841,13 @@
                         "type": "string"
                     },
                     "answered": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "type": "object"
             },
             "Contest": {
-                "required": [
-                    "scoreboard_type",
-                    "duration",
-                    "banner",
-                    "problemset",
-                    "name",
-                    "shortname",
-                    "allow_submit",
-                    "runtime_as_score_tiebreaker"
-                ],
                 "properties": {
                     "formal_name": {
                         "type": "string"
@@ -6890,16 +6893,20 @@
                         "type": "string"
                     },
                     "name": {
-                        "type": "string"
+                        "type": "string",
+                        "default": ""
                     },
                     "shortname": {
-                        "type": "string"
+                        "type": "string",
+                        "default": ""
                     },
                     "allow_submit": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": true
                     },
                     "runtime_as_score_tiebreaker": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": false
                     },
                     "warning_message": {
                         "type": "string",
@@ -6914,32 +6921,39 @@
             "ContestState": {
                 "properties": {
                     "started": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     },
                     "ended": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     },
                     "frozen": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     },
                     "thawed": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     },
                     "finalized": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     },
                     "end_of_updates": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     }
                 },
                 "type": "object"
             },
             "ContestStatus": {
-                "required": [
-                    "num_submissions",
-                    "num_queued",
-                    "num_judging"
-                ],
                 "properties": {
                     "num_submissions": {
                         "type": "integer"
@@ -6954,9 +6968,6 @@
                 "type": "object"
             },
             "ApiVersion": {
-                "required": [
-                    "api_version"
-                ],
                 "properties": {
                     "api_version": {
                         "type": "integer"
@@ -6985,13 +6996,6 @@
                 "type": "object"
             },
             "ExtendedContestStatus": {
-                "required": [
-                    "cid",
-                    "status",
-                    "num_submissions",
-                    "num_queued",
-                    "num_judging"
-                ],
                 "properties": {
                     "cid": {
                         "type": "string"
@@ -7010,9 +7014,7 @@
             },
             "TeamCategory": {
                 "required": [
-                    "name",
-                    "sortorder",
-                    "allow_self_registration"
+                    "name"
                 ],
                 "properties": {
                     "hidden": {
@@ -7033,6 +7035,7 @@
                     },
                     "sortorder": {
                         "type": "integer",
+                        "default": 0,
                         "minimum": 0
                     },
                     "color": {
@@ -7040,18 +7043,13 @@
                         "nullable": true
                     },
                     "allow_self_registration": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "type": "object"
             },
             "Judgehost": {
-                "required": [
-                    "id",
-                    "hostname",
-                    "enabled",
-                    "hidden"
-                ],
                 "properties": {
                     "id": {
                         "type": "string"
@@ -7061,24 +7059,21 @@
                         "pattern": "[A-Za-z0-9_\\-.]*"
                     },
                     "enabled": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": true
                     },
                     "polltime": {
                         "type": "string",
                         "nullable": true
                     },
                     "hidden": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": false
                     }
                 },
                 "type": "object"
             },
             "JudgehostFile": {
-                "required": [
-                    "filename",
-                    "content",
-                    "is_executable"
-                ],
                 "properties": {
                     "filename": {
                         "type": "string"
@@ -7093,11 +7088,6 @@
                 "type": "object"
             },
             "JudgeTask": {
-                "required": [
-                    "judgetaskid",
-                    "type",
-                    "priority"
-                ],
                 "properties": {
                     "submitid": {
                         "type": "string"
@@ -7106,7 +7096,8 @@
                         "type": "integer"
                     },
                     "type": {
-                        "type": "string"
+                        "type": "string",
+                        "default": "judging_run"
                     },
                     "priority": {
                         "type": "integer"
@@ -7145,13 +7136,6 @@
                 "type": "object"
             },
             "JudgingWrapper": {
-                "required": [
-                    "judging",
-                    "start_contest_time",
-                    "submission_id",
-                    "id",
-                    "valid"
-                ],
                 "properties": {
                     "start_time": {
                         "type": "string",
@@ -7180,21 +7164,18 @@
                         "type": "string"
                     },
                     "valid": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": true
                     },
                     "judgement_type_id": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     }
                 },
                 "type": "object"
             },
             "JudgementType": {
-                "required": [
-                    "id",
-                    "name",
-                    "penalty",
-                    "solved"
-                ],
                 "properties": {
                     "id": {
                         "type": "string"
@@ -7212,16 +7193,6 @@
                 "type": "object"
             },
             "Language": {
-                "required": [
-                    "compiler",
-                    "runner",
-                    "name",
-                    "extensions",
-                    "filter_compiler_files",
-                    "allow_judge",
-                    "time_factor",
-                    "entry_point_required"
-                ],
                 "properties": {
                     "compile_executable_hash": {
                         "type": "string",
@@ -7237,28 +7208,34 @@
                         "type": "string"
                     },
                     "name": {
-                        "type": "string"
+                        "type": "string",
+                        "default": ""
                     },
                     "extensions": {
                         "type": "array",
                         "items": {
                             "type": "string"
-                        }
+                        },
+                        "default": []
                     },
                     "filter_compiler_files": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": true
                     },
                     "allow_judge": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": true
                     },
                     "time_factor": {
                         "type": "number",
                         "format": "double",
+                        "default": 1,
                         "minimum": 0,
                         "exclusiveMinimum": true
                     },
                     "entry_point_required": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": false
                     },
                     "entry_point_name": {
                         "type": "string",
@@ -7269,10 +7246,8 @@
             },
             "TeamAffiliation": {
                 "required": [
-                    "logo",
                     "name",
-                    "formal_name",
-                    "country_flag"
+                    "formal_name"
                 ],
                 "properties": {
                     "shortname": {
@@ -7309,18 +7284,15 @@
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/ImageFile"
-                        }
+                        },
+                        "default": []
                     }
                 },
                 "type": "object"
             },
             "ContestProblem": {
                 "required": [
-                    "label",
-                    "time_limit",
-                    "statement",
-                    "name",
-                    "types_to_string"
+                    "label"
                 ],
                 "properties": {
                     "short_name": {
@@ -7338,6 +7310,7 @@
                     "time_limit": {
                         "type": "number",
                         "format": "float",
+                        "default": 0,
                         "minimum": 0,
                         "exclusiveMinimum": true
                     },
@@ -7351,20 +7324,13 @@
                         "type": "string"
                     },
                     "name": {
-                        "type": "string"
+                        "type": "string",
+                        "default": "Unknown name"
                     }
                 },
                 "type": "object"
             },
             "JudgingRunWrapper": {
-                "required": [
-                    "judging_run",
-                    "time",
-                    "contest_time",
-                    "judgement_id",
-                    "ordinal",
-                    "id"
-                ],
                 "properties": {
                     "run_time": {
                         "type": "number",
@@ -7386,47 +7352,50 @@
                         "type": "string"
                     },
                     "judgement_type_id": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     }
                 },
                 "type": "object"
             },
             "Scoreboard": {
-                "required": [
-                    "rows"
-                ],
                 "properties": {
                     "event_id": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     },
                     "time": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     },
                     "contest_time": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     },
                     "state": {
-                        "$ref": "#/components/schemas/ContestState"
+                        "default": null,
+                        "nullable": true,
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/ContestState"
+                            }
+                        ]
                     },
                     "rows": {
                         "type": "array",
                         "items": {
                             "$ref": "#/components/schemas/Row"
-                        }
+                        },
+                        "default": []
                     }
                 },
                 "type": "object"
             },
             "Submission": {
-                "required": [
-                    "language_id",
-                    "time",
-                    "contest_time",
-                    "team_id",
-                    "problem_id",
-                    "files",
-                    "submitid"
-                ],
                 "properties": {
                     "language_id": {
                         "type": "string"
@@ -7468,12 +7437,6 @@
                 "type": "object"
             },
             "SourceCode": {
-                "required": [
-                    "id",
-                    "submission_id",
-                    "filename",
-                    "source"
-                ],
                 "properties": {
                     "id": {
                         "type": "string"
@@ -7491,12 +7454,6 @@
                 "type": "object"
             },
             "Team": {
-                "required": [
-                    "hidden",
-                    "group_ids",
-                    "photo",
-                    "name"
-                ],
                 "properties": {
                     "location": {
                         "$ref": "#/components/schemas/TeamLocation"
@@ -7543,7 +7500,8 @@
                         "nullable": true
                     },
                     "name": {
-                        "type": "string"
+                        "type": "string",
+                        "default": ""
                     },
                     "display_name": {
                         "type": "string",
@@ -7557,9 +7515,6 @@
                 "type": "object"
             },
             "AddSubmissionFile": {
-                "required": [
-                    "data"
-                ],
                 "properties": {
                     "data": {
                         "description": "The base64 encoded submission files",
@@ -7577,16 +7532,13 @@
                 "properties": {
                     "description": {
                         "type": "string",
+                        "default": null,
                         "nullable": true
                     }
                 },
                 "type": "object"
             },
             "AccessEndpoint": {
-                "required": [
-                    "type",
-                    "properties"
-                ],
                 "properties": {
                     "type": {
                         "type": "string"
@@ -7601,13 +7553,6 @@
                 "type": "object"
             },
             "ImageFile": {
-                "required": [
-                    "href",
-                    "mime",
-                    "filename",
-                    "width",
-                    "height"
-                ],
                 "properties": {
                     "href": {
                         "type": "string"
@@ -7628,11 +7573,6 @@
                 "type": "object"
             },
             "FileWithName": {
-                "required": [
-                    "href",
-                    "mime",
-                    "filename"
-                ],
                 "properties": {
                     "href": {
                         "type": "string"
@@ -7647,10 +7587,6 @@
                 "type": "object"
             },
             "ApiInfoProvider": {
-                "required": [
-                    "name",
-                    "version"
-                ],
                 "properties": {
                     "name": {
                         "type": "string"
@@ -7659,18 +7595,14 @@
                         "type": "string"
                     },
                     "build_date": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     }
                 },
                 "type": "object"
             },
             "DomJudgeApiInfo": {
-                "required": [
-                    "apiversion",
-                    "version",
-                    "environment",
-                    "doc_url"
-                ],
                 "properties": {
                     "apiversion": {
                         "type": "integer"
@@ -7690,21 +7622,19 @@
             "Command": {
                 "properties": {
                     "version": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     },
                     "version_command": {
-                        "type": "string"
+                        "type": "string",
+                        "default": null,
+                        "nullable": true
                     }
                 },
                 "type": "object"
             },
             "Row": {
-                "required": [
-                    "rank",
-                    "team_id",
-                    "score",
-                    "problems"
-                ],
                 "properties": {
                     "rank": {
                         "type": "integer"
@@ -7725,9 +7655,6 @@
                 "type": "object"
             },
             "TeamLocation": {
-                "required": [
-                    "description"
-                ],
                 "properties": {
                     "description": {
                         "type": "string"
@@ -7736,29 +7663,24 @@
                 "type": "object"
             },
             "Score": {
-                "required": [
-                    "num_solved"
-                ],
                 "properties": {
                     "num_solved": {
                         "type": "integer"
                     },
                     "total_time": {
-                        "type": "integer"
+                        "type": "integer",
+                        "default": null,
+                        "nullable": true
                     },
                     "total_runtime": {
-                        "type": "integer"
+                        "type": "integer",
+                        "default": null,
+                        "nullable": true
                     }
                 },
                 "type": "object"
             },
             "Problem": {
-                "required": [
-                    "problem_id",
-                    "num_judged",
-                    "num_pending",
-                    "solved"
-                ],
                 "properties": {
                     "label": {
                         "type": "string"
@@ -7776,16 +7698,24 @@
                         "type": "boolean"
                     },
                     "time": {
-                        "type": "integer"
+                        "type": "integer",
+                        "default": null,
+                        "nullable": true
                     },
                     "first_to_solve": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": null,
+                        "nullable": true
                     },
                     "runtime": {
-                        "type": "integer"
+                        "type": "integer",
+                        "default": null,
+                        "nullable": true
                     },
                     "fastest_submission": {
-                        "type": "boolean"
+                        "type": "boolean",
+                        "default": null,
+                        "nullable": true
                     }
                 },
                 "type": "object"
@@ -7948,6 +7878,74 @@
     "security": [
         {
             "basicAuth": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "Access"
+        },
+        {
+            "name": "Accounts"
+        },
+        {
+            "name": "Awards"
+        },
+        {
+            "name": "Balloons"
+        },
+        {
+            "name": "Clarifications"
+        },
+        {
+            "name": "Contests"
+        },
+        {
+            "name": "Executables"
+        },
+        {
+            "name": "General"
+        },
+        {
+            "name": "Problems"
+        },
+        {
+            "name": "Groups"
+        },
+        {
+            "name": "Judgehosts"
+        },
+        {
+            "name": "Judgements"
+        },
+        {
+            "name": "Judgement types"
+        },
+        {
+            "name": "Languages"
+        },
+        {
+            "name": "Metrics"
+        },
+        {
+            "name": "Organizations"
+        },
+        {
+            "name": "Printing"
+        },
+        {
+            "name": "Runs"
+        },
+        {
+            "name": "Scoreboard"
+        },
+        {
+            "name": "Submissions"
+        },
+        {
+            "name": "Teams"
+        },
+        {
+            "name": "Users"
         }
     ]
 }

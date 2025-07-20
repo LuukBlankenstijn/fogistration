@@ -12,11 +12,56 @@ import (
 )
 
 const deleteAllContestTeams = `-- name: DeleteAllContestTeams :exec
+
+
 DELETE FROM contest_teams WHERE contest_id = $1
 `
 
+// CONTEST TEAMS
 func (q *Queries) DeleteAllContestTeams(ctx context.Context, contestID int32) error {
 	_, err := q.db.Exec(ctx, deleteAllContestTeams, contestID)
+	return err
+}
+
+const dequeueCommand = `-- name: DequeueCommand :one
+DELETE FROM message_queue 
+WHERE id = (
+    SELECT id FROM message_queue 
+    ORDER BY created_at ASC 
+    FOR UPDATE SKIP LOCKED 
+    LIMIT 1
+)
+RETURNING id, command_type, payload
+`
+
+type DequeueCommandRow struct {
+	ID          int32
+	CommandType string
+	Payload     []byte
+}
+
+func (q *Queries) DequeueCommand(ctx context.Context) (DequeueCommandRow, error) {
+	row := q.db.QueryRow(ctx, dequeueCommand)
+	var i DequeueCommandRow
+	err := row.Scan(&i.ID, &i.CommandType, &i.Payload)
+	return i, err
+}
+
+const enqueueCommand = `-- name: EnqueueCommand :exec
+
+
+INSERT INTO message_queue (command_type, payload)
+VALUES ($1, $2)
+`
+
+type EnqueueCommandParams struct {
+	CommandType string
+	Payload     []byte
+}
+
+// COMMANDS
+func (q *Queries) EnqueueCommand(ctx context.Context, arg EnqueueCommandParams) error {
+	_, err := q.db.Exec(ctx, enqueueCommand, arg.CommandType, arg.Payload)
 	return err
 }
 
@@ -86,6 +131,30 @@ func (q *Queries) GetNextOrActiveContest(ctx context.Context) ([]Contest, error)
 	return items, nil
 }
 
+const getTeamById = `-- name: GetTeamById :one
+
+
+SELECT id, external_id, name, display_name, ip, created_at, updated_at, hash FROM teams
+WHERE id = $1
+`
+
+// TEAMS:
+func (q *Queries) GetTeamById(ctx context.Context, id int32) (Team, error) {
+	row := q.db.QueryRow(ctx, getTeamById, id)
+	var i Team
+	err := row.Scan(
+		&i.ID,
+		&i.ExternalID,
+		&i.Name,
+		&i.DisplayName,
+		&i.Ip,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Hash,
+	)
+	return i, err
+}
+
 const getTeamHashes = `-- name: GetTeamHashes :many
 SELECT id, hash FROM teams
 ORDER BY id
@@ -122,10 +191,13 @@ type InsertContestTeamsParams struct {
 }
 
 const listContests = `-- name: ListContests :many
+
+
 SELECT id, external_id, formal_name, start_time, end_time, created_at, updated_at, hash FROM contests
 ORDER BY id
 `
 
+// CONTESTS
 func (q *Queries) ListContests(ctx context.Context) ([]Contest, error) {
 	rows, err := q.db.Query(ctx, listContests)
 	if err != nil {
@@ -153,6 +225,22 @@ func (q *Queries) ListContests(ctx context.Context) ([]Contest, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateIp = `-- name: UpdateIp :exec
+UPDATE teams
+SET ip = $2
+WHERE id = $1
+`
+
+type UpdateIpParams struct {
+	ID int32
+	Ip pgtype.Text
+}
+
+func (q *Queries) UpdateIp(ctx context.Context, arg UpdateIpParams) error {
+	_, err := q.db.Exec(ctx, updateIp, arg.ID, arg.Ip)
+	return err
 }
 
 const upsertContest = `-- name: UpsertContest :exec
@@ -212,7 +300,7 @@ INSERT INTO teams (
 ) VALUES (
     $1, $2, $3, $4, $5, NOW(), NOW(), $6
 )
-ON CONFLICT (id) 
+ON CONFLICT (id)
 DO UPDATE SET
     external_id = EXCLUDED.external_id,
     name = EXCLUDED.name,

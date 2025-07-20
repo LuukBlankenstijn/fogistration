@@ -1,11 +1,11 @@
-package domjudge
+package wrapper
 
 import (
 	"context"
 	"fmt"
 	"net/http"
 
-	gen "github.com/LuukBlankenstijn/fogistration/internal/domjudge/client"
+	gen "github.com/LuukBlankenstijn/fogistration/internal/cmdhandler/client"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
 )
 

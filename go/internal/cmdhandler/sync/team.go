@@ -3,14 +3,18 @@ package syncer
 import (
 	"fmt"
 
-	"github.com/LuukBlankenstijn/fogistration/internal/domjudge/client"
+	"github.com/LuukBlankenstijn/fogistration/internal/cmdhandler/client"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/repository"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func (s *DomJudgeSyncer) syncTeams() error {
-	nextContest, err := s.ContestRepositry.GetNextOrActive(s.ctx)
+func (s *DomJudgeSyncer) syncTeams(
+	contestRepositry *repository.ContestRepository,
+	teamRepository *repository.TeamRepository,
+) error {
+	nextContest, err := contestRepositry.GetNextOrActive(s.ctx)
 	if err != nil {
 		return fmt.Errorf("could not get next contest: %w", err)
 	}
@@ -23,7 +27,7 @@ func (s *DomJudgeSyncer) syncTeams() error {
 	}
 
 	// get hashes
-	hashes, err := s.ContestRepositry.GetHashes(s.ctx)
+	hashes, err := teamRepository.GetHashes(s.ctx)
 	if err != nil {
 		return fmt.Errorf("could not get team hashes from db: %w", err)
 	}
@@ -51,7 +55,7 @@ func (s *DomJudgeSyncer) syncTeams() error {
 		}
 
 		if existingHash, exists := hashMap[team.ID]; !exists || existingHash != team.Hash {
-			err = s.TeamRepository.Upsert(s.ctx, database.UpsertTeamParams{
+			err = teamRepository.Upsert(s.ctx, database.UpsertTeamParams{
 				ID:          team.ID,
 				ExternalID:  team.ExternalID,
 				Name:        team.Name,
@@ -66,12 +70,12 @@ func (s *DomJudgeSyncer) syncTeams() error {
 		teams = append(teams, team)
 	}
 
-	err = s.ContestRepositry.DeleteAllTeams(s.ctx, nextContest.ID)
+	err = contestRepositry.DeleteAllTeams(s.ctx, nextContest.ID)
 	if err != nil {
 		return fmt.Errorf("failed to delete all teams for contest %d: %w", nextContest.ID, err)
 	}
 
-	err = s.ContestRepositry.InsertContestTeams(s.ctx, nextContest.ID, teams)
+	err = contestRepositry.InsertContestTeams(s.ctx, nextContest.ID, teams)
 	if err != nil {
 		return fmt.Errorf("failed to add update teams for contest %d: %w", nextContest.ID, err)
 	}
@@ -108,7 +112,7 @@ func mapTeamToDb(c client.Team) database.Team {
 	team := database.Team{
 		ID:          int32(*c.Teamid),
 		ExternalID:  *c.Id,
-		Name:        c.Name,
+		Name:        *c.Name,
 		DisplayName: displayName,
 	}
 

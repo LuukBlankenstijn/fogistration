@@ -4,8 +4,8 @@ tmp_dir = "tmp"
 
 [build]
 args_bin = []
-bin = "./tmp/dom-judge"
-cmd = "go build -o ./tmp/dom-judge ./cmd/dom-judge-server/main.go"
+bin = "./tmp/cmdhandler"
+cmd = "go build -o ./tmp/cmdhandler ./cmd/cmdhandler/main.go"
 delay = 1000
 exclude_dir = [
     "assets",
@@ -24,9 +24,9 @@ follow_symlink = false
 full_bin = ""
 include_dir = []
 include_ext = ["go", "tpl", "tmpl", "html"]
-include_file = [".env", ".air-dom-judge.toml"]
+include_file = [".env-cmdhandler", ".air-cmdhandler.toml"]
 kill_delay = "0s"
-log = "dom-judge-build-errors.log"
+log = "cmdhandler-errors.log"
 poll = false
 poll_interval = 0
 post_cmd = []

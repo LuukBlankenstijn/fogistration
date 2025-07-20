@@ -3,20 +3,21 @@ package syncer
 import (
 	"fmt"
 
-	"github.com/LuukBlankenstijn/fogistration/internal/domjudge/client"
+	"github.com/LuukBlankenstijn/fogistration/internal/cmdhandler/client"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/repository"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func (s *DomJudgeSyncer) syncContests() error {
+func (s *DomJudgeSyncer) syncContests(contestRepository *repository.ContestRepository) error {
 	onlyActive := false
 	apiContests, err := s.client.ListContests(s.ctx, &client.GetV4AppApiContestListParams{OnlyActive: &onlyActive})
 	if err != nil {
 		return fmt.Errorf("could not get contests from api: %w", err)
 	}
 
-	hashes, err := s.ContestRepositry.GetHashes(s.ctx)
+	hashes, err := contestRepository.GetHashes(s.ctx)
 	if err != nil {
 		return fmt.Errorf("could not get contest hashes from db: %w", err)
 	}
@@ -29,7 +30,7 @@ func (s *DomJudgeSyncer) syncContests() error {
 	for _, apiContest := range apiContests {
 		contest := mapContestToDd(apiContest)
 		if existingHash, exists := hashMap[contest.ID]; !exists || existingHash != contest.Hash {
-			err = s.ContestRepositry.Upsert(s.ctx, database.UpsertContestParams{
+			err = contestRepository.Upsert(s.ctx, database.UpsertContestParams{
 				ID:         contest.ID,
 				ExternalID: contest.ExternalID,
 				FormalName: contest.FormalName,

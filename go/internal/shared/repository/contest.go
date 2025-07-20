@@ -10,7 +10,7 @@ type ContestRepository struct {
 	queries *database.Queries
 }
 
-func NewClientRepository(queryies *database.Queries) *ContestRepository {
+func NewContestRepository(queryies *database.Queries) *ContestRepository {
 	return &ContestRepository{
 		queries: queryies,
 	}

@@ -4,6 +4,7 @@
 package client
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -14,6 +15,7 @@ import (
 	"time"
 
 	"github.com/oapi-codegen/runtime"
+	openapi_types "github.com/oapi-codegen/runtime/types"
 )
 
 const (
@@ -22,81 +24,94 @@ const (
 
 // Contest defines model for Contest.
 type Contest struct {
-	AllowSubmit              bool           `json:"allow_submit"`
-	Banner                   []ImageFile    `json:"banner"`
-	Cid                      *int           `json:"cid,omitempty"`
-	Duration                 string         `json:"duration"`
-	EndTime                  *time.Time     `json:"end_time,omitempty"`
-	FormalName               *string        `json:"formal_name,omitempty"`
-	Id                       *string        `json:"id,omitempty"`
-	Name                     string         `json:"name"`
-	PenaltyTime              *int           `json:"penalty_time,omitempty"`
-	Problemset               []FileWithName `json:"problemset"`
-	RuntimeAsScoreTiebreaker bool           `json:"runtime_as_score_tiebreaker"`
-	ScoreboardFreezeDuration *string        `json:"scoreboard_freeze_duration"`
-	ScoreboardThawTime       *time.Time     `json:"scoreboard_thaw_time,omitempty"`
-	ScoreboardType           string         `json:"scoreboard_type"`
-	Shortname                string         `json:"shortname"`
-	StartTime                *time.Time     `json:"start_time,omitempty"`
-	WarningMessage           *string        `json:"warning_message"`
+	AllowSubmit              *bool           `json:"allow_submit,omitempty"`
+	Banner                   *[]ImageFile    `json:"banner,omitempty"`
+	Cid                      *int            `json:"cid,omitempty"`
+	Duration                 *string         `json:"duration,omitempty"`
+	EndTime                  *time.Time      `json:"end_time,omitempty"`
+	FormalName               *string         `json:"formal_name,omitempty"`
+	Id                       *string         `json:"id,omitempty"`
+	Name                     *string         `json:"name,omitempty"`
+	PenaltyTime              *int            `json:"penalty_time,omitempty"`
+	Problemset               *[]FileWithName `json:"problemset,omitempty"`
+	RuntimeAsScoreTiebreaker *bool           `json:"runtime_as_score_tiebreaker,omitempty"`
+	ScoreboardFreezeDuration *string         `json:"scoreboard_freeze_duration"`
+	ScoreboardThawTime       *time.Time      `json:"scoreboard_thaw_time,omitempty"`
+	ScoreboardType           *string         `json:"scoreboard_type,omitempty"`
+	Shortname                *string         `json:"shortname,omitempty"`
+	StartTime                *time.Time      `json:"start_time,omitempty"`
+	WarningMessage           *string         `json:"warning_message"`
 }
 
 // FileWithName defines model for FileWithName.
 type FileWithName struct {
-	Filename string `json:"filename"`
-	Href     string `json:"href"`
-	Mime     string `json:"mime"`
+	Filename *string `json:"filename,omitempty"`
+	Href     *string `json:"href,omitempty"`
+	Mime     *string `json:"mime,omitempty"`
 }
 
 // ImageFile defines model for ImageFile.
 type ImageFile struct {
-	Filename string `json:"filename"`
-	Height   int    `json:"height"`
-	Href     string `json:"href"`
-	Mime     string `json:"mime"`
-	Width    int    `json:"width"`
+	Filename *string `json:"filename,omitempty"`
+	Height   *int    `json:"height,omitempty"`
+	Href     *string `json:"href,omitempty"`
+	Mime     *string `json:"mime,omitempty"`
+	Width    *int    `json:"width,omitempty"`
 }
 
 // Team defines model for Team.
 type Team struct {
 	Affiliation       *string       `json:"affiliation"`
 	DisplayName       *string       `json:"display_name"`
-	GroupIds          []string      `json:"group_ids"`
-	Hidden            bool          `json:"hidden"`
+	GroupIds          *[]string     `json:"group_ids,omitempty"`
+	Hidden            *bool         `json:"hidden,omitempty"`
 	IcpcId            *string       `json:"icpc_id"`
 	Id                *string       `json:"id,omitempty"`
 	Label             *string       `json:"label"`
 	Location          *TeamLocation `json:"location,omitempty"`
-	Name              string        `json:"name"`
+	Name              *string       `json:"name,omitempty"`
 	Nationality       *string       `json:"nationality"`
 	OrganizationId    *string       `json:"organization_id"`
-	Photo             []ImageFile   `json:"photo"`
+	Photo             *[]ImageFile  `json:"photo,omitempty"`
 	PublicDescription *string       `json:"public_description"`
 	Teamid            *int          `json:"teamid,omitempty"`
 }
 
 // TeamLocation defines model for TeamLocation.
 type TeamLocation struct {
-	Description string `json:"description"`
+	Description *string `json:"description,omitempty"`
+}
+
+// UpdateUser defines model for UpdateUser.
+type UpdateUser struct {
+	Email    *openapi_types.Email `json:"email"`
+	Enabled  *bool                `json:"enabled"`
+	Id       *string              `json:"id"`
+	Ip       *string              `json:"ip"`
+	Name     *string              `json:"name"`
+	Password *string              `json:"password"`
+	Roles    *[]string            `json:"roles"`
+	TeamId   *string              `json:"team_id"`
+	Username *string              `json:"username"`
 }
 
 // User defines model for User.
 type User struct {
 	Email            *string    `json:"email"`
-	Enabled          bool       `json:"enabled"`
+	Enabled          *bool      `json:"enabled,omitempty"`
 	FirstLoginTime   *time.Time `json:"first_login_time"`
 	Id               *string    `json:"id,omitempty"`
 	Ip               *string    `json:"ip"`
 	LastApiLoginTime *time.Time `json:"last_api_login_time"`
 	LastIp           *string    `json:"last_ip"`
 	LastLoginTime    *time.Time `json:"last_login_time"`
-	Name             string     `json:"name"`
-	Roles            []string   `json:"roles"`
+	Name             *string    `json:"name,omitempty"`
+	Roles            *[]string  `json:"roles,omitempty"`
 	Team             *string    `json:"team"`
 	TeamId           *string    `json:"team_id"`
 	Type             *string    `json:"type"`
 	Userid           *int       `json:"userid,omitempty"`
-	Username         string     `json:"username"`
+	Username         *string    `json:"username,omitempty"`
 }
 
 // Cid defines model for cid.
@@ -157,6 +172,9 @@ type GetV4AppApiUserListParams struct {
 	// TeamId Only show users for the given team
 	TeamId *string `form:"team_id,omitempty" json:"team_id,omitempty"`
 }
+
+// PatchV4AppApiUserUpdateJSONRequestBody defines body for PatchV4AppApiUserUpdate for application/json ContentType.
+type PatchV4AppApiUserUpdateJSONRequestBody = UpdateUser
 
 // AsInvalidResponse0 returns the union data inside the InvalidResponse as a InvalidResponse0
 func (t InvalidResponse) AsInvalidResponse0() (InvalidResponse0, error) {
@@ -301,6 +319,11 @@ type ClientInterface interface {
 
 	// GetV4AppApiUserList request
 	GetV4AppApiUserList(ctx context.Context, params *GetV4AppApiUserListParams, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	// PatchV4AppApiUserUpdateWithBody request with any body
+	PatchV4AppApiUserUpdateWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error)
+
+	PatchV4AppApiUserUpdate(ctx context.Context, id string, body PatchV4AppApiUserUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error)
 }
 
 func (c *Client) GetV4AppApiContestList(ctx context.Context, params *GetV4AppApiContestListParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
@@ -329,6 +352,30 @@ func (c *Client) GetV4AppApiTeamList(ctx context.Context, cid Cid, params *GetV4
 
 func (c *Client) GetV4AppApiUserList(ctx context.Context, params *GetV4AppApiUserListParams, reqEditors ...RequestEditorFn) (*http.Response, error) {
 	req, err := NewGetV4AppApiUserListRequest(c.Server, params)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchV4AppApiUserUpdateWithBody(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchV4AppApiUserUpdateRequestWithBody(c.Server, id, contentType, body)
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+	if err := c.applyEditors(ctx, req, reqEditors); err != nil {
+		return nil, err
+	}
+	return c.Client.Do(req)
+}
+
+func (c *Client) PatchV4AppApiUserUpdate(ctx context.Context, id string, body PatchV4AppApiUserUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*http.Response, error) {
+	req, err := NewPatchV4AppApiUserUpdateRequest(c.Server, id, body)
 	if err != nil {
 		return nil, err
 	}
@@ -605,6 +652,53 @@ func NewGetV4AppApiUserListRequest(server string, params *GetV4AppApiUserListPar
 	return req, nil
 }
 
+// NewPatchV4AppApiUserUpdateRequest calls the generic PatchV4AppApiUserUpdate builder with application/json body
+func NewPatchV4AppApiUserUpdateRequest(server string, id string, body PatchV4AppApiUserUpdateJSONRequestBody) (*http.Request, error) {
+	var bodyReader io.Reader
+	buf, err := json.Marshal(body)
+	if err != nil {
+		return nil, err
+	}
+	bodyReader = bytes.NewReader(buf)
+	return NewPatchV4AppApiUserUpdateRequestWithBody(server, id, "application/json", bodyReader)
+}
+
+// NewPatchV4AppApiUserUpdateRequestWithBody generates requests for PatchV4AppApiUserUpdate with any type of body
+func NewPatchV4AppApiUserUpdateRequestWithBody(server string, id string, contentType string, body io.Reader) (*http.Request, error) {
+	var err error
+
+	var pathParam0 string
+
+	pathParam0, err = runtime.StyleParamWithLocation("simple", false, "id", runtime.ParamLocationPath, id)
+	if err != nil {
+		return nil, err
+	}
+
+	serverURL, err := url.Parse(server)
+	if err != nil {
+		return nil, err
+	}
+
+	operationPath := fmt.Sprintf("/api/v4/users/%s", pathParam0)
+	if operationPath[0] == '/' {
+		operationPath = "." + operationPath
+	}
+
+	queryURL, err := serverURL.Parse(operationPath)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest("PATCH", queryURL.String(), body)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", contentType)
+
+	return req, nil
+}
+
 func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
 	for _, r := range c.RequestEditors {
 		if err := r(ctx, req); err != nil {
@@ -656,6 +750,11 @@ type ClientWithResponsesInterface interface {
 
 	// GetV4AppApiUserListWithResponse request
 	GetV4AppApiUserListWithResponse(ctx context.Context, params *GetV4AppApiUserListParams, reqEditors ...RequestEditorFn) (*GetV4AppApiUserListResponse, error)
+
+	// PatchV4AppApiUserUpdateWithBodyWithResponse request with any body
+	PatchV4AppApiUserUpdateWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchV4AppApiUserUpdateResponse, error)
+
+	PatchV4AppApiUserUpdateWithResponse(ctx context.Context, id string, body PatchV4AppApiUserUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchV4AppApiUserUpdateResponse, error)
 }
 
 type GetV4AppApiContestListResponse struct {
@@ -739,6 +838,33 @@ func (r GetV4AppApiUserListResponse) StatusCode() int {
 	return 0
 }
 
+type PatchV4AppApiUserUpdateResponse struct {
+	Body         []byte
+	HTTPResponse *http.Response
+	JSON201      *User
+	JSON400      *InvalidResponse
+	JSON403      *Unauthorized
+	JSON404      *NotFound
+}
+type PatchV4AppApiUserUpdate4000 = map[string]interface{}
+type PatchV4AppApiUserUpdate4001 = string
+
+// Status returns HTTPResponse.Status
+func (r PatchV4AppApiUserUpdateResponse) Status() string {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.Status
+	}
+	return http.StatusText(0)
+}
+
+// StatusCode returns HTTPResponse.StatusCode
+func (r PatchV4AppApiUserUpdateResponse) StatusCode() int {
+	if r.HTTPResponse != nil {
+		return r.HTTPResponse.StatusCode
+	}
+	return 0
+}
+
 // GetV4AppApiContestListWithResponse request returning *GetV4AppApiContestListResponse
 func (c *ClientWithResponses) GetV4AppApiContestListWithResponse(ctx context.Context, params *GetV4AppApiContestListParams, reqEditors ...RequestEditorFn) (*GetV4AppApiContestListResponse, error) {
 	rsp, err := c.GetV4AppApiContestList(ctx, params, reqEditors...)
@@ -764,6 +890,23 @@ func (c *ClientWithResponses) GetV4AppApiUserListWithResponse(ctx context.Contex
 		return nil, err
 	}
 	return ParseGetV4AppApiUserListResponse(rsp)
+}
+
+// PatchV4AppApiUserUpdateWithBodyWithResponse request with arbitrary body returning *PatchV4AppApiUserUpdateResponse
+func (c *ClientWithResponses) PatchV4AppApiUserUpdateWithBodyWithResponse(ctx context.Context, id string, contentType string, body io.Reader, reqEditors ...RequestEditorFn) (*PatchV4AppApiUserUpdateResponse, error) {
+	rsp, err := c.PatchV4AppApiUserUpdateWithBody(ctx, id, contentType, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchV4AppApiUserUpdateResponse(rsp)
+}
+
+func (c *ClientWithResponses) PatchV4AppApiUserUpdateWithResponse(ctx context.Context, id string, body PatchV4AppApiUserUpdateJSONRequestBody, reqEditors ...RequestEditorFn) (*PatchV4AppApiUserUpdateResponse, error) {
+	rsp, err := c.PatchV4AppApiUserUpdate(ctx, id, body, reqEditors...)
+	if err != nil {
+		return nil, err
+	}
+	return ParsePatchV4AppApiUserUpdateResponse(rsp)
 }
 
 // ParseGetV4AppApiContestListResponse parses an HTTP response from a GetV4AppApiContestListWithResponse call
@@ -886,6 +1029,56 @@ func ParseGetV4AppApiUserListResponse(rsp *http.Response) (*GetV4AppApiUserListR
 			return nil, err
 		}
 		response.JSON200 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
+		var dest InvalidResponse
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON400 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 403:
+		var dest Unauthorized
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON403 = &dest
+
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 404:
+		var dest NotFound
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON404 = &dest
+
+	case rsp.StatusCode == 400:
+		// Content-type (text/html) unsupported
+
+	}
+
+	return response, nil
+}
+
+// ParsePatchV4AppApiUserUpdateResponse parses an HTTP response from a PatchV4AppApiUserUpdateWithResponse call
+func ParsePatchV4AppApiUserUpdateResponse(rsp *http.Response) (*PatchV4AppApiUserUpdateResponse, error) {
+	bodyBytes, err := io.ReadAll(rsp.Body)
+	defer func() { _ = rsp.Body.Close() }()
+	if err != nil {
+		return nil, err
+	}
+
+	response := &PatchV4AppApiUserUpdateResponse{
+		Body:         bodyBytes,
+		HTTPResponse: rsp,
+	}
+
+	switch {
+	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 201:
+		var dest User
+		if err := json.Unmarshal(bodyBytes, &dest); err != nil {
+			return nil, err
+		}
+		response.JSON201 = &dest
 
 	case strings.Contains(rsp.Header.Get("Content-Type"), "json") && rsp.StatusCode == 400:
 		var dest InvalidResponse

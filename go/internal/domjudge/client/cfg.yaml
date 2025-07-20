@@ -1,7 +1,0 @@
-package: client
-output: client.gen.go
-generate:
-  models: true
-  client: true
-output-options:
-  include-operation-ids: [ "get_v4_app_api_user_list", "get_v4_app_api_contest_list", "get_v4_app_api_team_list" ]

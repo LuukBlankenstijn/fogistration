@@ -9,34 +9,27 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/LuukBlankenstijn/fogistration/internal/domjudge/repository"
-	domjudge "github.com/LuukBlankenstijn/fogistration/internal/domjudge/wrapper"
-	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
+	"github.com/LuukBlankenstijn/fogistration/internal/cmdhandler/client/wrapper"
+
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/repository"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type DomJudgeSyncer struct {
-	repository.RepositoryStore
 	ctx    context.Context
-	client *domjudge.Client
+	client *wrapper.Client
 	db     *pgxpool.Pool
 }
 
-func NewSyncer(ctx context.Context, cfg config.DomJudgeConfig, db *pgxpool.Pool) (*DomJudgeSyncer, error) {
-	queries := database.New(db)
-	djClient, err := domjudge.NewClient(ctx, cfg)
-	if err != nil {
-		return nil, fmt.Errorf("unable to create Domjudge Client: %w", err)
-	}
+func NewSyncer(ctx context.Context, client *wrapper.Client, db *pgxpool.Pool) *DomJudgeSyncer {
 	return &DomJudgeSyncer{
-		RepositoryStore: repository.NewRepositoryStore(queries),
-		ctx:             ctx,
-		client:          djClient,
-		db:              db,
-	}, nil
+		ctx:    ctx,
+		client: client,
+		db:     db,
+	}
 }
 
 func (s *DomJudgeSyncer) Sync() error {
@@ -50,13 +43,17 @@ func (s *DomJudgeSyncer) Sync() error {
 			logging.Error("failed to rollback transaction: %w", err)
 		}
 	}()
+	queries := database.New(tx)
 
-	err = s.syncContests()
+	err = s.syncContests(repository.NewContestRepository(queries))
 	if err != nil {
 		return err
 	}
 
-	err = s.syncTeams()
+	err = s.syncTeams(
+		repository.NewContestRepository(queries),
+		repository.NewTeamRepository(queries),
+	)
 	if err != nil {
 		return err
 	}

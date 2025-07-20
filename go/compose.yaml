@@ -16,11 +16,13 @@ services:
   #     - .:/app
   #   entrypoint: ["air", "-c", ".air-grpc.toml"]
 
-  dom-judge:
+  cmd-handler:
     build: .
     volumes:
       - .:/app
-    entrypoint: ["sleep", "infinity"]
+    entrypoint: ["air", "-c", ".air-cmdhandler.toml"]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 
   postgres:
