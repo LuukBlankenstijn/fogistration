@@ -15,10 +15,9 @@ import (
 )
 
 type CommandHandler struct {
-	cmdRepo  *repository.CommandRepository
-	teamRepo *repository.TeamRepository
-	client   *wrapper.Client
-	sync     *syncer.DomJudgeSyncer
+	client  *wrapper.Client
+	sync    *syncer.DomJudgeSyncer
+	queries *database.Queries
 }
 
 func NewCommandHandler(
@@ -29,10 +28,9 @@ func NewCommandHandler(
 	queries := database.New(db)
 	s := syncer.NewSyncer(ctx, client, db)
 	return &CommandHandler{
-		cmdRepo:  repository.NewCommandRepository(queries),
-		teamRepo: repository.NewTeamRepository(queries),
-		client:   client,
-		sync:     s,
+		client:  client,
+		sync:    s,
+		queries: queries,
 	}
 }
 
@@ -70,7 +68,8 @@ func (c *CommandHandler) Start(ctx context.Context, dbURL string) {
 }
 
 func (c *CommandHandler) tryProcessCommand(ctx context.Context) bool {
-	cmd, found, err := c.cmdRepo.TryDequeue(ctx)
+	cmdRepo := repository.NewCommandRepository(c.queries)
+	cmd, found, err := cmdRepo.TryDequeue(ctx)
 	if err != nil || !found {
 		return false
 	}

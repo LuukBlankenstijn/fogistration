@@ -8,6 +8,13 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type Client struct {
+	ID        int32
+	Ip        string
+	LastSeen  pgtype.Timestamp
+	CreatedAt pgtype.Timestamp `hash:"exclude"`
+}
+
 type Contest struct {
 	ID         int32
 	ExternalID string

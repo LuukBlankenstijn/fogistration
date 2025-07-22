@@ -8,13 +8,13 @@ services:
       - .:/app
     entrypoint: ["air", "-c", ".air-http.toml"]
 
-  # grpc:
-  #   build: .
-  #   ports:
-  #     - "9090:9090"
-  #   volumes:
-  #     - .:/app
-  #   entrypoint: ["air", "-c", ".air-grpc.toml"]
+  grpc:
+    build: .
+    ports:
+      - "9090:9090"
+    volumes:
+      - .:/app
+    entrypoint: ["air", "-c", ".air-grpc.toml"]
 
   cmd-handler:
     build: .

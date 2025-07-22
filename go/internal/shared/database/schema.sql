@@ -72,3 +72,12 @@ CREATE TRIGGER trigger_notify_new_command
     FOR EACH ROW
     EXECUTE FUNCTION notify_new_command();
 
+-- Migration: 003_client.sql
+-- Write your migrate up statements here
+CREATE TABLE clients (
+    id SERIAL PRIMARY KEY,
+    ip VARCHAR NOT NULL UNIQUE,
+    last_seen TIMESTAMP NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMP DEFAULT NOW()
+);
+

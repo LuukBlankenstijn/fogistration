@@ -7,19 +7,18 @@ import (
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/repository"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func (s *DomJudgeSyncer) syncTeams(
-	contestRepositry *repository.ContestRepository,
-	teamRepository *repository.TeamRepository,
-) error {
-	nextContest, err := contestRepositry.GetNextOrActive(s.ctx)
+func (s *DomJudgeSyncer) syncTeams(queries *database.Queries) error {
+	contestRepo := repository.NewContestRepository(queries)
+	nextContest, err := queries.GetNextOrActiveContest(s.ctx)
+	if err == pgx.ErrNoRows {
+		return nil
+	}
 	if err != nil {
 		return fmt.Errorf("could not get next contest: %w", err)
-	}
-	if nextContest == nil {
-		return nil
 	}
 	apiTeams, err := s.client.ListTeams(s.ctx, &client.GetV4AppApiTeamListParams{}, nextContest.ExternalID)
 	if err != nil {
@@ -27,7 +26,7 @@ func (s *DomJudgeSyncer) syncTeams(
 	}
 
 	// get hashes
-	hashes, err := teamRepository.GetHashes(s.ctx)
+	hashes, err := queries.GetTeamHashes(s.ctx)
 	if err != nil {
 		return fmt.Errorf("could not get team hashes from db: %w", err)
 	}
@@ -55,7 +54,7 @@ func (s *DomJudgeSyncer) syncTeams(
 		}
 
 		if existingHash, exists := hashMap[team.ID]; !exists || existingHash != team.Hash {
-			err = teamRepository.Upsert(s.ctx, database.UpsertTeamParams{
+			err = queries.UpsertTeam(s.ctx, database.UpsertTeamParams{
 				ID:          team.ID,
 				ExternalID:  team.ExternalID,
 				Name:        team.Name,
@@ -70,12 +69,12 @@ func (s *DomJudgeSyncer) syncTeams(
 		teams = append(teams, team)
 	}
 
-	err = contestRepositry.DeleteAllTeams(s.ctx, nextContest.ID)
+	err = queries.DeleteAllContestTeams(s.ctx, nextContest.ID)
 	if err != nil {
 		return fmt.Errorf("failed to delete all teams for contest %d: %w", nextContest.ID, err)
 	}
 
-	err = contestRepositry.InsertContestTeams(s.ctx, nextContest.ID, teams)
+	err = contestRepo.InsertContestTeams(s.ctx, nextContest.ID, teams)
 	if err != nil {
 		return fmt.Errorf("failed to add update teams for contest %d: %w", nextContest.ID, err)
 	}

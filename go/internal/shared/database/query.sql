@@ -5,7 +5,7 @@
 SELECT * FROM contests
 ORDER BY id;
 
--- name: GetNextOrActiveContest :many
+-- name: GetNextOrActiveContest :one
 SELECT * FROM contests
 WHERE end_time > NOW()
 ORDER BY start_time ASC
@@ -45,6 +45,10 @@ DO UPDATE SET
 SELECT * FROM teams
 WHERE id = $1;
 
+-- name: GetTeamByIp :one
+SELECT * FROM teams
+WHERE ip = $1;
+
 -- name: GetTeamHashes :many
 SELECT id, hash FROM teams
 ORDER BY id;
@@ -76,6 +80,21 @@ UPDATE teams
 SET ip = $2
 WHERE id = $1;
 
+-- name: ClaimTeam :one
+WITH target AS (
+  SELECT t.id
+  FROM teams t
+  JOIN contest_teams ct ON t.id = ct.team_id
+  WHERE t.ip IS NULL AND ct.contest_id = $2
+  FOR UPDATE SKIP LOCKED
+  LIMIT 1
+)
+UPDATE teams t
+SET ip = $1
+FROM target
+WHERE t.id = target.id
+RETURNING t.*;
+
 
 -- CONTEST TEAMS
 
@@ -86,7 +105,6 @@ DELETE FROM contest_teams WHERE contest_id = $1;
 -- name: InsertContestTeams :copyfrom
 INSERT INTO contest_teams (contest_id, team_id)
 VALUES ($1, $2);
-
 
 -- COMMANDS
 
@@ -103,4 +121,26 @@ WHERE id = (
     FOR UPDATE SKIP LOCKED 
     LIMIT 1
 )
-RETURNING id, command_type, payload;
+RETURNING *;
+
+
+-- CLIENTS
+
+
+-- name: UpdateClientLastSeen :exec
+UPDATE clients
+SET last_seen = NOW()
+WHERE ip = $1;
+
+
+-- name: UpsertClient :one
+INSERT INTO clients (
+    ip
+) VALUES (
+    $1
+)
+ON CONFLICT (ip)
+DO UPDATE SET
+    last_seen = NOW()
+RETURNING *;
+

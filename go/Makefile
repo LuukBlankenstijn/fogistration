@@ -1,4 +1,4 @@
-.PHONY: start stop build swagger migration-% migrate gen-db gen-domjudge-client
+.PHONY: start stop build swagger migration-% migrate gen-db gen-domjudge-client gen-grpc
 
 start:
 	@docker compose up -d
@@ -35,3 +35,6 @@ gen-db:
 
 gen-domjudge-client:
 	@cd internal/domjudge/client && go generate
+
+gen-grpc:
+	@docker run --rm -v $(PWD):/workspace -w /workspace bufbuild/buf:latest generate

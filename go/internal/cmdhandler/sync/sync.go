@@ -13,7 +13,6 @@ import (
 
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
-	"github.com/LuukBlankenstijn/fogistration/internal/shared/repository"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -45,15 +44,12 @@ func (s *DomJudgeSyncer) Sync() error {
 	}()
 	queries := database.New(tx)
 
-	err = s.syncContests(repository.NewContestRepository(queries))
+	err = s.syncContests(queries)
 	if err != nil {
 		return err
 	}
 
-	err = s.syncTeams(
-		repository.NewContestRepository(queries),
-		repository.NewTeamRepository(queries),
-	)
+	err = s.syncTeams(queries)
 	if err != nil {
 		return err
 	}

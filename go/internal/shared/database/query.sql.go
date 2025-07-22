@@ -11,6 +11,43 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const claimTeam = `-- name: ClaimTeam :one
+WITH target AS (
+  SELECT t.id
+  FROM teams t
+  JOIN contest_teams ct ON t.id = ct.team_id
+  WHERE t.ip IS NULL AND ct.contest_id = $2
+  FOR UPDATE SKIP LOCKED
+  LIMIT 1
+)
+UPDATE teams t
+SET ip = $1
+FROM target
+WHERE t.id = target.id
+RETURNING t.id, t.external_id, t.name, t.display_name, t.ip, t.created_at, t.updated_at, t.hash
+`
+
+type ClaimTeamParams struct {
+	Ip        pgtype.Text
+	ContestID int32
+}
+
+func (q *Queries) ClaimTeam(ctx context.Context, arg ClaimTeamParams) (Team, error) {
+	row := q.db.QueryRow(ctx, claimTeam, arg.Ip, arg.ContestID)
+	var i Team
+	err := row.Scan(
+		&i.ID,
+		&i.ExternalID,
+		&i.Name,
+		&i.DisplayName,
+		&i.Ip,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Hash,
+	)
+	return i, err
+}
+
 const deleteAllContestTeams = `-- name: DeleteAllContestTeams :exec
 
 
@@ -31,19 +68,18 @@ WHERE id = (
     FOR UPDATE SKIP LOCKED 
     LIMIT 1
 )
-RETURNING id, command_type, payload
+RETURNING id, command_type, payload, created_at
 `
 
-type DequeueCommandRow struct {
-	ID          int32
-	CommandType string
-	Payload     []byte
-}
-
-func (q *Queries) DequeueCommand(ctx context.Context) (DequeueCommandRow, error) {
+func (q *Queries) DequeueCommand(ctx context.Context) (MessageQueue, error) {
 	row := q.db.QueryRow(ctx, dequeueCommand)
-	var i DequeueCommandRow
-	err := row.Scan(&i.ID, &i.CommandType, &i.Payload)
+	var i MessageQueue
+	err := row.Scan(
+		&i.ID,
+		&i.CommandType,
+		&i.Payload,
+		&i.CreatedAt,
+	)
 	return i, err
 }
 
@@ -95,40 +131,27 @@ func (q *Queries) GetContestHashes(ctx context.Context) ([]GetContestHashesRow, 
 	return items, nil
 }
 
-const getNextOrActiveContest = `-- name: GetNextOrActiveContest :many
+const getNextOrActiveContest = `-- name: GetNextOrActiveContest :one
 SELECT id, external_id, formal_name, start_time, end_time, created_at, updated_at, hash FROM contests
 WHERE end_time > NOW()
 ORDER BY start_time ASC
 LIMIT 1
 `
 
-func (q *Queries) GetNextOrActiveContest(ctx context.Context) ([]Contest, error) {
-	rows, err := q.db.Query(ctx, getNextOrActiveContest)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Contest
-	for rows.Next() {
-		var i Contest
-		if err := rows.Scan(
-			&i.ID,
-			&i.ExternalID,
-			&i.FormalName,
-			&i.StartTime,
-			&i.EndTime,
-			&i.CreatedAt,
-			&i.UpdatedAt,
-			&i.Hash,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) GetNextOrActiveContest(ctx context.Context) (Contest, error) {
+	row := q.db.QueryRow(ctx, getNextOrActiveContest)
+	var i Contest
+	err := row.Scan(
+		&i.ID,
+		&i.ExternalID,
+		&i.FormalName,
+		&i.StartTime,
+		&i.EndTime,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Hash,
+	)
+	return i, err
 }
 
 const getTeamById = `-- name: GetTeamById :one
@@ -141,6 +164,27 @@ WHERE id = $1
 // TEAMS:
 func (q *Queries) GetTeamById(ctx context.Context, id int32) (Team, error) {
 	row := q.db.QueryRow(ctx, getTeamById, id)
+	var i Team
+	err := row.Scan(
+		&i.ID,
+		&i.ExternalID,
+		&i.Name,
+		&i.DisplayName,
+		&i.Ip,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Hash,
+	)
+	return i, err
+}
+
+const getTeamByIp = `-- name: GetTeamByIp :one
+SELECT id, external_id, name, display_name, ip, created_at, updated_at, hash FROM teams
+WHERE ip = $1
+`
+
+func (q *Queries) GetTeamByIp(ctx context.Context, ip pgtype.Text) (Team, error) {
+	row := q.db.QueryRow(ctx, getTeamByIp, ip)
 	var i Team
 	err := row.Scan(
 		&i.ID,
@@ -227,6 +271,20 @@ func (q *Queries) ListContests(ctx context.Context) ([]Contest, error) {
 	return items, nil
 }
 
+const updateClientLastSeen = `-- name: UpdateClientLastSeen :exec
+
+
+UPDATE clients
+SET last_seen = NOW()
+WHERE ip = $1
+`
+
+// CLIENTS
+func (q *Queries) UpdateClientLastSeen(ctx context.Context, ip string) error {
+	_, err := q.db.Exec(ctx, updateClientLastSeen, ip)
+	return err
+}
+
 const updateIp = `-- name: UpdateIp :exec
 UPDATE teams
 SET ip = $2
@@ -241,6 +299,30 @@ type UpdateIpParams struct {
 func (q *Queries) UpdateIp(ctx context.Context, arg UpdateIpParams) error {
 	_, err := q.db.Exec(ctx, updateIp, arg.ID, arg.Ip)
 	return err
+}
+
+const upsertClient = `-- name: UpsertClient :one
+INSERT INTO clients (
+    ip
+) VALUES (
+    $1
+)
+ON CONFLICT (ip)
+DO UPDATE SET
+    last_seen = NOW()
+RETURNING id, ip, last_seen, created_at
+`
+
+func (q *Queries) UpsertClient(ctx context.Context, ip string) (Client, error) {
+	row := q.db.QueryRow(ctx, upsertClient, ip)
+	var i Client
+	err := row.Scan(
+		&i.ID,
+		&i.Ip,
+		&i.LastSeen,
+		&i.CreatedAt,
+	)
+	return i, err
 }
 
 const upsertContest = `-- name: UpsertContest :exec

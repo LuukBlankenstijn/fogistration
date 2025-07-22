@@ -17,7 +17,7 @@ func (c *CommandHandler) handleSetIpCommand(ctx context.Context, cmd command.Set
 		return fmt.Errorf("failed to get users: %w", err)
 	}
 
-	team, err := c.teamRepo.GetById(ctx, cmd.Id)
+	team, err := c.queries.GetTeamById(ctx, cmd.Id)
 	if err != nil {
 		return fmt.Errorf("failed to get team: %w", err)
 	}
@@ -40,7 +40,7 @@ func (c *CommandHandler) handleSetIpCommand(ctx context.Context, cmd command.Set
 		}
 	}
 
-	err = c.teamRepo.UpdateIp(ctx, database.UpdateIpParams{
+	err = c.queries.UpdateIp(ctx, database.UpdateIpParams{
 		ID: cmd.Id,
 		Ip: pgtype.Text{
 			String: cmd.Ip,
