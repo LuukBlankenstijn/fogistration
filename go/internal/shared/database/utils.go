@@ -12,9 +12,15 @@ func StringValueFromPgText(text pgtype.Text) *wrapperspb.StringValue {
 	return wrapperspb.String(text.String)
 }
 
-func PgTextFromString(value string) pgtype.Text {
+func PgTextFromString(value *string) pgtype.Text {
+	var v string
+	if value != nil {
+		v = *value
+	} else {
+		v = ""
+	}
 	return pgtype.Text{
-		String: value,
-		Valid:  true,
+		String: v,
+		Valid:  value != nil,
 	}
 }

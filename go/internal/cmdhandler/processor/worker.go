@@ -6,8 +6,8 @@ import (
 	"github.com/LuukBlankenstijn/fogistration/internal/cmdhandler/client/wrapper"
 	syncer "github.com/LuukBlankenstijn/fogistration/internal/cmdhandler/sync"
 
-	"github.com/LuukBlankenstijn/fogistration/internal/shared/command"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
+	dbObject "github.com/LuukBlankenstijn/fogistration/internal/shared/database/object"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/repository"
 	"github.com/jackc/pgx/v5"
@@ -78,11 +78,11 @@ func (c *CommandHandler) tryProcessCommand(ctx context.Context) bool {
 	return true
 }
 
-func (c *CommandHandler) processCommand(ctx context.Context, cmd command.Command) {
+func (c *CommandHandler) processCommand(ctx context.Context, cmd dbObject.DatabaseObject) {
 	switch typedCmd := cmd.(type) {
-	case command.SyncDjCommand:
+	case dbObject.SyncDj:
 		c.doSync(c.sync)
-	case command.SetIpCommand:
+	case dbObject.ChangeIp:
 		err := c.handleSetIpCommand(ctx, typedCmd)
 		if err != nil {
 			logging.Error("failed to set ip", err, typedCmd.Id)

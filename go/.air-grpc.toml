@@ -15,7 +15,7 @@ exclude_dir = [
     "testdata",
     "internal/http",
     "internal/client",
-    "internal/domjudge",
+    "internal/cmdhandler",
 ]
 exclude_file = []
 exclude_regex = ["_test.go"]

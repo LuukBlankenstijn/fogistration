@@ -33,7 +33,7 @@ func (r *registrationService) register(ctx context.Context, client database.Clie
 
 	team, err := r.queries.GetTeamByIp(ctx, pgtype.Text{String: client.Ip, Valid: true})
 
-	// err not nill, already registered
+	// err nill, already registered
 	if err == nil {
 		sendTeam(team)
 		return nil
@@ -47,8 +47,8 @@ func (r *registrationService) register(ctx context.Context, client database.Clie
 	if err != nil {
 		return fmt.Errorf("error when getting active contest form database")
 	}
-	team, err = r.queries.ClaimTeam(ctx, database.ClaimTeamParams{
-		Ip:        database.PgTextFromString(client.Ip),
+	_, err = r.queries.ClaimTeam(ctx, database.ClaimTeamParams{
+		Ip:        database.PgTextFromString(&client.Ip),
 		ContestID: contest.ID,
 	})
 	if err == pgx.ErrNoRows {
@@ -60,7 +60,6 @@ func (r *registrationService) register(ctx context.Context, client database.Clie
 		return fmt.Errorf("error when claiming team: %w", err)
 	}
 
-	// team claimed, send and return
-	sendTeam(team)
+	// don't need to send, database trigger handles that
 	return nil
 }

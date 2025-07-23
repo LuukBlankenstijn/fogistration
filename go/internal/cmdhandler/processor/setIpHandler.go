@@ -5,13 +5,12 @@ import (
 	"fmt"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/cmdhandler/client"
-	"github.com/LuukBlankenstijn/fogistration/internal/shared/command"
-	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
+	dbObject "github.com/LuukBlankenstijn/fogistration/internal/shared/database/object"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
-func (c *CommandHandler) handleSetIpCommand(ctx context.Context, cmd command.SetIpCommand) error {
+func (c *CommandHandler) handleSetIpCommand(ctx context.Context, cmd dbObject.ChangeIp) error {
+	logging.Info("setting ip")
 	users, err := c.client.ListUsers(ctx, &client.GetV4AppApiUserListParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get users: %w", err)
@@ -30,26 +29,20 @@ func (c *CommandHandler) handleSetIpCommand(ctx context.Context, cmd command.Set
 	}
 
 	for _, user := range filteredUsers {
+		var ip string
+		if cmd.Ip != nil {
+			ip = *cmd.Ip
+		} else {
+			ip = ""
+		}
 		params := client.UpdateUser{
-			Ip:    &cmd.Ip,
+			Ip:    &ip,
 			Roles: &[]string{},
 		}
 		_, err = c.client.UpdateUser(ctx, *user.Id, params)
 		if err != nil {
 			logging.Error("failed update user ip", err)
 		}
-	}
-
-	err = c.queries.UpdateIp(ctx, database.UpdateIpParams{
-		ID: cmd.Id,
-		Ip: pgtype.Text{
-			String: cmd.Ip,
-			Valid:  true,
-		},
-	})
-
-	if err != nil {
-		return fmt.Errorf("error updating ip in database: %w", err)
 	}
 
 	return nil

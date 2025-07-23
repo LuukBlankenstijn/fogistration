@@ -26,6 +26,7 @@ message Heartbeat {}
 message ServerMessage {
   oneof message {
     SetTeam setTeam = 1;
+    UnsetTeam unsetTeam = 2;
   }
 }
 
@@ -34,3 +35,5 @@ message SetTeam {
   google.protobuf.StringValue display_name = 2;
   string image_url = 3;
 }
+
+message UnsetTeam {}

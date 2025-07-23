@@ -7,9 +7,9 @@ import (
 	"github.com/LuukBlankenstijn/fogistration/internal/cmdhandler/client/wrapper"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/cmdhandler/processor"
-	"github.com/LuukBlankenstijn/fogistration/internal/shared/command"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
+	dbObject "github.com/LuukBlankenstijn/fogistration/internal/shared/database/object"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/repository"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -63,7 +63,7 @@ func startScheduledSync(
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			err := cmdRepo.Enqueue(ctx, command.SyncDjCommand{})
+			err := cmdRepo.Enqueue(ctx, dbObject.SyncDj{})
 			if err != nil {
 				logging.Error("failed to enqueue SyncDjCommand", err)
 			}

@@ -13,11 +13,16 @@ import (
 
 func main() {
 	// Connect to server
-	conn, err := grpc.Dial("localhost:9090", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.NewClient("localhost:9090", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to connect: %v", err)
 	}
-	defer conn.Close()
+	defer func() {
+		err := conn.Close()
+		if err != nil {
+			logging.Error("failed to close database connection", err)
+		}
+	}()
 
 	client := pb.NewFogistrationServiceClient(conn)
 
@@ -44,6 +49,8 @@ func main() {
 		switch msg.Message.(type) {
 		case *pb.ServerMessage_SetTeam:
 			logging.Info("team-name: %s", msg.GetSetTeam().Name)
+		case *pb.ServerMessage_UnsetTeam:
+			logging.Info("unset team")
 		}
 	}
 }

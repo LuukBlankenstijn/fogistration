@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS teams (
     hash VARCHAR NOT NULL
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS unique_ip_not_null ON teams (ip) WHERE ip IS NOT NULL;
+
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
     id VARCHAR PRIMARY KEY,

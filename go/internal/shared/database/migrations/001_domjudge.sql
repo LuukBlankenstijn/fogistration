@@ -24,6 +24,8 @@ CREATE TABLE IF NOT EXISTS teams (
     hash VARCHAR NOT NULL
 );
 
+CREATE UNIQUE INDEX IF NOT EXISTS unique_ip_not_null ON teams (ip) WHERE ip IS NOT NULL;
+
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
     id VARCHAR PRIMARY KEY,
@@ -53,6 +55,7 @@ CREATE INDEX IF NOT EXISTS idx_contest_teams_team_id ON contest_teams (team_id);
 -- Then delete the separator line above.
 
 -- Drop indexes
+DROP INDEX IF EXISTS unique_ip_not_null;
 DROP INDEX IF EXISTS idx_contest_teams_team_id;
 DROP INDEX IF EXISTS idx_contest_teams_contest_id;
 DROP INDEX IF EXISTS idx_users_team_id;
