@@ -53,29 +53,19 @@ func (h *streamHandler) handleOutgoing(ready chan struct{}) {
 }
 
 func (h *streamHandler) handleIncoming() error {
-
 	for {
 		select {
 		case <-h.ctx.Done():
 			logging.Info("Context timeout/cancelled")
 			return h.ctx.Err()
 		default:
-			msg, err := h.stream.Recv()
+			_, err := h.stream.Recv()
 			if err != nil {
 				return fmt.Errorf("stream closed: %w", err)
 			}
 			err = h.queries.UpdateClientLastSeen(h.ctx, h.client.Ip)
 			if err != nil {
 				logging.Error("failed to update client last seen", err)
-			}
-
-			switch message := msg.Message.(type) {
-			case *pb.ClientMessage_Heartbeat:
-				// nothing to do, already updated Last seen
-			case nil:
-				logging.Warn("Empty message from client %s", h.client.Ip)
-			default:
-				logging.Warn("Unknown message type from client %s: %T", h.client.Ip, message)
 			}
 		}
 	}

@@ -26,6 +26,12 @@ type DomJudgeConfig struct {
 	SyncInterval string `env_default:"15m"`
 }
 
+type ClientConfig struct {
+	Server   string
+	LogLevel string `env_default:"info"`
+	DryRun   bool   `env_default:"true"`
+}
+
 type DatabaseConfig struct {
 	Host     string `env_default:"localhost"`
 	Port     string `env_default:"5432"`

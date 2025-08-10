@@ -4,8 +4,6 @@ package fogistration.v1;
 
 option go_package = "github.com/LuukBlankenstijn/fogistration/internal/shared/pb";
 
-import "google/protobuf/wrappers.proto";
-
 // Main service with bidirectional streaming
 service FogistrationService {
   rpc Stream(stream ClientMessage) returns (stream ServerMessage);
@@ -13,27 +11,13 @@ service FogistrationService {
 
 // Client-to-Server messages
 message ClientMessage {
-  oneof message {
-    Register register = 1;
-    Heartbeat heartbeat = 2;
-  }
 }
-
-message Register { string ip = 1; }
-message Heartbeat {}
 
 // Server-to-Client messages
 message ServerMessage {
   oneof message {
-    SetTeam setTeam = 1;
-    UnsetTeam unsetTeam = 2;
+    Reload reload = 1;
   }
 }
 
-message SetTeam {
-  string name = 1;
-  google.protobuf.StringValue display_name = 2;
-  string image_url = 3;
-}
-
-message UnsetTeam {}
+message Reload {}

@@ -18,24 +18,20 @@ type registrationService struct {
 }
 
 func (r *registrationService) register(ctx context.Context, client database.Client) error {
-	sendTeam := func(team database.Team) {
+	sendReload := func() {
 		msg := &pb.ServerMessage{
-			Message: &pb.ServerMessage_SetTeam{
-				SetTeam: &pb.SetTeam{
-					Name:        team.Name,
-					ImageUrl:    "",
-					DisplayName: database.StringValueFromPgText(team.DisplayName),
-				},
+			Message: &pb.ServerMessage_Reload{
+				Reload: &pb.Reload{},
 			},
 		}
 		r.pubsub.Publish(client.Ip, msg)
 	}
 
-	team, err := r.queries.GetTeamByIp(ctx, pgtype.Text{String: client.Ip, Valid: true})
+	_, err := r.queries.GetTeamByIp(ctx, pgtype.Text{String: client.Ip, Valid: true})
 
 	// err nill, already registered
 	if err == nil {
-		sendTeam(team)
+		sendReload()
 		return nil
 	}
 

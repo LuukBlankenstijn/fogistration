@@ -9,7 +9,6 @@ package pb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	wrapperspb "google.golang.org/protobuf/types/known/wrapperspb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -24,12 +23,7 @@ const (
 
 // Client-to-Server messages
 type ClientMessage struct {
-	state protoimpl.MessageState `protogen:"open.v1"`
-	// Types that are valid to be assigned to Message:
-	//
-	//	*ClientMessage_Register
-	//	*ClientMessage_Heartbeat
-	Message       isClientMessage_Message `protobuf_oneof:"message"`
+	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -64,134 +58,12 @@ func (*ClientMessage) Descriptor() ([]byte, []int) {
 	return file_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *ClientMessage) GetMessage() isClientMessage_Message {
-	if x != nil {
-		return x.Message
-	}
-	return nil
-}
-
-func (x *ClientMessage) GetRegister() *Register {
-	if x != nil {
-		if x, ok := x.Message.(*ClientMessage_Register); ok {
-			return x.Register
-		}
-	}
-	return nil
-}
-
-func (x *ClientMessage) GetHeartbeat() *Heartbeat {
-	if x != nil {
-		if x, ok := x.Message.(*ClientMessage_Heartbeat); ok {
-			return x.Heartbeat
-		}
-	}
-	return nil
-}
-
-type isClientMessage_Message interface {
-	isClientMessage_Message()
-}
-
-type ClientMessage_Register struct {
-	Register *Register `protobuf:"bytes,1,opt,name=register,proto3,oneof"`
-}
-
-type ClientMessage_Heartbeat struct {
-	Heartbeat *Heartbeat `protobuf:"bytes,2,opt,name=heartbeat,proto3,oneof"`
-}
-
-func (*ClientMessage_Register) isClientMessage_Message() {}
-
-func (*ClientMessage_Heartbeat) isClientMessage_Message() {}
-
-type Register struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Ip            string                 `protobuf:"bytes,1,opt,name=ip,proto3" json:"ip,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Register) Reset() {
-	*x = Register{}
-	mi := &file_service_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Register) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Register) ProtoMessage() {}
-
-func (x *Register) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Register.ProtoReflect.Descriptor instead.
-func (*Register) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *Register) GetIp() string {
-	if x != nil {
-		return x.Ip
-	}
-	return ""
-}
-
-type Heartbeat struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *Heartbeat) Reset() {
-	*x = Heartbeat{}
-	mi := &file_service_proto_msgTypes[2]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *Heartbeat) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*Heartbeat) ProtoMessage() {}
-
-func (x *Heartbeat) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[2]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use Heartbeat.ProtoReflect.Descriptor instead.
-func (*Heartbeat) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{2}
-}
-
 // Server-to-Client messages
 type ServerMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Message:
 	//
-	//	*ServerMessage_SetTeam
-	//	*ServerMessage_UnsetTeam
+	//	*ServerMessage_Reload
 	Message       isServerMessage_Message `protobuf_oneof:"message"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -199,7 +71,7 @@ type ServerMessage struct {
 
 func (x *ServerMessage) Reset() {
 	*x = ServerMessage{}
-	mi := &file_service_proto_msgTypes[3]
+	mi := &file_service_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -211,7 +83,7 @@ func (x *ServerMessage) String() string {
 func (*ServerMessage) ProtoMessage() {}
 
 func (x *ServerMessage) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[3]
+	mi := &file_service_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -224,7 +96,7 @@ func (x *ServerMessage) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ServerMessage.ProtoReflect.Descriptor instead.
 func (*ServerMessage) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{3}
+	return file_service_proto_rawDescGZIP(), []int{1}
 }
 
 func (x *ServerMessage) GetMessage() isServerMessage_Message {
@@ -234,19 +106,10 @@ func (x *ServerMessage) GetMessage() isServerMessage_Message {
 	return nil
 }
 
-func (x *ServerMessage) GetSetTeam() *SetTeam {
+func (x *ServerMessage) GetReload() *Reload {
 	if x != nil {
-		if x, ok := x.Message.(*ServerMessage_SetTeam); ok {
-			return x.SetTeam
-		}
-	}
-	return nil
-}
-
-func (x *ServerMessage) GetUnsetTeam() *UnsetTeam {
-	if x != nil {
-		if x, ok := x.Message.(*ServerMessage_UnsetTeam); ok {
-			return x.UnsetTeam
+		if x, ok := x.Message.(*ServerMessage_Reload); ok {
+			return x.Reload
 		}
 	}
 	return nil
@@ -256,99 +119,33 @@ type isServerMessage_Message interface {
 	isServerMessage_Message()
 }
 
-type ServerMessage_SetTeam struct {
-	SetTeam *SetTeam `protobuf:"bytes,1,opt,name=setTeam,proto3,oneof"`
+type ServerMessage_Reload struct {
+	Reload *Reload `protobuf:"bytes,1,opt,name=reload,proto3,oneof"`
 }
 
-type ServerMessage_UnsetTeam struct {
-	UnsetTeam *UnsetTeam `protobuf:"bytes,2,opt,name=unsetTeam,proto3,oneof"`
-}
+func (*ServerMessage_Reload) isServerMessage_Message() {}
 
-func (*ServerMessage_SetTeam) isServerMessage_Message() {}
-
-func (*ServerMessage_UnsetTeam) isServerMessage_Message() {}
-
-type SetTeam struct {
-	state         protoimpl.MessageState  `protogen:"open.v1"`
-	Name          string                  `protobuf:"bytes,1,opt,name=name,proto3" json:"name,omitempty"`
-	DisplayName   *wrapperspb.StringValue `protobuf:"bytes,2,opt,name=display_name,json=displayName,proto3" json:"display_name,omitempty"`
-	ImageUrl      string                  `protobuf:"bytes,3,opt,name=image_url,json=imageUrl,proto3" json:"image_url,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *SetTeam) Reset() {
-	*x = SetTeam{}
-	mi := &file_service_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *SetTeam) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*SetTeam) ProtoMessage() {}
-
-func (x *SetTeam) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use SetTeam.ProtoReflect.Descriptor instead.
-func (*SetTeam) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *SetTeam) GetName() string {
-	if x != nil {
-		return x.Name
-	}
-	return ""
-}
-
-func (x *SetTeam) GetDisplayName() *wrapperspb.StringValue {
-	if x != nil {
-		return x.DisplayName
-	}
-	return nil
-}
-
-func (x *SetTeam) GetImageUrl() string {
-	if x != nil {
-		return x.ImageUrl
-	}
-	return ""
-}
-
-type UnsetTeam struct {
+type Reload struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *UnsetTeam) Reset() {
-	*x = UnsetTeam{}
-	mi := &file_service_proto_msgTypes[5]
+func (x *Reload) Reset() {
+	*x = Reload{}
+	mi := &file_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *UnsetTeam) String() string {
+func (x *Reload) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*UnsetTeam) ProtoMessage() {}
+func (*Reload) ProtoMessage() {}
 
-func (x *UnsetTeam) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[5]
+func (x *Reload) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -359,32 +156,21 @@ func (x *UnsetTeam) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use UnsetTeam.ProtoReflect.Descriptor instead.
-func (*UnsetTeam) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{5}
+// Deprecated: Use Reload.ProtoReflect.Descriptor instead.
+func (*Reload) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{2}
 }
 
 var File_service_proto protoreflect.FileDescriptor
 
 const file_service_proto_rawDesc = "" +
 	"\n" +
-	"\rservice.proto\x12\x0ffogistration.v1\x1a\x1egoogle/protobuf/wrappers.proto\"\x8f\x01\n" +
-	"\rClientMessage\x127\n" +
-	"\bregister\x18\x01 \x01(\v2\x19.fogistration.v1.RegisterH\x00R\bregister\x12:\n" +
-	"\theartbeat\x18\x02 \x01(\v2\x1a.fogistration.v1.HeartbeatH\x00R\theartbeatB\t\n" +
-	"\amessage\"\x1a\n" +
-	"\bRegister\x12\x0e\n" +
-	"\x02ip\x18\x01 \x01(\tR\x02ip\"\v\n" +
-	"\tHeartbeat\"\x8c\x01\n" +
-	"\rServerMessage\x124\n" +
-	"\asetTeam\x18\x01 \x01(\v2\x18.fogistration.v1.SetTeamH\x00R\asetTeam\x12:\n" +
-	"\tunsetTeam\x18\x02 \x01(\v2\x1a.fogistration.v1.UnsetTeamH\x00R\tunsetTeamB\t\n" +
-	"\amessage\"{\n" +
-	"\aSetTeam\x12\x12\n" +
-	"\x04name\x18\x01 \x01(\tR\x04name\x12?\n" +
-	"\fdisplay_name\x18\x02 \x01(\v2\x1c.google.protobuf.StringValueR\vdisplayName\x12\x1b\n" +
-	"\timage_url\x18\x03 \x01(\tR\bimageUrl\"\v\n" +
-	"\tUnsetTeam2c\n" +
+	"\rservice.proto\x12\x0ffogistration.v1\"\x0f\n" +
+	"\rClientMessage\"M\n" +
+	"\rServerMessage\x121\n" +
+	"\x06reload\x18\x01 \x01(\v2\x17.fogistration.v1.ReloadH\x00R\x06reloadB\t\n" +
+	"\amessage\"\b\n" +
+	"\x06Reload2c\n" +
 	"\x13FogistrationService\x12L\n" +
 	"\x06Stream\x12\x1e.fogistration.v1.ClientMessage\x1a\x1e.fogistration.v1.ServerMessage(\x010\x01B\xbd\x01\n" +
 	"\x13com.fogistration.v1B\fServiceProtoP\x01Z;github.com/LuukBlankenstijn/fogistration/internal/shared/pb\xa2\x02\x03FXX\xaa\x02\x0fFogistration.V1\xca\x02\x0fFogistration\\V1\xe2\x02\x1bFogistration\\V1\\GPBMetadata\xea\x02\x10Fogistration::V1b\x06proto3"
@@ -401,29 +187,21 @@ func file_service_proto_rawDescGZIP() []byte {
 	return file_service_proto_rawDescData
 }
 
-var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_service_proto_goTypes = []any{
-	(*ClientMessage)(nil),          // 0: fogistration.v1.ClientMessage
-	(*Register)(nil),               // 1: fogistration.v1.Register
-	(*Heartbeat)(nil),              // 2: fogistration.v1.Heartbeat
-	(*ServerMessage)(nil),          // 3: fogistration.v1.ServerMessage
-	(*SetTeam)(nil),                // 4: fogistration.v1.SetTeam
-	(*UnsetTeam)(nil),              // 5: fogistration.v1.UnsetTeam
-	(*wrapperspb.StringValue)(nil), // 6: google.protobuf.StringValue
+	(*ClientMessage)(nil), // 0: fogistration.v1.ClientMessage
+	(*ServerMessage)(nil), // 1: fogistration.v1.ServerMessage
+	(*Reload)(nil),        // 2: fogistration.v1.Reload
 }
 var file_service_proto_depIdxs = []int32{
-	1, // 0: fogistration.v1.ClientMessage.register:type_name -> fogistration.v1.Register
-	2, // 1: fogistration.v1.ClientMessage.heartbeat:type_name -> fogistration.v1.Heartbeat
-	4, // 2: fogistration.v1.ServerMessage.setTeam:type_name -> fogistration.v1.SetTeam
-	5, // 3: fogistration.v1.ServerMessage.unsetTeam:type_name -> fogistration.v1.UnsetTeam
-	6, // 4: fogistration.v1.SetTeam.display_name:type_name -> google.protobuf.StringValue
-	0, // 5: fogistration.v1.FogistrationService.Stream:input_type -> fogistration.v1.ClientMessage
-	3, // 6: fogistration.v1.FogistrationService.Stream:output_type -> fogistration.v1.ServerMessage
-	6, // [6:7] is the sub-list for method output_type
-	5, // [5:6] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	2, // 0: fogistration.v1.ServerMessage.reload:type_name -> fogistration.v1.Reload
+	0, // 1: fogistration.v1.FogistrationService.Stream:input_type -> fogistration.v1.ClientMessage
+	1, // 2: fogistration.v1.FogistrationService.Stream:output_type -> fogistration.v1.ServerMessage
+	2, // [2:3] is the sub-list for method output_type
+	1, // [1:2] is the sub-list for method input_type
+	1, // [1:1] is the sub-list for extension type_name
+	1, // [1:1] is the sub-list for extension extendee
+	0, // [0:1] is the sub-list for field type_name
 }
 
 func init() { file_service_proto_init() }
@@ -431,13 +209,8 @@ func file_service_proto_init() {
 	if File_service_proto != nil {
 		return
 	}
-	file_service_proto_msgTypes[0].OneofWrappers = []any{
-		(*ClientMessage_Register)(nil),
-		(*ClientMessage_Heartbeat)(nil),
-	}
-	file_service_proto_msgTypes[3].OneofWrappers = []any{
-		(*ServerMessage_SetTeam)(nil),
-		(*ServerMessage_UnsetTeam)(nil),
+	file_service_proto_msgTypes[1].OneofWrappers = []any{
+		(*ServerMessage_Reload)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -445,7 +218,7 @@ func file_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_service_proto_rawDesc), len(file_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

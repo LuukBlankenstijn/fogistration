@@ -47,10 +47,8 @@ func main() {
 			log.Fatalf("Failed to receive: %v", err)
 		}
 		switch msg.Message.(type) {
-		case *pb.ServerMessage_SetTeam:
-			logging.Info("team-name: %s", msg.GetSetTeam().Name)
-		case *pb.ServerMessage_UnsetTeam:
-			logging.Info("unset team")
+		case *pb.ServerMessage_Reload:
+			logging.Info("reload")
 		}
 	}
 }
