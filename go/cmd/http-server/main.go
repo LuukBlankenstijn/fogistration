@@ -1,26 +1,29 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
 	"github.com/LuukBlankenstijn/fogistration/docs"
-	httpServer "github.com/LuukBlankenstijn/fogistration/internal/http"
+	httpServer "github.com/LuukBlankenstijn/fogistration/internal/httpServer/http"
+	"github.com/LuukBlankenstijn/fogistration/internal/httpServer/seeder"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	httpSwagger "github.com/swaggo/http-swagger"
 )
 
 // @title Fogistration server API
 // @version 1.0
 // @termsOfService http://swagger.io/terms/
-
-// @host localhost:8080
 // @BasePath /api
 // @schemes http
 func main() {
 	var cfg config.HttpConfig
+	ctx := context.Background()
 	err := config.Load(&cfg, ".env-http")
 	if err != nil {
 		logging.Fatal("Failed to load config: %v", err)
@@ -28,20 +31,19 @@ func main() {
 
 	logging.SetupLogger(cfg.LogLevel, cfg.AppEnv)
 
-	// test
-	// url := database.GetUrl(&cfg)
-	// dbpool, err := pgxpool.New(ctx, url)
-	// if err != nil {
-	// 	logging.Fatal("unable to create dbpool: %w", err)
-	// }
-	// defer dbpool.Close()
-	//
-	// queries := database.New(dbpool)
+	url := database.GetUrl(&cfg.DB)
+	dbpool, err := pgxpool.New(ctx, url)
+	if err != nil {
+		logging.Fatal("unable to create dbpool: %w", err)
+	}
+	defer dbpool.Close()
+	queries := database.New(dbpool)
 
-	httpServer := httpServer.NewServer(&cfg)
+	sdr := seeder.New(dbpool, queries)
+	sdr.SeedDefaultUser(ctx)
 
+	httpServer := httpServer.NewServer(queries, &cfg)
 	initHttpSwagger(httpServer.Router)
-
 	addr := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
 	logging.Info("Starting server on %s", addr)
 	logging.Info("Swagger available at http://%s/swagger/index.html", addr)

@@ -144,3 +144,81 @@ DO UPDATE SET
     last_seen = NOW()
 RETURNING *;
 
+
+
+-- name: CreateLocalUser :one
+INSERT INTO app_user (username, email, role)
+VALUES ($1, $2, $3)
+RETURNING *;
+
+-- name: GetUserByID :one
+SELECT * FROM app_user
+WHERE id = $1
+LIMIT 1;
+
+-- name: GetUserByUsernameCI :one
+SELECT * FROM app_user
+WHERE lower(username) = lower($1)
+LIMIT 1;
+
+-- name: ListUsers :many
+SELECT * FROM app_user
+ORDER BY id
+LIMIT $1 OFFSET $2;
+
+-- name: CountUsers :one
+SELECT COUNT(*) FROM app_user;
+
+-- name: UpdateUserProfile :one
+UPDATE app_user
+SET
+  username = COALESCE(sqlc.narg('username'), username),
+  email    = COALESCE(sqlc.narg('email'), email),
+  role     = COALESCE(sqlc.narg('role'), role)
+WHERE id = sqlc.arg('id')
+RETURNING *;
+
+-- name: TouchLastLogin :one
+UPDATE app_user
+SET last_login_at = now()
+WHERE id = $1
+RETURNING *;
+
+-- name: DeleteUser :exec
+DELETE FROM app_user
+WHERE id = $1;
+
+
+-- name: GetAuthSecret :one
+SELECT *
+FROM auth_secret
+WHERE user_id = $1
+LIMIT 1;
+
+-- name: CreateAuthSecret :one
+INSERT INTO auth_secret (user_id, password_hash, salt)
+VALUES ($1, $2, $3)
+RETURNING *;
+
+-- name: UpdateAuthSecret :one
+UPDATE auth_secret
+SET
+  password_hash = $2,
+  salt          = $3,
+  updated_at    = now()
+WHERE user_id = $1
+RETURNING *;
+
+-- name: UpsertAuthSecret :one
+INSERT INTO auth_secret (user_id, password_hash, salt)
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id) DO UPDATE
+SET
+  password_hash = EXCLUDED.password_hash,
+  salt          = EXCLUDED.salt,
+  updated_at    = now()
+RETURNING *;
+
+-- name: DeleteAuthSecret :exec
+DELETE FROM auth_secret
+WHERE user_id = $1;

@@ -5,6 +5,10 @@ import (
 	"net/http"
 )
 
+type ServerHealthResponse struct {
+	Status string `json:"status"`
+}
+
 // @Summary Check API health
 // @Description Get API health status
 // @Tags health

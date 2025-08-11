@@ -48,6 +48,70 @@ func (q *Queries) ClaimTeam(ctx context.Context, arg ClaimTeamParams) (Team, err
 	return i, err
 }
 
+const countUsers = `-- name: CountUsers :one
+SELECT COUNT(*) FROM app_user
+`
+
+func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
+	row := q.db.QueryRow(ctx, countUsers)
+	var count int64
+	err := row.Scan(&count)
+	return count, err
+}
+
+const createAuthSecret = `-- name: CreateAuthSecret :one
+INSERT INTO auth_secret (user_id, password_hash, salt)
+VALUES ($1, $2, $3)
+RETURNING user_id, password_hash, salt, created_at, updated_at
+`
+
+type CreateAuthSecretParams struct {
+	UserID       int64
+	PasswordHash string
+	Salt         string
+}
+
+func (q *Queries) CreateAuthSecret(ctx context.Context, arg CreateAuthSecretParams) (AuthSecret, error) {
+	row := q.db.QueryRow(ctx, createAuthSecret, arg.UserID, arg.PasswordHash, arg.Salt)
+	var i AuthSecret
+	err := row.Scan(
+		&i.UserID,
+		&i.PasswordHash,
+		&i.Salt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const createLocalUser = `-- name: CreateLocalUser :one
+INSERT INTO app_user (username, email, role)
+VALUES ($1, $2, $3)
+RETURNING id, username, email, role, external_id, created_at, updated_at, last_login_at
+`
+
+type CreateLocalUserParams struct {
+	Username string
+	Email    string
+	Role     string
+}
+
+func (q *Queries) CreateLocalUser(ctx context.Context, arg CreateLocalUserParams) (AppUser, error) {
+	row := q.db.QueryRow(ctx, createLocalUser, arg.Username, arg.Email, arg.Role)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Role,
+		&i.ExternalID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.LastLoginAt,
+	)
+	return i, err
+}
+
 const deleteAllContestTeams = `-- name: DeleteAllContestTeams :exec
 
 
@@ -57,6 +121,26 @@ DELETE FROM contest_teams WHERE contest_id = $1
 // CONTEST TEAMS
 func (q *Queries) DeleteAllContestTeams(ctx context.Context, contestID int32) error {
 	_, err := q.db.Exec(ctx, deleteAllContestTeams, contestID)
+	return err
+}
+
+const deleteAuthSecret = `-- name: DeleteAuthSecret :exec
+DELETE FROM auth_secret
+WHERE user_id = $1
+`
+
+func (q *Queries) DeleteAuthSecret(ctx context.Context, userID int64) error {
+	_, err := q.db.Exec(ctx, deleteAuthSecret, userID)
+	return err
+}
+
+const deleteUser = `-- name: DeleteUser :exec
+DELETE FROM app_user
+WHERE id = $1
+`
+
+func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
+	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
 }
 
@@ -99,6 +183,26 @@ type EnqueueCommandParams struct {
 func (q *Queries) EnqueueCommand(ctx context.Context, arg EnqueueCommandParams) error {
 	_, err := q.db.Exec(ctx, enqueueCommand, arg.CommandType, arg.Payload)
 	return err
+}
+
+const getAuthSecret = `-- name: GetAuthSecret :one
+SELECT user_id, password_hash, salt, created_at, updated_at
+FROM auth_secret
+WHERE user_id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetAuthSecret(ctx context.Context, userID int64) (AuthSecret, error) {
+	row := q.db.QueryRow(ctx, getAuthSecret, userID)
+	var i AuthSecret
+	err := row.Scan(
+		&i.UserID,
+		&i.PasswordHash,
+		&i.Salt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const getContestHashes = `-- name: GetContestHashes :many
@@ -229,6 +333,50 @@ func (q *Queries) GetTeamHashes(ctx context.Context) ([]GetTeamHashesRow, error)
 	return items, nil
 }
 
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, username, email, role, external_id, created_at, updated_at, last_login_at FROM app_user
+WHERE id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id int64) (AppUser, error) {
+	row := q.db.QueryRow(ctx, getUserByID, id)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Role,
+		&i.ExternalID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.LastLoginAt,
+	)
+	return i, err
+}
+
+const getUserByUsernameCI = `-- name: GetUserByUsernameCI :one
+SELECT id, username, email, role, external_id, created_at, updated_at, last_login_at FROM app_user
+WHERE lower(username) = lower($1)
+LIMIT 1
+`
+
+func (q *Queries) GetUserByUsernameCI(ctx context.Context, lower string) (AppUser, error) {
+	row := q.db.QueryRow(ctx, getUserByUsernameCI, lower)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Role,
+		&i.ExternalID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.LastLoginAt,
+	)
+	return i, err
+}
+
 type InsertContestTeamsParams struct {
 	ContestID int32
 	TeamID    int32
@@ -271,6 +419,98 @@ func (q *Queries) ListContests(ctx context.Context) ([]Contest, error) {
 	return items, nil
 }
 
+const listUsers = `-- name: ListUsers :many
+SELECT id, username, email, role, external_id, created_at, updated_at, last_login_at FROM app_user
+ORDER BY id
+LIMIT $1 OFFSET $2
+`
+
+type ListUsersParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]AppUser, error) {
+	rows, err := q.db.Query(ctx, listUsers, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []AppUser
+	for rows.Next() {
+		var i AppUser
+		if err := rows.Scan(
+			&i.ID,
+			&i.Username,
+			&i.Email,
+			&i.Role,
+			&i.ExternalID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.LastLoginAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const touchLastLogin = `-- name: TouchLastLogin :one
+UPDATE app_user
+SET last_login_at = now()
+WHERE id = $1
+RETURNING id, username, email, role, external_id, created_at, updated_at, last_login_at
+`
+
+func (q *Queries) TouchLastLogin(ctx context.Context, id int64) (AppUser, error) {
+	row := q.db.QueryRow(ctx, touchLastLogin, id)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Role,
+		&i.ExternalID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.LastLoginAt,
+	)
+	return i, err
+}
+
+const updateAuthSecret = `-- name: UpdateAuthSecret :one
+UPDATE auth_secret
+SET
+  password_hash = $2,
+  salt          = $3,
+  updated_at    = now()
+WHERE user_id = $1
+RETURNING user_id, password_hash, salt, created_at, updated_at
+`
+
+type UpdateAuthSecretParams struct {
+	UserID       int64
+	PasswordHash string
+	Salt         string
+}
+
+func (q *Queries) UpdateAuthSecret(ctx context.Context, arg UpdateAuthSecretParams) (AuthSecret, error) {
+	row := q.db.QueryRow(ctx, updateAuthSecret, arg.UserID, arg.PasswordHash, arg.Salt)
+	var i AuthSecret
+	err := row.Scan(
+		&i.UserID,
+		&i.PasswordHash,
+		&i.Salt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const updateClientLastSeen = `-- name: UpdateClientLastSeen :exec
 
 
@@ -299,6 +539,74 @@ type UpdateIpParams struct {
 func (q *Queries) UpdateIp(ctx context.Context, arg UpdateIpParams) error {
 	_, err := q.db.Exec(ctx, updateIp, arg.ID, arg.Ip)
 	return err
+}
+
+const updateUserProfile = `-- name: UpdateUserProfile :one
+UPDATE app_user
+SET
+  username = COALESCE($1, username),
+  email    = COALESCE($2, email),
+  role     = COALESCE($3, role)
+WHERE id = $4
+RETURNING id, username, email, role, external_id, created_at, updated_at, last_login_at
+`
+
+type UpdateUserProfileParams struct {
+	Username pgtype.Text
+	Email    pgtype.Text
+	Role     pgtype.Text
+	ID       int64
+}
+
+func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (AppUser, error) {
+	row := q.db.QueryRow(ctx, updateUserProfile,
+		arg.Username,
+		arg.Email,
+		arg.Role,
+		arg.ID,
+	)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Role,
+		&i.ExternalID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.LastLoginAt,
+	)
+	return i, err
+}
+
+const upsertAuthSecret = `-- name: UpsertAuthSecret :one
+INSERT INTO auth_secret (user_id, password_hash, salt)
+VALUES ($1, $2, $3)
+ON CONFLICT (user_id) DO UPDATE
+SET
+  password_hash = EXCLUDED.password_hash,
+  salt          = EXCLUDED.salt,
+  updated_at    = now()
+RETURNING user_id, password_hash, salt, created_at, updated_at
+`
+
+type UpsertAuthSecretParams struct {
+	UserID       int64
+	PasswordHash string
+	Salt         string
+}
+
+func (q *Queries) UpsertAuthSecret(ctx context.Context, arg UpsertAuthSecretParams) (AuthSecret, error) {
+	row := q.db.QueryRow(ctx, upsertAuthSecret, arg.UserID, arg.PasswordHash, arg.Salt)
+	var i AuthSecret
+	err := row.Scan(
+		&i.UserID,
+		&i.PasswordHash,
+		&i.Salt,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const upsertClient = `-- name: UpsertClient :one

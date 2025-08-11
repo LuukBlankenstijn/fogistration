@@ -8,6 +8,25 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type AppUser struct {
+	ID          int64
+	Username    string
+	Email       string
+	Role        string
+	ExternalID  pgtype.Text
+	CreatedAt   pgtype.Timestamptz `hash:"exclude"`
+	UpdatedAt   pgtype.Timestamptz `hash:"exclude"`
+	LastLoginAt pgtype.Timestamptz
+}
+
+type AuthSecret struct {
+	UserID       int64
+	PasswordHash string
+	Salt         string
+	CreatedAt    pgtype.Timestamptz `hash:"exclude"`
+	UpdatedAt    pgtype.Timestamptz `hash:"exclude"`
+}
+
 type Client struct {
 	ID        int32
 	Ip        string
