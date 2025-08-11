@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+:root {
+  /* Light theme (HSL) */
+  --bg: 210 20% 98%;
+  --panel: 0 0% 100%;
+  --input: 0 0% 100%;
+  --hover: 210 20% 97%;
+  --fg: 222 47% 11%;
+  --muted: 215 16% 47%;
+  --border: 214 17% 92%;
+  --brand: 222 89% 55%;
+  --on-brand: 210 40% 98%;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: 222 47% 5%;
+    --panel: 222 47% 7%;
+    --input: 222 47% 9%;
+    --hover: 222 47% 12%;
+    --fg: 210 40% 98%;
+    --muted: 215 16% 69%;
+    --border: 217 19% 24%;
+    --brand: 222 89% 66%;
+    --on-brand: 222 47% 6%;
+  }
+}
