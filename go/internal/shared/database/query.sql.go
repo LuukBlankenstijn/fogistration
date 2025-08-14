@@ -185,6 +185,68 @@ func (q *Queries) EnqueueCommand(ctx context.Context, arg EnqueueCommandParams) 
 	return err
 }
 
+const getAllClients = `-- name: GetAllClients :many
+SELECT id, ip, last_seen, created_at FROM clients
+`
+
+func (q *Queries) GetAllClients(ctx context.Context) ([]Client, error) {
+	rows, err := q.db.Query(ctx, getAllClients)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Client
+	for rows.Next() {
+		var i Client
+		if err := rows.Scan(
+			&i.ID,
+			&i.Ip,
+			&i.LastSeen,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getAllTeams = `-- name: GetAllTeams :many
+SELECT id, external_id, name, display_name, ip, created_at, updated_at, hash FROM teams
+`
+
+func (q *Queries) GetAllTeams(ctx context.Context) ([]Team, error) {
+	rows, err := q.db.Query(ctx, getAllTeams)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Team
+	for rows.Next() {
+		var i Team
+		if err := rows.Scan(
+			&i.ID,
+			&i.ExternalID,
+			&i.Name,
+			&i.DisplayName,
+			&i.Ip,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Hash,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getAuthSecret = `-- name: GetAuthSecret :one
 SELECT user_id, password_hash, salt, created_at, updated_at
 FROM auth_secret
@@ -201,6 +263,26 @@ func (q *Queries) GetAuthSecret(ctx context.Context, userID int64) (AuthSecret, 
 		&i.Salt,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getClientById = `-- name: GetClientById :one
+
+
+SELECT id, ip, last_seen, created_at FROM clients
+WHERE id = $1
+`
+
+// CLIENTS
+func (q *Queries) GetClientById(ctx context.Context, id int32) (Client, error) {
+	row := q.db.QueryRow(ctx, getClientById, id)
+	var i Client
+	err := row.Scan(
+		&i.ID,
+		&i.Ip,
+		&i.LastSeen,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -251,6 +333,27 @@ func (q *Queries) GetNextOrActiveContest(ctx context.Context) (Contest, error) {
 		&i.FormalName,
 		&i.StartTime,
 		&i.EndTime,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Hash,
+	)
+	return i, err
+}
+
+const getTeamByExternalId = `-- name: GetTeamByExternalId :one
+SELECT id, external_id, name, display_name, ip, created_at, updated_at, hash FROM teams
+WHERE external_id = $1
+`
+
+func (q *Queries) GetTeamByExternalId(ctx context.Context, externalID string) (Team, error) {
+	row := q.db.QueryRow(ctx, getTeamByExternalId, externalID)
+	var i Team
+	err := row.Scan(
+		&i.ID,
+		&i.ExternalID,
+		&i.Name,
+		&i.DisplayName,
+		&i.Ip,
 		&i.CreatedAt,
 		&i.UpdatedAt,
 		&i.Hash,
@@ -512,33 +615,42 @@ func (q *Queries) UpdateAuthSecret(ctx context.Context, arg UpdateAuthSecretPara
 }
 
 const updateClientLastSeen = `-- name: UpdateClientLastSeen :exec
-
-
 UPDATE clients
 SET last_seen = NOW()
 WHERE ip = $1
 `
 
-// CLIENTS
 func (q *Queries) UpdateClientLastSeen(ctx context.Context, ip string) error {
 	_, err := q.db.Exec(ctx, updateClientLastSeen, ip)
 	return err
 }
 
-const updateIp = `-- name: UpdateIp :exec
+const updateIp = `-- name: UpdateIp :one
 UPDATE teams
 SET ip = $2
-WHERE id = $1
+WHERE external_id= $1
+RETURNING id, external_id, name, display_name, ip, created_at, updated_at, hash
 `
 
 type UpdateIpParams struct {
-	ID int32
-	Ip pgtype.Text
+	ExternalID string
+	Ip         pgtype.Text
 }
 
-func (q *Queries) UpdateIp(ctx context.Context, arg UpdateIpParams) error {
-	_, err := q.db.Exec(ctx, updateIp, arg.ID, arg.Ip)
-	return err
+func (q *Queries) UpdateIp(ctx context.Context, arg UpdateIpParams) (Team, error) {
+	row := q.db.QueryRow(ctx, updateIp, arg.ExternalID, arg.Ip)
+	var i Team
+	err := row.Scan(
+		&i.ID,
+		&i.ExternalID,
+		&i.Name,
+		&i.DisplayName,
+		&i.Ip,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Hash,
+	)
+	return i, err
 }
 
 const updateUserProfile = `-- name: UpdateUserProfile :one

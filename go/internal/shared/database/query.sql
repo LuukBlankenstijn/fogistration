@@ -45,9 +45,16 @@ DO UPDATE SET
 SELECT * FROM teams
 WHERE id = $1;
 
+-- name: GetTeamByExternalId :one
+SELECT * FROM teams
+WHERE external_id = $1;
+
 -- name: GetTeamByIp :one
 SELECT * FROM teams
 WHERE ip = $1;
+
+-- name: GetAllTeams :many
+SELECT * FROM teams;
 
 -- name: GetTeamHashes :many
 SELECT id, hash FROM teams
@@ -75,10 +82,11 @@ DO UPDATE SET
     updated_at = NOW(),
     hash = EXCLUDED.hash;
 
--- name: UpdateIp :exec
+-- name: UpdateIp :one
 UPDATE teams
 SET ip = $2
-WHERE id = $1;
+WHERE external_id= $1
+RETURNING *;
 
 -- name: ClaimTeam :one
 WITH target AS (
@@ -127,11 +135,17 @@ RETURNING *;
 -- CLIENTS
 
 
+-- name: GetClientById :one
+SELECT * FROM clients
+WHERE id = $1;
+
+-- name: GetAllClients :many
+SELECT * FROM clients;
+
 -- name: UpdateClientLastSeen :exec
 UPDATE clients
 SET last_seen = NOW()
 WHERE ip = $1;
-
 
 -- name: UpsertClient :one
 INSERT INTO clients (

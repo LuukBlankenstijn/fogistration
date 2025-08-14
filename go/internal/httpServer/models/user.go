@@ -10,10 +10,10 @@ const (
 )
 
 type User struct {
-	ID       int64  `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Role     Role   `json:"role"`
+	ID       int64  `json:"id" binding:"required"`
+	Username string `json:"username" binding:"required"`
+	Email    string `json:"email" binding:"required"`
+	Role     Role   `json:"role" binding:"required"`
 }
 
 func MapUser(user database.AppUser) User {

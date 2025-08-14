@@ -28,7 +28,7 @@ func main() {
 
 	// Add IP to metadata
 	md := metadata.New(map[string]string{
-		"client-ip": "192.168.1.100",
+		"client-ip": "192.168.1.101",
 	})
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 

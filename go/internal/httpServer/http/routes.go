@@ -25,6 +25,19 @@ func (s *Server) setupRoutes() {
 			auth.Post("/logout", s.Logout)
 			auth.Get("/user", s.GetCurrentUser)
 		})
+
+		r.Route("/client", func(client chi.Router) {
+			client.Use(s.auth()...)
+			client.Get("/", s.ListClients)
+			client.Put("/{clientId}/team", s.SetTeam)
+		})
+
+		r.Route("/dj", func(dj chi.Router) {
+			dj.Use(s.auth()...)
+			dj.Get("/team", s.ListTeams)
+			dj.Put("/team/{teamId}/client", s.SetTeamClient)
+			dj.Get("/contest/active", s.GetActiveContest)
+		})
 	})
 }
 

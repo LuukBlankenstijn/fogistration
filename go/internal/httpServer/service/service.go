@@ -4,11 +4,13 @@ import (
 	"time"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/httpServer/service/auth"
+	"github.com/LuukBlankenstijn/fogistration/internal/httpServer/service/client"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 )
 
 type ServiceRepo struct {
-	Auth auth.Service
+	Auth   auth.Service
+	Client client.Service
 }
 
 func New(q *database.Queries, secret string) *ServiceRepo {
@@ -17,6 +19,7 @@ func New(q *database.Queries, secret string) *ServiceRepo {
 		TTL:    time.Hour,
 	}
 	return &ServiceRepo{
-		Auth: auth.New(q, signer),
+		Auth:   auth.New(q, signer),
+		Client: client.New(q),
 	}
 }
