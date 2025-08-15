@@ -1,57 +1,51 @@
-import { useClients, useSetClientTeamMutation, type Client } from "@/query/dashboard";
+import { useClients, useSetTeamClientMutation } from "@/query/dashboard";
 import { flexRender, getCoreRowModel, getSortedRowModel, useReactTable, type ColumnDef, type SortingState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { Dropdown } from "./table/Dropdown";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { getAllTeamsOptions } from "@/clients/generated-client/@tanstack/react-query.gen";
-import { formatRelativeDateTime } from "@/utils/date";
+import type { ModelsTeam } from "@/clients/generated-client";
 
-export function ClientsTable() {
+export function TeamsTable() {
   const clients = useClients()
   const { data: teams } = useSuspenseQuery(getAllTeamsOptions())
-  const { mutate } = useSetClientTeamMutation()
+  const { mutate } = useSetTeamClientMutation()
 
-  const teamNameById = useMemo(() => {
-    const m = new Map<string, string>()
-    teams.forEach(t => m.set(t.id, t.name))
-    return m
-  }, [teams])
+  const availableIps = useMemo(() => {
+    return clients.filter((client) => !!client.teamId).map((client) => client.ip)
+  }, [clients])
 
   const [sorting, setSorting] = useState<SortingState>([])
 
-  const columns = useMemo<ColumnDef<Client>[]>(() => [
+  const columns = useMemo<ColumnDef<ModelsTeam>[]>(() => [
     { accessorKey: "id", header: "ID" },
-    { accessorKey: "ip", header: "IP" },
+    { accessorKey: "name", header: "Name" },
     {
-      accessorKey: "lastSeen",
-      header: "Last Seen",
-      cell: ({ getValue }) => formatRelativeDateTime(getValue<Date>()),
-    },
-    {
-      id: "team",
-      header: "Team",
-      accessorFn: (row) => teamNameById.get(row.teamId ?? "") ?? "",
-      sortingFn: "alphanumeric",
+      id: "client",
+      header: "Client",
+      accessorKey: "ip",
       cell: ({ row }) => {
-        const onSelectTeam = (teamId: string | null) => { mutate({ client: row.original, teamId: teamId ?? undefined }); }
+        const onSelectClient = (clientIp: string | null) => {
+          mutate({ team: row.original, clientIp: clientIp ?? undefined })
+        }
 
         return (
           <Dropdown
-            value={row.original.teamId}
-            options={teams}
-            valueGenerator={(team) => team.id}
-            labelGenerator={(team) => team.name}
-            show={(team, value) => !team.ip || value === team.id}
-            onChange={onSelectTeam}
-            placeholder="No team"
+            value={row.original.ip}
+            options={clients}
+            valueGenerator={(client) => client.ip}
+            labelGenerator={(client) => client.ip}
+            show={(client, value) => !availableIps.includes(client.ip) || value === client.ip}
+            onChange={onSelectClient}
+            placeholder="No client"
           />
         )
       },
     },
-  ], [teams, mutate, teamNameById])
+  ], [clients, mutate, availableIps])
 
   const table = useReactTable({
-    data: clients,
+    data: teams,
     columns,
     state: { sorting },
     onSortingChange: setSorting,
@@ -62,8 +56,8 @@ export function ClientsTable() {
   return (
     <div>
       <header className="flex items-baseline justify-between">
-        <h2 className="text-lg font-semibold" style={{ color: 'hsl(var(--fg))' }}>Clients</h2>
-        <span className="text-xs" style={{ color: 'hsl(var(--muted))' }}>{clients.length} total</span>
+        <h2 className="text-lg font-semibold" style={{ color: 'hsl(var(--fg))' }}>Teams</h2>
+        <span className="text-xs" style={{ color: 'hsl(var(--muted))' }}>{teams.length} total</span>
       </header>
 
       <div className="overflow-x-auto rounded-lg border"

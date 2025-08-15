@@ -1,5 +1,5 @@
 import { setTeam, setTeamClient, type ModelsClient, type ModelsTeam } from "@/clients/generated-client"
-import { getAllClientsOptions, getAllTeamsOptions, getAllTeamsQueryKey } from "@/clients/generated-client/@tanstack/react-query.gen"
+import { getAllClientsOptions, getAllClientsQueryKey, getAllTeamsOptions, getAllTeamsQueryKey } from "@/clients/generated-client/@tanstack/react-query.gen"
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
 import { useMemo } from "react"
 
@@ -22,7 +22,7 @@ export const useClients = () => {
       }
     });
 
-    return clients.clients.map(client => ({
+    return clients.map(client => ({
       ...client,
       teamId: teamIdByIp.get(client.ip)
     }))
@@ -43,10 +43,12 @@ export const useSetTeamClientMutation = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async ({ team, client }: { team: ModelsTeam, client?: Client | undefined }) => {
+    mutationFn: async ({ team, clientIp }: { team: ModelsTeam, clientIp?: string | undefined }) => {
+      const client = queryClient.getQueryData<ModelsClient[]>(getAllClientsQueryKey())?.find((c) => c.ip === clientIp)
+
       const { data: updatedTeam } = await setTeamClient({
         body: {
-          clientId: client?.id ?? undefined
+          clientId: client?.id
         },
         path: {
           teamId: team.id
@@ -56,12 +58,30 @@ export const useSetTeamClientMutation = () => {
 
       return updatedTeam
     },
-    onMutate: ({ team, client }) => {
-      team.ip = client?.ip ?? undefined
-      queryClient.setQueryData(getAllTeamsQueryKey(), (old: ModelsTeam[]) => {
-        const list = old.filter((t) => t.id !== team.id)
-        list.push(team)
-        return list
+    onMutate: ({ team, clientIp }) => {
+      const prev = queryClient.getQueryData<ModelsTeam[]>(getAllTeamsQueryKey()) ?? []
+      const client = queryClient.getQueryData<ModelsClient[]>(getAllClientsQueryKey())?.find((client) => client.ip === clientIp)
+
+      queryClient.setQueryData<ModelsTeam[]>(
+        getAllTeamsQueryKey(),
+        (old = []) =>
+          old.map(t => {
+            if (t.id === team.id) {
+              return { ...t, ip: client?.ip }
+            }
+            return t
+          })
+      )
+
+      return { prev }
+    },
+    onError: (_error, _variable, context) => {
+      console.error(_error)
+      queryClient.setQueryData(getAllTeamsQueryKey(), context?.prev)
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: getAllTeamsQueryKey()
       })
     }
   })

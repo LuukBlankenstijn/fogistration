@@ -5,7 +5,6 @@ import { useEffect } from 'react'
 export const Route = createFileRoute('/_private')({
   beforeLoad: ({ context, location }) => {
     if (!context.auth.isAuthenticated) {
-      // eslint-disable-next-line @typescript-eslint/only-throw-error
       throw redirect({
         to: "/",
         search: {

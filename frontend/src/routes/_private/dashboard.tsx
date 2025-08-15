@@ -1,5 +1,6 @@
 import { getActiveContestOptions, getAllClientsOptions, getAllTeamsOptions } from '@/clients/generated-client/@tanstack/react-query.gen'
 import { ClientsTable } from '@/components/ClientsTable'
+import { TeamsTable } from '@/components/TeamsTable'
 import queryClient from '@/query/client'
 import { createFileRoute } from '@tanstack/react-router'
 import { Suspense } from 'react'
@@ -17,6 +18,14 @@ function ClientsSection() {
   return (
     <section className="space-y-3">
       <ClientsTable />
+    </section>
+  )
+}
+
+function TeamsSection() {
+  return (
+    <section className="space-y-3">
+      <TeamsTable />
     </section>
   )
 }
@@ -42,7 +51,7 @@ export default function Dashboard() {
       />
 
       <main className="relative mx-auto max-w-6xl px-6 py-8">
-        <section className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--panel))] p-6 shadow-sm">
+        <section className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--panel))] p-6 m-6 shadow-sm">
           <header className="mb-6 flex items-center justify-between">
             {/* <h1 className="text-2xl font-bold">Dashboard</h1> */}
             {/* toolbar later */}
@@ -50,6 +59,18 @@ export default function Dashboard() {
 
           <Suspense fallback={<div className="text-sm text-[hsl(var(--muted))]">Loading clients…</div>}>
             <ClientsSection />
+          </Suspense>
+        </section>
+
+
+        <section className="rounded-2xl border border-[hsl(var(--border))] bg-[hsl(var(--panel))] p-6 m-6 shadow-sm">
+          <header className="mb-6 flex items-center justify-between">
+            {/* <h1 className="text-2xl font-bold">Dashboard</h1> */}
+            {/* toolbar later */}
+          </header>
+
+          <Suspense fallback={<div className="text-sm text-[hsl(var(--muted))]">Loading teams…</div>}>
+            <TeamsSection />
           </Suspense>
         </section>
       </main>

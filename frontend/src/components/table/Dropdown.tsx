@@ -3,9 +3,9 @@ interface DropdownProps<T> {
   value: string | undefined
   onChange: (value: string | null) => void
   options: T[]
-  valueGenerator: (row: T) => string
+  valueGenerator: (row: T) => string | number
   labelGenerator: (row: T) => string
-  showGenerator: (row: T, value: string | undefined) => boolean,
+  show: (row: T, value?: string | number) => boolean,
   placeholder?: string
   required?: boolean
 }
@@ -17,7 +17,7 @@ export function Dropdown<T>({
   options,
   valueGenerator,
   labelGenerator,
-  showGenerator,
+  show: showGenerator,
   placeholder = "Select…",
   required = false,
 }: DropdownProps<T>) {
@@ -32,7 +32,7 @@ export function Dropdown<T>({
         <option value="" disabled={required} className="text-[hsl(var(--muted))]">
           {placeholder}
         </option>
-        {options.map((opt) => {
+        {options.filter((opt) => showGenerator(opt, value)).map((opt) => {
           return (showGenerator(opt, value) &&
             <option
               key={valueGenerator(opt)}
