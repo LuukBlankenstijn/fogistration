@@ -9,71 +9,71 @@ import (
 )
 
 type AppUser struct {
-	ID          int64
-	Username    string
-	Email       string
-	Role        string
-	ExternalID  pgtype.Text
-	CreatedAt   pgtype.Timestamptz `hash:"exclude"`
-	UpdatedAt   pgtype.Timestamptz `hash:"exclude"`
-	LastLoginAt pgtype.Timestamptz
+	ID          int64              `json:"id"`
+	Username    string             `json:"username"`
+	Email       string             `json:"email"`
+	Role        string             `json:"role"`
+	ExternalID  pgtype.Text        `json:"external_id"`
+	CreatedAt   pgtype.Timestamptz `hash:"exclude" json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `hash:"exclude" json:"updated_at"`
+	LastLoginAt pgtype.Timestamptz `json:"last_login_at"`
 }
 
 type AuthSecret struct {
-	UserID       int64
-	PasswordHash string
-	Salt         string
-	CreatedAt    pgtype.Timestamptz `hash:"exclude"`
-	UpdatedAt    pgtype.Timestamptz `hash:"exclude"`
+	UserID       int64              `json:"user_id"`
+	PasswordHash string             `json:"password_hash"`
+	Salt         string             `json:"salt"`
+	CreatedAt    pgtype.Timestamptz `hash:"exclude" json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `hash:"exclude" json:"updated_at"`
 }
 
 type Client struct {
-	ID        int32
-	Ip        string
-	LastSeen  pgtype.Timestamp
-	CreatedAt pgtype.Timestamp `hash:"exclude"`
+	ID        int32            `json:"id"`
+	Ip        string           `json:"ip"`
+	LastSeen  pgtype.Timestamp `json:"last_seen"`
+	CreatedAt pgtype.Timestamp `hash:"exclude" json:"created_at"`
 }
 
 type Contest struct {
-	ID         int32
-	ExternalID string
-	FormalName string
-	StartTime  pgtype.Timestamp
-	EndTime    pgtype.Timestamp
-	CreatedAt  pgtype.Timestamp `hash:"exclude"`
-	UpdatedAt  pgtype.Timestamp `hash:"exclude"`
-	Hash       string           `hash:"exclude"`
+	ID         int32            `json:"id"`
+	ExternalID string           `json:"external_id"`
+	FormalName string           `json:"formal_name"`
+	StartTime  pgtype.Timestamp `json:"start_time"`
+	EndTime    pgtype.Timestamp `json:"end_time"`
+	CreatedAt  pgtype.Timestamp `hash:"exclude" json:"created_at"`
+	UpdatedAt  pgtype.Timestamp `hash:"exclude" json:"updated_at"`
+	Hash       string           `hash:"exclude" json:"hash"`
 }
 
 type ContestTeam struct {
-	ContestID int32
-	TeamID    int32
+	ContestID int32 `json:"contest_id"`
+	TeamID    int32 `json:"team_id"`
 }
 
 type MessageQueue struct {
-	ID          int32
-	CommandType string
-	Payload     []byte
-	CreatedAt   pgtype.Timestamp `hash:"exclude"`
+	ID          int32            `json:"id"`
+	CommandType string           `json:"command_type"`
+	Payload     []byte           `json:"payload"`
+	CreatedAt   pgtype.Timestamp `hash:"exclude" json:"created_at"`
 }
 
 type Team struct {
-	ID          int32
-	ExternalID  string
-	Name        string
-	DisplayName pgtype.Text
-	Ip          pgtype.Text
-	CreatedAt   pgtype.Timestamp `hash:"exclude"`
-	UpdatedAt   pgtype.Timestamp `hash:"exclude"`
-	Hash        string           `hash:"exclude"`
+	ID          int32            `json:"id"`
+	ExternalID  string           `json:"external_id"`
+	Name        string           `json:"name"`
+	DisplayName pgtype.Text      `json:"display_name"`
+	Ip          pgtype.Text      `json:"ip"`
+	CreatedAt   pgtype.Timestamp `hash:"exclude" json:"created_at"`
+	UpdatedAt   pgtype.Timestamp `hash:"exclude" json:"updated_at"`
+	Hash        string           `hash:"exclude" json:"hash"`
 }
 
 type User struct {
-	ID        string
-	Name      string
-	TeamID    pgtype.Int4
-	Ip        pgtype.Text
-	CreatedAt pgtype.Timestamp `hash:"exclude"`
-	UpdatedAt pgtype.Timestamp `hash:"exclude"`
-	Hash      string           `hash:"exclude"`
+	ID        string           `json:"id"`
+	Name      string           `json:"name"`
+	TeamID    pgtype.Int4      `json:"team_id"`
+	Ip        pgtype.Text      `json:"ip"`
+	CreatedAt pgtype.Timestamp `hash:"exclude" json:"created_at"`
+	UpdatedAt pgtype.Timestamp `hash:"exclude" json:"updated_at"`
+	Hash      string           `hash:"exclude" json:"hash"`
 }

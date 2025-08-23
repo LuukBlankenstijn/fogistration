@@ -28,8 +28,8 @@ RETURNING t.id, t.external_id, t.name, t.display_name, t.ip, t.created_at, t.upd
 `
 
 type ClaimTeamParams struct {
-	Ip        pgtype.Text
-	ContestID int32
+	Ip        pgtype.Text `json:"ip"`
+	ContestID int32       `json:"contest_id"`
 }
 
 func (q *Queries) ClaimTeam(ctx context.Context, arg ClaimTeamParams) (Team, error) {
@@ -66,9 +66,9 @@ RETURNING user_id, password_hash, salt, created_at, updated_at
 `
 
 type CreateAuthSecretParams struct {
-	UserID       int64
-	PasswordHash string
-	Salt         string
+	UserID       int64  `json:"user_id"`
+	PasswordHash string `json:"password_hash"`
+	Salt         string `json:"salt"`
 }
 
 func (q *Queries) CreateAuthSecret(ctx context.Context, arg CreateAuthSecretParams) (AuthSecret, error) {
@@ -91,9 +91,9 @@ RETURNING id, username, email, role, external_id, created_at, updated_at, last_l
 `
 
 type CreateLocalUserParams struct {
-	Username string
-	Email    string
-	Role     string
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Role     string `json:"role"`
 }
 
 func (q *Queries) CreateLocalUser(ctx context.Context, arg CreateLocalUserParams) (AppUser, error) {
@@ -175,8 +175,8 @@ VALUES ($1, $2)
 `
 
 type EnqueueCommandParams struct {
-	CommandType string
-	Payload     []byte
+	CommandType string `json:"command_type"`
+	Payload     []byte `json:"payload"`
 }
 
 // COMMANDS
@@ -293,8 +293,8 @@ ORDER BY id
 `
 
 type GetContestHashesRow struct {
-	ID   int32
-	Hash string `hash:"exclude"`
+	ID   int32  `json:"id"`
+	Hash string `hash:"exclude" json:"hash"`
 }
 
 func (q *Queries) GetContestHashes(ctx context.Context) ([]GetContestHashesRow, error) {
@@ -412,8 +412,8 @@ ORDER BY id
 `
 
 type GetTeamHashesRow struct {
-	ID   int32
-	Hash string `hash:"exclude"`
+	ID   int32  `json:"id"`
+	Hash string `hash:"exclude" json:"hash"`
 }
 
 func (q *Queries) GetTeamHashes(ctx context.Context) ([]GetTeamHashesRow, error) {
@@ -481,8 +481,8 @@ func (q *Queries) GetUserByUsernameCI(ctx context.Context, lower string) (AppUse
 }
 
 type InsertContestTeamsParams struct {
-	ContestID int32
-	TeamID    int32
+	ContestID int32 `json:"contest_id"`
+	TeamID    int32 `json:"team_id"`
 }
 
 const listContests = `-- name: ListContests :many
@@ -529,8 +529,8 @@ LIMIT $1 OFFSET $2
 `
 
 type ListUsersParams struct {
-	Limit  int32
-	Offset int32
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
 }
 
 func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]AppUser, error) {
@@ -596,9 +596,9 @@ RETURNING user_id, password_hash, salt, created_at, updated_at
 `
 
 type UpdateAuthSecretParams struct {
-	UserID       int64
-	PasswordHash string
-	Salt         string
+	UserID       int64  `json:"user_id"`
+	PasswordHash string `json:"password_hash"`
+	Salt         string `json:"salt"`
 }
 
 func (q *Queries) UpdateAuthSecret(ctx context.Context, arg UpdateAuthSecretParams) (AuthSecret, error) {
@@ -633,8 +633,8 @@ RETURNING id, external_id, name, display_name, ip, created_at, updated_at, hash
 `
 
 type UpdateIpParams struct {
-	ExternalID string
-	Ip         pgtype.Text
+	ExternalID string      `json:"external_id"`
+	Ip         pgtype.Text `json:"ip"`
 }
 
 func (q *Queries) UpdateIp(ctx context.Context, arg UpdateIpParams) (Team, error) {
@@ -664,10 +664,10 @@ RETURNING id, username, email, role, external_id, created_at, updated_at, last_l
 `
 
 type UpdateUserProfileParams struct {
-	Username pgtype.Text
-	Email    pgtype.Text
-	Role     pgtype.Text
-	ID       int64
+	Username pgtype.Text `json:"username"`
+	Email    pgtype.Text `json:"email"`
+	Role     pgtype.Text `json:"role"`
+	ID       int64       `json:"id"`
 }
 
 func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (AppUser, error) {
@@ -703,9 +703,9 @@ RETURNING user_id, password_hash, salt, created_at, updated_at
 `
 
 type UpsertAuthSecretParams struct {
-	UserID       int64
-	PasswordHash string
-	Salt         string
+	UserID       int64  `json:"user_id"`
+	PasswordHash string `json:"password_hash"`
+	Salt         string `json:"salt"`
 }
 
 func (q *Queries) UpsertAuthSecret(ctx context.Context, arg UpsertAuthSecretParams) (AuthSecret, error) {
@@ -769,12 +769,12 @@ DO UPDATE SET
 `
 
 type UpsertContestParams struct {
-	ID         int32
-	ExternalID string
-	FormalName string
-	StartTime  pgtype.Timestamp
-	EndTime    pgtype.Timestamp
-	Hash       string `hash:"exclude"`
+	ID         int32            `json:"id"`
+	ExternalID string           `json:"external_id"`
+	FormalName string           `json:"formal_name"`
+	StartTime  pgtype.Timestamp `json:"start_time"`
+	EndTime    pgtype.Timestamp `json:"end_time"`
+	Hash       string           `hash:"exclude" json:"hash"`
 }
 
 func (q *Queries) UpsertContest(ctx context.Context, arg UpsertContestParams) error {
@@ -813,12 +813,12 @@ DO UPDATE SET
 `
 
 type UpsertTeamParams struct {
-	ID          int32
-	ExternalID  string
-	Name        string
-	DisplayName pgtype.Text
-	Ip          pgtype.Text
-	Hash        string `hash:"exclude"`
+	ID          int32       `json:"id"`
+	ExternalID  string      `json:"external_id"`
+	Name        string      `json:"name"`
+	DisplayName pgtype.Text `json:"display_name"`
+	Ip          pgtype.Text `json:"ip"`
+	Hash        string      `hash:"exclude" json:"hash"`
 }
 
 func (q *Queries) UpsertTeam(ctx context.Context, arg UpsertTeamParams) error {

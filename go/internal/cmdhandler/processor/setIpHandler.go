@@ -5,21 +5,23 @@ import (
 	"fmt"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/cmdhandler/client"
-	dbObject "github.com/LuukBlankenstijn/fogistration/internal/shared/database/object"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/database/dblisten"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 )
 
-func (c *CommandHandler) handleSetIpCommand(ctx context.Context, cmd dbObject.ChangeIp) error {
+func (c *Worker) handleSetIpCommand(ctx context.Context, change dblisten.Notification[database.Team]) error {
 	logging.Info("setting ip")
 	users, err := c.client.ListUsers(ctx, &client.GetV4AppApiUserListParams{})
 	if err != nil {
 		return fmt.Errorf("failed to get users: %w", err)
 	}
 
-	team, err := c.queries.GetTeamById(ctx, cmd.Id)
-	if err != nil {
-		return fmt.Errorf("failed to get team: %w", err)
+	if change.New == nil || change.Old == nil {
+		return nil
 	}
+
+	team := change.New
 
 	var filteredUsers []client.User
 	for _, user := range users {
@@ -29,14 +31,8 @@ func (c *CommandHandler) handleSetIpCommand(ctx context.Context, cmd dbObject.Ch
 	}
 
 	for _, user := range filteredUsers {
-		var ip string
-		if cmd.Ip != nil {
-			ip = *cmd.Ip
-		} else {
-			ip = ""
-		}
 		params := client.UpdateUser{
-			Ip:    &ip,
+			Ip:    &team.Ip.String,
 			Roles: &[]string{},
 		}
 		_, err = c.client.UpdateUser(ctx, *user.Id, params)

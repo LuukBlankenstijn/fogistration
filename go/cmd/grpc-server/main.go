@@ -5,13 +5,13 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 
-	"github.com/LuukBlankenstijn/fogistration/internal/grpc/listener"
+	"github.com/LuukBlankenstijn/fogistration/internal/grpc/eventhandler"
 	"github.com/LuukBlankenstijn/fogistration/internal/grpc/pubsub"
 	"github.com/LuukBlankenstijn/fogistration/internal/grpc/server"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/database/dblisten"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/sync/errgroup"
@@ -38,29 +38,61 @@ func main() {
 	// Dependencies
 	queries := database.New(dbpool)
 	pubsub := pubsub.NewManager()
+	eventHandler := eventhandler.New(pubsub)
 	srv := server.NewServer(queries, pubsub)
-	dbListener := listener.NewDatabaseListener(pubsub, dbpool)
 
 	// Concurrent management
 	g, ctx := errgroup.WithContext(ctx)
 
-	g.Go(func() error {
-		for {
-			select {
-			case <-ctx.Done():
-				return ctx.Err()
-			default:
-			}
+	// g.Go(func() error {
+	// 	for {
+	// 		select {
+	// 		case <-ctx.Done():
+	// 			return ctx.Err()
+	// 		default:
+	// 		}
+	//
+	// 		logging.Info("starting database listener...")
+	// 		err := dbListener.Run(ctx)
+	// 		if err != nil && ctx.Err() == nil {
+	// 			logging.Error("database listener crashed, retrying in 5s", err)
+	// 			time.Sleep(5 * time.Second)
+	// 			continue
+	// 		}
+	// 		return err
+	// 	}
+	// })
 
-			logging.Info("starting database listener...")
-			err := dbListener.Run(ctx)
-			if err != nil && ctx.Err() == nil {
-				logging.Error("database listener crashed, retrying in 5s", err)
-				time.Sleep(5 * time.Second)
-				continue
-			}
+	g.Go(func() error {
+		l, err := dblisten.New(ctx, url)
+		if err != nil {
+			logging.Fatal("failed to created database listener", err)
+		}
+		defer l.Close(ctx)
+
+		err = l.EnsureNotifyInfra(ctx)
+		if err != nil {
+			logging.Error("failed to ensure infra", err)
 			return err
 		}
+
+		err = l.RegisterNotify(ctx, "teams", database.Team{})
+		if err != nil {
+			logging.Error("failed to register notify", err)
+			return err
+		}
+
+		mixed, err := l.ListenNotify(ctx)
+		if err != nil {
+			logging.Error("failed to get notification channel", err)
+			return err
+		}
+
+		for team_update := range dblisten.View[database.Team]("teams", mixed) {
+			eventHandler.HandleIpChange(team_update)
+		}
+
+		return nil
 	})
 
 	// Start gRPC server

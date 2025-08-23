@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
-	dbObject "github.com/LuukBlankenstijn/fogistration/internal/shared/database/object"
+	dbObject "github.com/LuukBlankenstijn/fogistration/internal/shared/database/command"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -19,7 +19,7 @@ func NewCommandRepository(queries *database.Queries) *CommandRepository {
 	}
 }
 
-func (r *CommandRepository) Enqueue(ctx context.Context, cmd dbObject.DatabaseObject) error {
+func (r *CommandRepository) Enqueue(ctx context.Context, cmd dbObject.Command) error {
 	payload, err := json.Marshal(cmd)
 	if err != nil {
 		return err
@@ -30,7 +30,7 @@ func (r *CommandRepository) Enqueue(ctx context.Context, cmd dbObject.DatabaseOb
 	})
 }
 
-func (r *CommandRepository) Dequeue(ctx context.Context) (dbObject.DatabaseObject, error) {
+func (r *CommandRepository) Dequeue(ctx context.Context) (dbObject.Command, error) {
 	row, err := r.queries.DequeueCommand(ctx)
 	if err != nil {
 		return nil, err
@@ -39,7 +39,7 @@ func (r *CommandRepository) Dequeue(ctx context.Context) (dbObject.DatabaseObjec
 	return dbObject.ParseDatabaseObject(row.CommandType, row.Payload)
 }
 
-func (r *CommandRepository) TryDequeue(ctx context.Context) (dbObject.DatabaseObject, bool, error) {
+func (r *CommandRepository) TryDequeue(ctx context.Context) (dbObject.Command, bool, error) {
 	cmd, err := r.Dequeue(ctx)
 	if err == pgx.ErrNoRows {
 		return nil, false, nil

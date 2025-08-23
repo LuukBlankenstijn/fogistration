@@ -9,7 +9,7 @@ import (
 	"github.com/LuukBlankenstijn/fogistration/internal/cmdhandler/processor"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
-	dbObject "github.com/LuukBlankenstijn/fogistration/internal/shared/database/object"
+	dbObject "github.com/LuukBlankenstijn/fogistration/internal/shared/database/command"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/repository"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -36,7 +36,7 @@ func main() {
 	if err != nil {
 		logging.Fatal("failed to create cmdhandler client", err)
 	}
-	commandHandler := processor.NewCommandHandler(ctx, dbpool, djClient)
+	worker := processor.NewWorker(ctx, dbpool, djClient)
 
 	// TODO: move this somewhere else
 	queries := database.New(dbpool)
@@ -46,7 +46,7 @@ func main() {
 	}
 	go startScheduledSync(ctx, interval, queries)
 
-	commandHandler.Start(ctx, url)
+	worker.Start(ctx, url)
 }
 
 func startScheduledSync(

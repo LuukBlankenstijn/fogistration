@@ -28,9 +28,10 @@ type DomJudgeConfig struct {
 }
 
 type ClientConfig struct {
-	Server   string
-	LogLevel string `env_default:"info"`
-	DryRun   bool   `env_default:"true"`
+	Server            string
+	LogLevel          string `env_default:"info"`
+	DryRun            bool   `env_default:"true"`
+	GreeterConfigPath string `env_default:"/etc/lightdm/lightdm-qt5-greeter.conf"`
 }
 
 type DatabaseConfig struct {
