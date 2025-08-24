@@ -9,8 +9,8 @@ import (
 type Contest struct {
 	ExternalID string    `json:"id" binding:"required"`
 	FormalName string    `json:"name" binding:"required"`
-	StartTime  time.Time `json:"startTime" binding:"required"`
-	EndTime    time.Time `json:"endTime" binding:"required"`
+	StartTime  time.Time `json:"startTime" binding:"required" format:"date-time" swaggertype:"string"`
+	EndTime    time.Time `json:"endTime" binding:"required" format:"date-time" swaggertype:"string"`
 }
 
 func MapContest(contests ...database.Contest) []Contest {

@@ -31,7 +31,6 @@ migrate-down:
 
 # generate the db code
 gen-db:
-	@go run utils/schema-builder/main.go
 	@docker compose exec http sqlc generate
 
 gen-domjudge-client:

@@ -71,6 +71,6 @@ func (s *Seeder) SeedDefaultUser(ctx context.Context) error {
 		return err
 	}
 
-	logging.Info("Seeded default user", username, password)
+	logging.Info("Seeded default user: {username: %s, password: %s}", username, password)
 	return nil
 }

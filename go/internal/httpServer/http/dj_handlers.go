@@ -37,6 +37,29 @@ func (s *Server) ListTeams(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// @Summary List contests
+// @Description Get all contests
+// @Tags dj
+// @Accept json
+// @Produce json
+// @Success 200 {array} models.Contest
+// @Router /dj/contest [get]
+// @Id GetAllContests
+func (s *Server) ListContests(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	contests, err := s.queries.ListContests(ctx)
+	if err != nil {
+		http.Error(w, "could not get contests", http.StatusInternalServerError)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(models.MapContest(contests...))
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+}
+
 // @Summary Active contest
 // @Description Get the next or current active contest
 // @Tags dj

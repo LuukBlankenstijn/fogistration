@@ -148,7 +148,7 @@ func (s *service) Validate(cookie *http.Cookie, sec string) (int64, error) {
 
 }
 
-func (s *service) issueJWT(u database.AppUser) (string, error) {
+func (s *service) issueJWT(u database.User) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":  strconv.Itoa(int(u.ID)),
 		"name": u.Username,

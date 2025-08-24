@@ -16,7 +16,7 @@ type User struct {
 	Role     Role   `json:"role" binding:"required"`
 }
 
-func MapUser(user database.AppUser) User {
+func MapUser(user database.User) User {
 	role := Role(user.Role)
 	if role != RoleUser && role != RoleAdmin {
 		role = RoleUser

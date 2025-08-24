@@ -5,19 +5,9 @@
 package database
 
 import (
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/database/models"
 	"github.com/jackc/pgx/v5/pgtype"
 )
-
-type AppUser struct {
-	ID          int64              `json:"id"`
-	Username    string             `json:"username"`
-	Email       string             `json:"email"`
-	Role        string             `json:"role"`
-	ExternalID  pgtype.Text        `json:"external_id"`
-	CreatedAt   pgtype.Timestamptz `hash:"exclude" json:"created_at"`
-	UpdatedAt   pgtype.Timestamptz `hash:"exclude" json:"updated_at"`
-	LastLoginAt pgtype.Timestamptz `json:"last_login_at"`
-}
 
 type AuthSecret struct {
 	UserID       int64              `json:"user_id"`
@@ -69,11 +59,20 @@ type Team struct {
 }
 
 type User struct {
-	ID        string           `json:"id"`
-	Name      string           `json:"name"`
-	TeamID    pgtype.Int4      `json:"team_id"`
-	Ip        pgtype.Text      `json:"ip"`
-	CreatedAt pgtype.Timestamp `hash:"exclude" json:"created_at"`
-	UpdatedAt pgtype.Timestamp `hash:"exclude" json:"updated_at"`
-	Hash      string           `hash:"exclude" json:"hash"`
+	ID          int64              `json:"id"`
+	Username    string             `json:"username"`
+	Email       string             `json:"email"`
+	Role        string             `json:"role"`
+	ExternalID  pgtype.Text        `json:"external_id"`
+	CreatedAt   pgtype.Timestamptz `hash:"exclude" json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `hash:"exclude" json:"updated_at"`
+	LastLoginAt pgtype.Timestamptz `json:"last_login_at"`
+}
+
+type WallpaperConfig struct {
+	ContestID string                      `json:"contest_id"`
+	Filename  pgtype.Text                 `json:"filename"`
+	Config    *models.WallpaperConfigJSON `json:"config"`
+	CreatedAt pgtype.Timestamptz          `hash:"exclude" json:"created_at"`
+	UpdatedAt pgtype.Timestamptz          `hash:"exclude" json:"updated_at"`
 }

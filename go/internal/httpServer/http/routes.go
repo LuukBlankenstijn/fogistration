@@ -36,7 +36,18 @@ func (s *Server) setupRoutes() {
 			dj.Use(s.auth()...)
 			dj.Get("/team", s.ListTeams)
 			dj.Put("/team/{teamId}/client", s.SetTeamClient)
+			dj.Get("/contest", s.ListContests)
 			dj.Get("/contest/active", s.GetActiveContest)
+		})
+
+		r.Route("/wallpaper", func(wallpaper chi.Router) {
+			wallpaper.Use(s.auth()...)
+
+			wallpaper.Get("/{contestId}", s.GetWallpaper)
+			wallpaper.Put("/{contestId}", s.SetWallpaper)
+
+			wallpaper.Get("/{contestId}/config", s.GetWallpaperConfig)
+			wallpaper.Put("/{contestId}/config", s.SetWallpaperConfig)
 		})
 	})
 }

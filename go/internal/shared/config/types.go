@@ -1,12 +1,13 @@
 package config
 
 type HttpConfig struct {
-	AppEnv   string `env_default:"production"`
-	Host     string `env_default:"localhost"`
-	Secret   string `env_default:"super_secret"`
-	Port     string `env_default:"8080"`
-	DB       DatabaseConfig
-	LogLevel string `env_default:"info"`
+	AppEnv       string `env_default:"production"`
+	Host         string `env_default:"localhost"`
+	Secret       string `env_default:"super_secret"`
+	Port         string `env_default:"8080"`
+	DB           DatabaseConfig
+	LogLevel     string `env_default:"info"`
+	WallpaperDir string `env_default:"/wallpapers"`
 }
 
 type GrpcConfig struct {

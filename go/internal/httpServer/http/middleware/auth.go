@@ -27,6 +27,7 @@ func Auth(secret string, authService auth.Service) func(http.Handler) http.Handl
 			id, err := authService.Validate(c, secret)
 			if err != nil {
 				http.Error(w, err.Error(), http.StatusUnauthorized)
+				return
 			}
 
 			ctx := context.WithValue(r.Context(), userIdCtxKey, id)
@@ -61,10 +62,12 @@ func FindUser(q *database.Queries) func(http.Handler) http.Handler {
 			id, ok := GetUserId(r.Context())
 			if !ok {
 				http.Error(w, "user id not set", http.StatusInternalServerError)
+				return
 			}
 			user, err := q.GetUserByID(r.Context(), id)
 			if err != nil {
 				http.Error(w, "User not found", http.StatusBadRequest)
+				return
 			}
 
 			ctx := context.WithValue(r.Context(), userCtxKey, user)
@@ -81,8 +84,8 @@ func GetUserId(ctx context.Context) (int64, bool) {
 	return u, ok
 }
 
-func GetUser(ctx context.Context) database.AppUser {
-	u, ok := ctx.Value(userCtxKey).(database.AppUser)
+func GetUser(ctx context.Context) database.User {
+	u, ok := ctx.Value(userCtxKey).(database.User)
 	if !ok {
 		logging.Fatal("Used GetUser on a context without user", nil)
 	}
