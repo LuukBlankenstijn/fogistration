@@ -1,16 +1,16 @@
-import { getAllContestsOptions } from "@/clients/generated-client/@tanstack/react-query.gen";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { type SortingState, type ColumnDef, useReactTable, getCoreRowModel, getSortedRowModel, flexRender } from "@tanstack/react-table";
 import { useState, useMemo } from "react";
-import type { ModelsContest } from "@/clients/generated-client";
 import { Link } from "@tanstack/react-router";
+import { listContestsOptions } from "@/clients/generated-client/@tanstack/react-query.gen";
+import type { Contest } from "@/clients/generated-client";
 
 export function ContestTable() {
-  const { data: contests } = useSuspenseQuery(getAllContestsOptions())
+  const { data: contests } = useSuspenseQuery(listContestsOptions())
 
   const [sorting, setSorting] = useState<SortingState>([])
 
-  const columns = useMemo<ColumnDef<ModelsContest>[]>(() => [
+  const columns = useMemo<ColumnDef<Contest>[]>(() => [
     { accessorKey: "id", header: "ID" },
     { accessorKey: "name", header: "Name" },
     {
@@ -47,7 +47,7 @@ export function ContestTable() {
       enableSorting: false,
       cell: ({ row }) => {
         return (
-          <Link to="/wallpaper/$contestId" params={{ contestId: row.original.id }}>
+          <Link to="/wallpaper/$id" params={{ id: row.original.id }}>
             <button
               type="button"
               className="inline-flex items-center rounded-md border px-3 py-1.5 text-xs font-medium transition focus:outline-none focus:ring-1 focus:ring-offset-1"

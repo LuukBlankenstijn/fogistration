@@ -1,14 +1,14 @@
-import { useClients, useSetClientTeamMutation, type Client } from "@/query/dashboard";
+import { useClients, useSetClientTeamMutation, type ExtendedClient } from "@/query/dashboard";
 import { flexRender, getCoreRowModel, getSortedRowModel, useReactTable, type ColumnDef, type SortingState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { Dropdown } from "./table/Dropdown";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getAllTeamsOptions } from "@/clients/generated-client/@tanstack/react-query.gen";
 import { formatRelativeDateTime } from "@/utils/date";
+import { listTeamsOptions } from "@/clients/generated-client/@tanstack/react-query.gen";
 
 export function ClientsTable() {
   const clients = useClients()
-  const { data: teams } = useSuspenseQuery(getAllTeamsOptions())
+  const { data: teams } = useSuspenseQuery(listTeamsOptions())
   const { mutate } = useSetClientTeamMutation()
 
   const teamNameById = useMemo(() => {
@@ -19,7 +19,7 @@ export function ClientsTable() {
 
   const [sorting, setSorting] = useState<SortingState>([])
 
-  const columns = useMemo<ColumnDef<Client>[]>(() => [
+  const columns = useMemo<ColumnDef<ExtendedClient>[]>(() => [
     { accessorKey: "id", header: "ID" },
     { accessorKey: "ip", header: "IP" },
     {

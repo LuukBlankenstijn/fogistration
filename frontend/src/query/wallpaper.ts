@@ -1,75 +1,98 @@
-import { getWallpaperFile, setWallpaperConfig, setWallpaperFile } from "@/clients/generated-client"
-import { getWallpaperConfigOptions, getWallpaperConfigQueryKey, getWallpaperFileQueryKey } from "@/clients/generated-client/@tanstack/react-query.gen"
-import type { Layout } from "@/components/WallpaperEditor/types/layout"
+import { deleteWallpaperFile, deleteWallpaperLayout, getWallpaperFile, getWallpaperLayout, putWallpaperFile, putWallpaperLayout, type WallpaperLayout } from "@/clients/generated-client"
+import { getWallpaperFileQueryKey, getWallpaperLayoutQueryKey } from "@/clients/generated-client/@tanstack/react-query.gen"
+import { DEFAULT_WALLPAPER_LAYOUT } from "@/components/WallpaperEditor/types"
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
+import { useNavigate } from "@tanstack/react-router"
 
-export const useGetWallpaperConfigQuery = (contestId: string) => {
-  return useSuspenseQuery(getWallpaperConfigOptions({
-    path: {
-      contestId
-    }
-  }))
-}
-
-export const useWallpaperConfigMutation = () => {
-  const queryClient = useQueryClient()
-  return useMutation({
-    mutationFn: ({ layout, contestId }: { layout: Layout, contestId: string }) => {
-      return setWallpaperConfig({
-        path: {
-          contestId
-        },
-        body: {
-          ...layout
-        }
-      })
-    },
-    onSuccess: (data, variables) => {
-      queryClient.setQueryData(getWallpaperConfigQueryKey({ path: { contestId: variables.contestId } }), data.data)
-    },
-  })
-}
-
-export const useGetWallpaperQuery = (contestId: string) => {
-  const options = {
-    path: {
-      contestId
-    }
-  }
+export const useGetWallpaperConfigQuery = (id: number) => {
   return useSuspenseQuery({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await getWallpaperFile({
-        ...options,
+      const { data, error } = await getWallpaperLayout({
         ...queryKey[0],
         signal,
       });
-      // TODO: fix this!!!!
-      if (!data) {
-        return null
+      if (error !== undefined) {
+        return DEFAULT_WALLPAPER_LAYOUT
       }
-      return data as unknown as Blob;
+      return data;
     },
-    queryKey: getWallpaperFileQueryKey(options),
+    queryKey: getWallpaperLayoutQueryKey({ path: { id } }),
+    retry: false,
+
   })
 }
 
-export const useWallpaperMutation = (contestId: string) => {
-  return useMutation({
-    mutationFn: async ({ url }: { url: string | undefined }) => {
-      const blob = await fetch(url ?? '').then((v) => v.blob())
-
-      const options = {
-        path: {
-          contestId
-        },
-        body: url === undefined ? {
-          file: blob
-        } : undefined
-      }
-      await setWallpaperFile({
-        ...options,
-        throwOnError: true
+export const useGetWallpaperQuery = (id: number) => {
+  return useSuspenseQuery({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data, error } = await getWallpaperFile({
+        ...queryKey[0],
+        signal,
       });
+      if (error !== undefined) {
+        return null
+      }
+      return data;
+    },
+    queryKey: getWallpaperFileQueryKey({ path: { id } }),
+    retry: false
+  })
+}
+
+export const useWallpaperMutation = (id: number) => {
+  const queryClient = useQueryClient()
+  const options = {
+    path: {
+      id
+    }
+  }
+  const navigate = useNavigate()
+  return useMutation({
+    mutationFn: async ({
+      layout,
+      file,
+    }: { layout: WallpaperLayout | undefined; file: File | Blob | null }) => {
+      const layoutReq = (layout
+        ? putWallpaperLayout({
+          path: { id },
+          body: layout,
+          throwOnError: true,
+        })
+        : deleteWallpaperLayout({
+          path: { id },
+          throwOnError: true,
+        })
+      );
+
+      const fileReq = (file
+        ? putWallpaperFile({
+          ...options,
+          body: file,
+          throwOnError: true,
+          bodySerializer: (b: Blob) => b,
+        })
+        : deleteWallpaperFile({
+          ...options,
+          throwOnError: true,
+        })
+      );
+
+      const [{ data: newLayout }, { data: newFile }] = await Promise.all([layoutReq, fileReq]);
+
+      // need to change void to null, otherwise in onSuccess data will be an empty object
+      // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+      return { newLayout, newFile: newFile ?? null };
+    },
+    onSuccess: (data) => {
+      if (data.newLayout) {
+        queryClient.setQueryData(getWallpaperLayoutQueryKey(options), data.newLayout)
+      }
+      if (data.newFile) {
+        queryClient.setQueryData(getWallpaperFileQueryKey(options), data.newFile)
+      } else {
+        queryClient.setQueryData(getWallpaperFileQueryKey(options), null)
+      }
+      void navigate({ to: "/dashboard" })
     }
   })
 }

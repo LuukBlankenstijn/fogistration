@@ -85,13 +85,6 @@ function Login() {
             </button>
           </div>
         </form>
-
-        {/* <footer className="mt-6 text-center text-sm text-[hsl(var(--muted))]"> */}
-        {/*   Don’t have an account?{' '} */}
-        {/*   <a href="#" className="text-[hsl(var(--brand))] hover:underline"> */}
-        {/*     Sign up */}
-        {/*   </a> */}
-        {/* </footer> */}
       </div>
     </div>
   )

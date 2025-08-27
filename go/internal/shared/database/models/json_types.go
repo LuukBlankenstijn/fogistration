@@ -4,6 +4,9 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"reflect"
+
+	"github.com/danielgtaylor/huma/v2"
 )
 
 type Align string
@@ -14,39 +17,57 @@ const (
 	AlignRight  Align = "right"
 )
 
+var AlignValues = []Align{
+	AlignLeft,
+	AlignCenter,
+	AlignRight,
+}
+
+func (Align) Schema(r huma.Registry) *huma.Schema {
+	if r.Map()["Align"] == nil {
+		schemaRef := r.Schema(reflect.TypeOf(""), true, "Align")
+		schemaRef.Title = "Align"
+		for _, v := range AlignValues {
+			schemaRef.Enum = append(schemaRef.Enum, string(v))
+		}
+		r.Map()["Align"] = schemaRef
+	}
+	return &huma.Schema{Ref: "#/components/schemas/Align"}
+}
+
 type LabelSpec struct {
-	X      int    `json:"x"      binding:"required"`
-	Y      int    `json:"y"      binding:"required"`
-	Size   int    `json:"size"   binding:"required"`
-	Color  string `json:"color"  binding:"required"`
-	Weight int    `json:"weight" binding:"required"`
-	Align  Align  `json:"align"  binding:"required,oneof=left center right"`
+	X      int32  `json:"x"     `
+	Y      int32  `json:"y"     `
+	Size   int32  `json:"size"  `
+	Color  string `json:"color" `
+	Weight int32  `json:"weight"`
+	Align  Align  `json:"align"`
 }
 
-type WallpaperConfigJSON struct {
-	W         int       `json:"w"         binding:"required"`
-	H         int       `json:"h"         binding:"required"`
-	FontStack string    `json:"fontStack" binding:"required"`
-	Teamname  LabelSpec `json:"teamname"  binding:"required"`
-	IP        LabelSpec `json:"ip"        binding:"required"`
+type WallpaperLayout struct {
+	W         int32     `json:"w"        `
+	H         int32     `json:"h"        `
+	FontStack string    `json:"fontStack"`
+	Teamname  LabelSpec `json:"teamname" `
+	IP        LabelSpec `json:"ip"       `
 }
 
-func (w WallpaperConfigJSON) Value() (driver.Value, error) {
+func (w WallpaperLayout) Value() (driver.Value, error) {
 	return json.Marshal(w)
 }
-func (w *WallpaperConfigJSON) Scan(src any) error {
+func (w *WallpaperLayout) Scan(src any) error {
 	switch v := src.(type) {
 	case []byte:
 		return json.Unmarshal(v, w)
 	case string:
 		return json.Unmarshal([]byte(v), w)
 	default:
-		return fmt.Errorf("cannot scan %T into WallpaperConfigJSON", src)
+		return fmt.Errorf("cannot scan %T into WallpaperLayout", src)
 	}
 }
 
-func DefaultWallpaperConfig() WallpaperConfigJSON {
-	return WallpaperConfigJSON{
+func DefaultWallpaperConfig() WallpaperLayout {
+	return WallpaperLayout{
 		W:         1920,
 		H:         1080,
 		FontStack: "Inter, system-ui, Arial, sans-serif",

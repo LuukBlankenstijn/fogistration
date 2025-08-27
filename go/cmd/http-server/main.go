@@ -2,25 +2,15 @@ package main
 
 import (
 	"context"
-	"fmt"
-	"net/http"
 
-	"github.com/LuukBlankenstijn/fogistration/docs"
-	httpServer "github.com/LuukBlankenstijn/fogistration/internal/httpServer/http"
-	"github.com/LuukBlankenstijn/fogistration/internal/httpServer/seeder"
+	httpServer "github.com/LuukBlankenstijn/fogistration/internal/http-server/http"
+	"github.com/LuukBlankenstijn/fogistration/internal/http-server/seeder"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
-	"github.com/go-chi/chi/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	httpSwagger "github.com/swaggo/http-swagger"
 )
 
-// @title Fogistration server API
-// @version 1.0
-// @termsOfService http://swagger.io/terms/
-// @BasePath /api
-// @schemes http
 func main() {
 	var cfg config.HttpConfig
 	ctx := context.Background()
@@ -40,28 +30,10 @@ func main() {
 	queries := database.New(dbpool)
 
 	sdr := seeder.New(dbpool, queries)
-	sdr.SeedDefaultUser(ctx)
-
-	httpServer := httpServer.NewServer(queries, &cfg)
-	initHttpSwagger(httpServer.Router)
-	addr := fmt.Sprintf("%s:%s", cfg.Host, cfg.Port)
-	logging.Info("Starting server on %s", addr)
-	logging.Info("Swagger available at http://%s/swagger/index.html", addr)
-	if err := http.ListenAndServe(addr, httpServer.Router); err != nil {
-		logging.Fatal("Server failed: %v", err)
+	err = sdr.SeedDefaultUser(ctx)
+	if err != nil {
+		logging.Error("seeder failed", err)
 	}
 
-}
-
-func initHttpSwagger(router *chi.Mux) {
-	router.Get("/swagger/*", httpSwagger.Handler(
-		httpSwagger.URL("/swagger/doc.json"),
-	))
-
-	// This is a workaround to serve the swagger doc.json file, there was an issue with swagger not serving it correctly
-	router.Get("/swagger/doc.json", func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(200)
-		_, _ = w.Write([]byte(docs.SwaggerInfo.ReadDoc()))
-	})
+	httpServer.NewServer(&cfg, dbpool).Run()
 }

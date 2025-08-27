@@ -3,12 +3,12 @@ import { flexRender, getCoreRowModel, getSortedRowModel, useReactTable, type Col
 import { useMemo, useState } from "react";
 import { Dropdown } from "./table/Dropdown";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getAllTeamsOptions } from "@/clients/generated-client/@tanstack/react-query.gen";
-import type { ModelsTeam } from "@/clients/generated-client";
+import { listTeamsOptions } from "@/clients/generated-client/@tanstack/react-query.gen";
+import type { Team } from "@/clients/generated-client";
 
 export function TeamsTable() {
   const clients = useClients()
-  const { data: teams } = useSuspenseQuery(getAllTeamsOptions())
+  const { data: teams } = useSuspenseQuery(listTeamsOptions())
   const { mutate } = useSetTeamClientMutation()
 
   const availableIps = useMemo(() => {
@@ -17,7 +17,7 @@ export function TeamsTable() {
 
   const [sorting, setSorting] = useState<SortingState>([])
 
-  const columns = useMemo<ColumnDef<ModelsTeam>[]>(() => [
+  const columns = useMemo<ColumnDef<Team>[]>(() => [
     { accessorKey: "id", header: "ID" },
     { accessorKey: "name", header: "Name" },
     {

@@ -10,12 +10,11 @@ sql:
         sql_package: "pgx/v5"
         emit_json_tags: true
         overrides:
-          - column: "wallpaper_configs.config"
+          - column: "wallpapers.layout"
             go_type:
               import: "github.com/LuukBlankenstijn/fogistration/internal/shared/database/models"
-              type: "WallpaperConfigJSON"
+              type: "WallpaperLayout"
               pointer: true 
-            # go_type: "github.com/LuukBlankenstijn/fogistration/internal/shared/database/models.WallpaperConfigJSON"
           - column: "*.created_at"
             go_struct_tag: 'hash:"exclude"'
           - column: "*.updated_at"

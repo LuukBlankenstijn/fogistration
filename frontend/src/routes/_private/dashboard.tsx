@@ -1,4 +1,4 @@
-import { getActiveContestOptions, getAllClientsOptions, getAllTeamsOptions } from '@/clients/generated-client/@tanstack/react-query.gen'
+import { getActiveContestOptions, listClientsOptions, listTeamsOptions } from '@/clients/generated-client/@tanstack/react-query.gen'
 import { Card } from '@/components/Card'
 import { ClientsTable } from '@/components/ClientsTable'
 import { ContestTable } from '@/components/ContestTable'
@@ -9,8 +9,8 @@ import { Suspense, type ReactNode } from 'react'
 
 export const Route = createFileRoute('/_private/dashboard')({
   loader: () => {
-    void queryClient.ensureQueryData(getAllClientsOptions())
-    void queryClient.ensureQueryData(getAllTeamsOptions())
+    void queryClient.ensureQueryData(listClientsOptions())
+    void queryClient.ensureQueryData(listTeamsOptions())
     void queryClient.ensureQueryData(getActiveContestOptions())
   },
   component: Dashboard,

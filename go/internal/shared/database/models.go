@@ -69,10 +69,10 @@ type User struct {
 	LastLoginAt pgtype.Timestamptz `json:"last_login_at"`
 }
 
-type WallpaperConfig struct {
-	ContestID string                      `json:"contest_id"`
-	Filename  pgtype.Text                 `json:"filename"`
-	Config    *models.WallpaperConfigJSON `json:"config"`
-	CreatedAt pgtype.Timestamptz          `hash:"exclude" json:"created_at"`
-	UpdatedAt pgtype.Timestamptz          `hash:"exclude" json:"updated_at"`
+type Wallpaper struct {
+	ID        int32                   `json:"id"`
+	Filename  pgtype.Text             `json:"filename"`
+	Layout    *models.WallpaperLayout `json:"layout"`
+	CreatedAt pgtype.Timestamptz      `hash:"exclude" json:"created_at"`
+	UpdatedAt pgtype.Timestamptz      `hash:"exclude" json:"updated_at"`
 }

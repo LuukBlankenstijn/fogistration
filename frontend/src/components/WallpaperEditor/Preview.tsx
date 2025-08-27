@@ -1,17 +1,17 @@
 import { useCallback, useRef } from "react";
 import { Card } from "../Card";
 import { useElementSize } from "./hooks/useElementSize";
-import type { Layout } from "./types/layout";
 import { useDraggable } from "./hooks/useDraggable";
 import { GoBackButton } from "../GoBack";
+import { Align, type WallpaperLayout } from "@/clients/generated-client";
 
 interface PreviewProps {
-  layout: Layout,
-  setLayout: (value: React.SetStateAction<Layout>) => void
-  bgUrl?: string
+  layout: WallpaperLayout,
+  setLayout: (value: React.SetStateAction<WallpaperLayout>) => void
+  file: File | Blob | null
 }
 
-export default function Preview({ layout, setLayout, bgUrl }: PreviewProps) {
+export default function Preview({ layout, setLayout, file }: PreviewProps) {
   const { ref: previewRef, size: previewSize } = useElementSize<HTMLDivElement>()
 
   const onTeamDrag = useCallback((dx: number, dy: number) => {
@@ -67,8 +67,8 @@ export default function Preview({ layout, setLayout, bgUrl }: PreviewProps) {
             transformOrigin: "top left",
           }}
         >
-          {bgUrl ? (
-            <img src={bgUrl} alt="bg" className="absolute inset-0 h-full w-full object-cover" />
+          {file ? (
+            <img src={URL.createObjectURL(file)} alt="bg" className="absolute inset-0 h-full w-full object-cover" />
           ) : (
             <div className="absolute inset-0 grid place-items-center text-[hsl(var(--muted))]">
               <div className="text-center text-sm">No background — choose a file</div>
@@ -97,9 +97,9 @@ export default function Preview({ layout, setLayout, bgUrl }: PreviewProps) {
 }
 
 
-function labelStyle(l: Layout, key: "teamname" | "ip"): React.CSSProperties {
+function labelStyle(l: WallpaperLayout, key: "teamname" | "ip"): React.CSSProperties {
   const spec = l[key]
-  const tx = spec.align === "center" ? "-50%" : spec.align === "right" ? "-100%" : "0"
+  const tx = spec.align === Align.CENTER ? "-50%" : spec.align === Align.RIGHT ? "-100%" : "0"
   return {
     left: spec.x,
     top: spec.y,

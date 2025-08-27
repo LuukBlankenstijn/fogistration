@@ -1,50 +1,35 @@
-import { useEffect, useState } from "react"
-import type { Layout, WallpaperEditorProps } from "./types/layout"
+import { useState } from "react"
 import Settings from "./Settings"
 import Preview from "./Preview"
-import { useGetWallpaperConfigQuery, useGetWallpaperQuery, useWallpaperConfigMutation, useWallpaperMutation } from "@/query/wallpaper"
+import { useGetWallpaperConfigQuery, useGetWallpaperQuery as useGetWallpaperFileQuery, useWallpaperMutation } from "@/query/wallpaper"
+import type { WallpaperLayout } from "@/clients/generated-client"
 
-export default function WallpaperEditor({ contestId }: WallpaperEditorProps) {
-  const { data: initialLayout } = useGetWallpaperConfigQuery(contestId)
-  const { data: wallpaperBlob } = useGetWallpaperQuery(contestId)
-  const { mutate: saveConfig, isPending: configIsPending } = useWallpaperConfigMutation()
-  const { mutate: saveWallpaper, isPending: wallpaperIsPending } = useWallpaperMutation(contestId)
+interface WallpaperEditorProps {
+  id: number
+}
 
-  useEffect(() => {
-    onBGFile(wallpaperBlob ?? undefined)
-  }, [])
+export default function WallpaperEditor({ id }: WallpaperEditorProps) {
+  const { data: wallpaperLayout } = useGetWallpaperConfigQuery(id)
+  const { data: wallpaperBlob } = useGetWallpaperFileQuery(id)
+  const { mutate, isPending } = useWallpaperMutation(id)
 
-
-  const onBGFile = (file?: File | Blob) => {
-    if (!file) {
-      if (bgUrl) URL.revokeObjectURL(bgUrl)
-      setBgUrl(undefined)
-      return
-    }
-    const url = URL.createObjectURL(file)
-    if (bgUrl) URL.revokeObjectURL(bgUrl)
-    setBgUrl(url)
-  }
-
-
-  const [layout, setLayout] = useState<Layout>(initialLayout)
-  const [bgUrl, setBgUrl] = useState<string | undefined>(undefined)
+  const [layout, setLayout] = useState<WallpaperLayout>(wallpaperLayout)
+  const [file, setFile] = useState<Blob | File | null>(wallpaperBlob)
 
   const save = () => {
-    saveConfig({ layout, contestId })
-    saveWallpaper({ url: bgUrl })
+    mutate({ layout, file })
   }
   return (
     <main className="flex h-[100svh] gap-4 p-4 text-[hsl(var(--fg))] overflow-hidden">
-      <Preview layout={layout} setLayout={setLayout} bgUrl={bgUrl} />
+      <Preview layout={layout} setLayout={setLayout} file={file} />
 
       <Settings
         layout={layout}
         setLayout={setLayout}
-        bgUrl={bgUrl}
-        setBg={onBGFile}
+        file={file}
+        setFile={(file) => { setFile(file ?? null) }}
         save={save}
-        isPending={wallpaperIsPending && configIsPending}
+        isPending={isPending}
       />
     </main>
   )

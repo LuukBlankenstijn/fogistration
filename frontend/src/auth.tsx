@@ -2,11 +2,11 @@ import { createContext, use, useCallback, useMemo } from "react"
 import { getCurrentUserOptions } from "./clients/generated-client/@tanstack/react-query.gen"
 import { useQuery } from "@tanstack/react-query"
 import { useDevLogin, useLogin, useLogout } from "./query/auth"
-import type { ModelsUser } from "./clients/generated-client"
+import type { User } from "./clients/generated-client"
 
 export interface AuthState {
   isAuthenticated: boolean
-  user: ModelsUser | null
+  user: User | null
   login: (username: string, password: string) => void
   logout: () => void
   devLogin: () => void
@@ -19,8 +19,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   userOptions.retry = false
   const { data: currentUserResponse, isLoading, isError } = useQuery(userOptions)
   const { user, isAuthenticated } = useMemo(() => ({
-    user: currentUserResponse?.user,
-    isAuthenticated: currentUserResponse?.authenticated ?? false
+    user: currentUserResponse,
+    isAuthenticated: currentUserResponse ?? false
   }), [currentUserResponse])
   const { mutate: mutateLogin } = useLogin()
   const { mutate: mutateLogout } = useLogout()

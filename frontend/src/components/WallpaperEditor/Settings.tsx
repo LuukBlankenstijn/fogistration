@@ -1,27 +1,26 @@
 import { useRef } from "react";
 import { Card } from "../Card";
 import { NumberInput } from "./controls/NumberInput";
-import type { Layout } from "./types/layout";
-import type { ModelsAlign } from "@/clients/generated-client";
 import { TextInput } from "./controls/TextInput";
+import { Align, type WallpaperLayout } from "@/clients/generated-client";
 
 interface SetttingsProps {
-  layout: Layout,
-  bgUrl?: string
-  setLayout: (value: React.SetStateAction<Layout>) => void
-  setBg: (file?: File | Blob) => void
+  layout: WallpaperLayout,
+  file: File | Blob | null
+  setLayout: (value: React.SetStateAction<WallpaperLayout>) => void
+  setFile: (file?: File | Blob) => void
   save: () => void
   isPending: boolean
 }
 
-const Settings = ({ layout, setLayout, setBg, save, isPending }: SetttingsProps) => {
+const Settings = ({ layout, setLayout, setFile, save, isPending }: SetttingsProps) => {
   const fileRef = useRef<HTMLInputElement>(null)
 
   const onBGFile = (file?: File) => {
     if (!file) {
       if (fileRef.current) fileRef.current.value = ""
     }
-    setBg(file)
+    setFile(file)
   }
 
   return (
@@ -115,11 +114,11 @@ const Settings = ({ layout, setLayout, setBg, save, isPending }: SetttingsProps)
             <select
               className="justify-self-end rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--input))] px-2 py-2 text-sm"
               value={layout.teamname.align}
-              onChange={(e) => { setLayout(l => ({ ...l, teamname: { ...l.teamname, align: e.target.value as ModelsAlign } })); }}
+              onChange={(e) => { setLayout(l => ({ ...l, teamname: { ...l.teamname, align: e.target.value as Align } })); }}
             >
-              <option value="left">Left</option>
-              <option value="center">Center</option>
-              <option value="right">Right</option>
+              <option value={Align.LEFT}>Left</option>
+              <option value={Align.CENTER}>Center</option>
+              <option value={Align.RIGHT}>Right</option>
             </select>
           </div>
         </fieldset>
@@ -161,11 +160,11 @@ const Settings = ({ layout, setLayout, setBg, save, isPending }: SetttingsProps)
             <select
               className="justify-self-end rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--input))] px-2 py-2 text-sm"
               value={layout.ip.align}
-              onChange={(e) => { setLayout(l => ({ ...l, ip: { ...l.ip, align: e.target.value as ModelsAlign } })); }}
+              onChange={(e) => { setLayout(l => ({ ...l, ip: { ...l.ip, align: e.target.value as Align } })); }}
             >
-              <option value="left">Left</option>
-              <option value="center">Center</option>
-              <option value="right">Right</option>
+              <option value={Align.LEFT}>Left</option>
+              <option value={Align.CENTER}>Center</option>
+              <option value={Align.RIGHT}>Right</option>
             </select>
           </div>
         </fieldset>

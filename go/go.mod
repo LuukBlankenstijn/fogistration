@@ -14,6 +14,14 @@ require (
 )
 
 require (
+	github.com/danielgtaylor/mexpr v1.9.1 // indirect
+	github.com/danielgtaylor/shorthand/v2 v2.2.0 // indirect
+	github.com/evanphx/json-patch/v5 v5.9.11 // indirect
+	github.com/fxamacker/cbor/v2 v2.8.0 // indirect
+	github.com/x448/float16 v0.8.4 // indirect
+)
+
+require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
 	github.com/danielgtaylor/huma/v2 v2.34.1

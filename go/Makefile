@@ -11,11 +11,6 @@ stop:
 build:
 	@docker build .
 
-# Generate API documentation
-swagger:
-	@docker compose exec http swag init -g cmd/http-server/main.go
-	@docker compose exec http go run utils/api-spec-postprocess/main.go
-
 # Create en migration with name everything behind the dash
 migration-%:
 	@docker compose exec http mkdir -p ./internal/shared/database/migrations

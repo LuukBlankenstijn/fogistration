@@ -24,3 +24,10 @@ func PgTextFromString(value *string) pgtype.Text {
 		Valid:  value != nil,
 	}
 }
+
+func StringFromPgText(text pgtype.Text) *string {
+	if !text.Valid {
+		return nil
+	}
+	return &text.String
+}

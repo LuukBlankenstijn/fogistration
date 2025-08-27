@@ -14,7 +14,7 @@ import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PrivateDashboardRouteImport } from './routes/_private/dashboard'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
-import { Route as PrivateWallpaperContestIdRouteImport } from './routes/_private/wallpaper/$contestId'
+import { Route as PrivateWallpaperIdRouteImport } from './routes/_private/wallpaper/$id'
 
 const PrivateRoute = PrivateRouteImport.update({
   id: '/_private',
@@ -39,24 +39,23 @@ const AuthLoginRoute = AuthLoginRouteImport.update({
   path: '/login',
   getParentRoute: () => AuthRoute,
 } as any)
-const PrivateWallpaperContestIdRoute =
-  PrivateWallpaperContestIdRouteImport.update({
-    id: '/wallpaper/$contestId',
-    path: '/wallpaper/$contestId',
-    getParentRoute: () => PrivateRoute,
-  } as any)
+const PrivateWallpaperIdRoute = PrivateWallpaperIdRouteImport.update({
+  id: '/wallpaper/$id',
+  path: '/wallpaper/$id',
+  getParentRoute: () => PrivateRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
   '/dashboard': typeof PrivateDashboardRoute
-  '/wallpaper/$contestId': typeof PrivateWallpaperContestIdRoute
+  '/wallpaper/$id': typeof PrivateWallpaperIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
   '/dashboard': typeof PrivateDashboardRoute
-  '/wallpaper/$contestId': typeof PrivateWallpaperContestIdRoute
+  '/wallpaper/$id': typeof PrivateWallpaperIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -65,13 +64,13 @@ export interface FileRoutesById {
   '/_private': typeof PrivateRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
   '/_private/dashboard': typeof PrivateDashboardRoute
-  '/_private/wallpaper/$contestId': typeof PrivateWallpaperContestIdRoute
+  '/_private/wallpaper/$id': typeof PrivateWallpaperIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/dashboard' | '/wallpaper/$contestId'
+  fullPaths: '/' | '/login' | '/dashboard' | '/wallpaper/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/dashboard' | '/wallpaper/$contestId'
+  to: '/' | '/login' | '/dashboard' | '/wallpaper/$id'
   id:
     | '__root__'
     | '/'
@@ -79,7 +78,7 @@ export interface FileRouteTypes {
     | '/_private'
     | '/_auth/login'
     | '/_private/dashboard'
-    | '/_private/wallpaper/$contestId'
+    | '/_private/wallpaper/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -125,11 +124,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLoginRouteImport
       parentRoute: typeof AuthRoute
     }
-    '/_private/wallpaper/$contestId': {
-      id: '/_private/wallpaper/$contestId'
-      path: '/wallpaper/$contestId'
-      fullPath: '/wallpaper/$contestId'
-      preLoaderRoute: typeof PrivateWallpaperContestIdRouteImport
+    '/_private/wallpaper/$id': {
+      id: '/_private/wallpaper/$id'
+      path: '/wallpaper/$id'
+      fullPath: '/wallpaper/$id'
+      preLoaderRoute: typeof PrivateWallpaperIdRouteImport
       parentRoute: typeof PrivateRoute
     }
   }
@@ -147,12 +146,12 @@ const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface PrivateRouteChildren {
   PrivateDashboardRoute: typeof PrivateDashboardRoute
-  PrivateWallpaperContestIdRoute: typeof PrivateWallpaperContestIdRoute
+  PrivateWallpaperIdRoute: typeof PrivateWallpaperIdRoute
 }
 
 const PrivateRouteChildren: PrivateRouteChildren = {
   PrivateDashboardRoute: PrivateDashboardRoute,
-  PrivateWallpaperContestIdRoute: PrivateWallpaperContestIdRoute,
+  PrivateWallpaperIdRoute: PrivateWallpaperIdRoute,
 }
 
 const PrivateRouteWithChildren =

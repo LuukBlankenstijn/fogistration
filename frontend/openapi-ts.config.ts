@@ -1,7 +1,7 @@
 import { defineConfig } from '@hey-api/openapi-ts';
 
 export default defineConfig({
-  input: '../go/docs/swagger.json',
+  input: '../go/api/openapi.yaml',
   output: './src/clients/generated-client',
   plugins: [
     '@hey-api/client-fetch',
