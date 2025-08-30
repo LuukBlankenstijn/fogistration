@@ -20,3 +20,8 @@ ON CONFLICT (ip)
 DO UPDATE SET
     last_seen = NOW()
 RETURNING *;
+
+-- name: SetPendingSync :exec
+UPDATE clients
+SET pending_sync = $2
+WHERE id = $1;

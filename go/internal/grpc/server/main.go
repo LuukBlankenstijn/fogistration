@@ -46,7 +46,7 @@ func (s *Server) Start(port string) error {
 	return nil
 }
 
-func (s *Server) Stream(stream grpc.BidiStreamingServer[pb.ClientMessage, pb.ServerMessage]) error {
+func (s *Server) Stream(clientMessage *pb.ClientMessage, stream grpc.ServerStreamingServer[pb.ServerMessage]) error {
 	ctx := stream.Context()
 	client, ok := getClient(ctx)
 	if !ok {
@@ -55,13 +55,17 @@ func (s *Server) Stream(stream grpc.BidiStreamingServer[pb.ClientMessage, pb.Ser
 	}
 	logging.Info("new client connnection: %s", client.Ip)
 
-	handler := &streamHandler{
-		stream:     stream,
-		client:     client,
-		ctx:        ctx,
-		pubsub:     s.pubsub,
-		regService: &registrationService{s.queries, s.pubsub},
-	}
+	ch := s.pubsub.Subscribe(client.Ip)
+	defer s.pubsub.Unsubscribe(client.Ip)
 
-	return handler.run()
+	for {
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case msg := <-ch:
+			if err := stream.Send(msg); err != nil {
+				logging.Error("failed to send: %v", err)
+			}
+		}
+	}
 }

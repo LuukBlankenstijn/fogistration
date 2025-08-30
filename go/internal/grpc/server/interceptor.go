@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 	"net"
 	"strings"
 
@@ -44,7 +45,13 @@ func streamIpInterceptor(queries *database.Queries) grpc.StreamServerInterceptor
 			return status.Error(codes.Internal, "failed to upsert client")
 		}
 
-		ctxWithClient := withClient(ss.Context(), client)
+		ctx := ss.Context()
+		err = register(ctx, queries, client)
+		if err != nil {
+			logging.Error(fmt.Sprintf("failed to register client %s", client.Ip), err)
+		}
+
+		ctxWithClient := withClient(ctx, client)
 
 		wrappedServerStream := wrappedServerStream{
 			ServerStream: ss,

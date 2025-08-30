@@ -6,7 +6,7 @@ option go_package = "github.com/LuukBlankenstijn/fogistration/internal/shared/pb
 
 // Main service with bidirectional streaming
 service FogistrationService {
-  rpc Stream(stream ClientMessage) returns (stream ServerMessage);
+  rpc Stream(ClientMessage) returns (stream ServerMessage);
 }
 
 // Client-to-Server messages

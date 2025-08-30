@@ -28,7 +28,7 @@ const (
 //
 // Main service with bidirectional streaming
 type FogistrationServiceClient interface {
-	Stream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ClientMessage, ServerMessage], error)
+	Stream(ctx context.Context, in *ClientMessage, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ServerMessage], error)
 }
 
 type fogistrationServiceClient struct {
@@ -39,18 +39,24 @@ func NewFogistrationServiceClient(cc grpc.ClientConnInterface) FogistrationServi
 	return &fogistrationServiceClient{cc}
 }
 
-func (c *fogistrationServiceClient) Stream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[ClientMessage, ServerMessage], error) {
+func (c *fogistrationServiceClient) Stream(ctx context.Context, in *ClientMessage, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ServerMessage], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	stream, err := c.cc.NewStream(ctx, &FogistrationService_ServiceDesc.Streams[0], FogistrationService_Stream_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	x := &grpc.GenericClientStream[ClientMessage, ServerMessage]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
 	return x, nil
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type FogistrationService_StreamClient = grpc.BidiStreamingClient[ClientMessage, ServerMessage]
+type FogistrationService_StreamClient = grpc.ServerStreamingClient[ServerMessage]
 
 // FogistrationServiceServer is the server API for FogistrationService service.
 // All implementations must embed UnimplementedFogistrationServiceServer
@@ -58,7 +64,7 @@ type FogistrationService_StreamClient = grpc.BidiStreamingClient[ClientMessage, 
 //
 // Main service with bidirectional streaming
 type FogistrationServiceServer interface {
-	Stream(grpc.BidiStreamingServer[ClientMessage, ServerMessage]) error
+	Stream(*ClientMessage, grpc.ServerStreamingServer[ServerMessage]) error
 	mustEmbedUnimplementedFogistrationServiceServer()
 }
 
@@ -69,7 +75,7 @@ type FogistrationServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedFogistrationServiceServer struct{}
 
-func (UnimplementedFogistrationServiceServer) Stream(grpc.BidiStreamingServer[ClientMessage, ServerMessage]) error {
+func (UnimplementedFogistrationServiceServer) Stream(*ClientMessage, grpc.ServerStreamingServer[ServerMessage]) error {
 	return status.Errorf(codes.Unimplemented, "method Stream not implemented")
 }
 func (UnimplementedFogistrationServiceServer) mustEmbedUnimplementedFogistrationServiceServer() {}
@@ -94,11 +100,15 @@ func RegisterFogistrationServiceServer(s grpc.ServiceRegistrar, srv Fogistration
 }
 
 func _FogistrationService_Stream_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(FogistrationServiceServer).Stream(&grpc.GenericServerStream[ClientMessage, ServerMessage]{ServerStream: stream})
+	m := new(ClientMessage)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(FogistrationServiceServer).Stream(m, &grpc.GenericServerStream[ClientMessage, ServerMessage]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type FogistrationService_StreamServer = grpc.BidiStreamingServer[ClientMessage, ServerMessage]
+type FogistrationService_StreamServer = grpc.ServerStreamingServer[ServerMessage]
 
 // FogistrationService_ServiceDesc is the grpc.ServiceDesc for FogistrationService service.
 // It's only intended for direct use with grpc.RegisterService,
@@ -112,7 +122,6 @@ var FogistrationService_ServiceDesc = grpc.ServiceDesc{
 			StreamName:    "Stream",
 			Handler:       _FogistrationService_Stream_Handler,
 			ServerStreams: true,
-			ClientStreams: true,
 		},
 	},
 	Metadata: "service.proto",

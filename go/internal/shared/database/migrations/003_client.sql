@@ -3,7 +3,8 @@ CREATE TABLE clients (
     id SERIAL PRIMARY KEY,
     ip VARCHAR NOT NULL UNIQUE,
     last_seen TIMESTAMP NOT NULL DEFAULT NOW(),
-    created_at TIMESTAMP DEFAULT NOW()
+    created_at TIMESTAMP DEFAULT NOW(),
+    pending_sync BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 ---- create above / drop below ----

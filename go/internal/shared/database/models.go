@@ -18,10 +18,11 @@ type AuthSecret struct {
 }
 
 type Client struct {
-	ID        int32            `json:"id"`
-	Ip        string           `json:"ip"`
-	LastSeen  pgtype.Timestamp `json:"last_seen"`
-	CreatedAt pgtype.Timestamp `hash:"exclude" json:"created_at"`
+	ID          int32            `json:"id"`
+	Ip          string           `json:"ip"`
+	LastSeen    pgtype.Timestamp `json:"last_seen"`
+	CreatedAt   pgtype.Timestamp `hash:"exclude" json:"created_at"`
+	PendingSync bool             `json:"pending_sync"`
 }
 
 type Contest struct {

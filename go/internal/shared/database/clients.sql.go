@@ -10,7 +10,7 @@ import (
 )
 
 const getAllClients = `-- name: GetAllClients :many
-SELECT id, ip, last_seen, created_at FROM clients
+SELECT id, ip, last_seen, created_at, pending_sync FROM clients
 `
 
 func (q *Queries) GetAllClients(ctx context.Context) ([]Client, error) {
@@ -27,6 +27,7 @@ func (q *Queries) GetAllClients(ctx context.Context) ([]Client, error) {
 			&i.Ip,
 			&i.LastSeen,
 			&i.CreatedAt,
+			&i.PendingSync,
 		); err != nil {
 			return nil, err
 		}
@@ -39,7 +40,7 @@ func (q *Queries) GetAllClients(ctx context.Context) ([]Client, error) {
 }
 
 const getClientById = `-- name: GetClientById :one
-SELECT id, ip, last_seen, created_at FROM clients
+SELECT id, ip, last_seen, created_at, pending_sync FROM clients
 WHERE id = $1
 `
 
@@ -51,8 +52,25 @@ func (q *Queries) GetClientById(ctx context.Context, id int32) (Client, error) {
 		&i.Ip,
 		&i.LastSeen,
 		&i.CreatedAt,
+		&i.PendingSync,
 	)
 	return i, err
+}
+
+const setPendingSync = `-- name: SetPendingSync :exec
+UPDATE clients
+SET pending_sync = $2
+WHERE id = $1
+`
+
+type SetPendingSyncParams struct {
+	ID          int32 `json:"id"`
+	PendingSync bool  `json:"pending_sync"`
+}
+
+func (q *Queries) SetPendingSync(ctx context.Context, arg SetPendingSyncParams) error {
+	_, err := q.db.Exec(ctx, setPendingSync, arg.ID, arg.PendingSync)
+	return err
 }
 
 const updateClientLastSeen = `-- name: UpdateClientLastSeen :exec
@@ -75,7 +93,7 @@ INSERT INTO clients (
 ON CONFLICT (ip)
 DO UPDATE SET
     last_seen = NOW()
-RETURNING id, ip, last_seen, created_at
+RETURNING id, ip, last_seen, created_at, pending_sync
 `
 
 func (q *Queries) UpsertClient(ctx context.Context, ip string) (Client, error) {
@@ -86,6 +104,7 @@ func (q *Queries) UpsertClient(ctx context.Context, ip string) (Client, error) {
 		&i.Ip,
 		&i.LastSeen,
 		&i.CreatedAt,
+		&i.PendingSync,
 	)
 	return i, err
 }

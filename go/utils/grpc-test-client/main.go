@@ -33,7 +33,7 @@ func main() {
 	ctx := metadata.NewOutgoingContext(context.Background(), md)
 
 	// Start streaming with metadata context
-	stream, err := client.Stream(ctx)
+	stream, err := client.Stream(ctx, &pb.ClientMessage{})
 	if err != nil {
 		log.Fatalf("Failed to create stream: %v", err)
 	}

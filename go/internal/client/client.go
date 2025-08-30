@@ -46,7 +46,7 @@ func (c *Client) StartReceiving(ctx context.Context) error {
 	})
 	ctx = metadata.NewOutgoingContext(ctx, md)
 
-	stream, err := c.client.Stream(ctx)
+	stream, err := c.client.Stream(ctx, &pb.ClientMessage{})
 	if err != nil {
 		return fmt.Errorf("failed to create stream: %w", err)
 	}
