@@ -6,15 +6,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/LuukBlankenstijn/fogistration/internal/grpc/eventhandler"
-	"github.com/LuukBlankenstijn/fogistration/internal/grpc/pubsub"
-	"github.com/LuukBlankenstijn/fogistration/internal/grpc/server"
+	"github.com/LuukBlankenstijn/fogistration/internal/grpc"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
-	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
-	"github.com/LuukBlankenstijn/fogistration/internal/shared/database/dblisten"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
-	"github.com/jackc/pgx/v5/pgxpool"
-	"golang.org/x/sync/errgroup"
 )
 
 func main() {
@@ -27,22 +21,23 @@ func main() {
 		logging.Fatal("failed to load config", err)
 	}
 
-	// Init DB pool
-	url := database.GetUrl(&cfg.DB)
-	dbpool, err := pgxpool.New(ctx, url)
-	if err != nil {
-		logging.Fatal("unable to create dbpool", err)
-	}
-	defer dbpool.Close()
+	_ = grpc.Run(ctx, cfg)
 
-	// Dependencies
-	queries := database.New(dbpool)
-	pubsub := pubsub.NewManager()
-	eventHandler := eventhandler.New(pubsub)
-	srv := server.NewServer(queries, pubsub)
-
-	// Concurrent management
-	g, ctx := errgroup.WithContext(ctx)
+	// // Init DB pool
+	// url := database.GetUrl(&cfg.DB)
+	// dbpool, err := pgxpool.New(ctx, url)
+	// if err != nil {
+	// 	logging.Fatal("unable to create dbpool", err)
+	// }
+	// defer dbpool.Close()
+	//
+	// // Dependencies
+	// queries := database.New(dbpool)
+	// pubsub := pubsub.NewManager()
+	// srv := server.NewServer(queries, pubsub)
+	//
+	// // Concurrent management
+	// g, _ := errgroup.WithContext(ctx)
 
 	// g.Go(func() error {
 	// 	for {
@@ -63,48 +58,48 @@ func main() {
 	// 	}
 	// })
 
-	g.Go(func() error {
-		l, err := dblisten.New(ctx, url)
-		if err != nil {
-			logging.Fatal("failed to created database listener", err)
-		}
-		defer l.Close(ctx)
+	// g.Go(func() error {
+	// 	l, err := dblisten.New(ctx, url)
+	// 	if err != nil {
+	// 		logging.Fatal("failed to created database listener", err)
+	// 	}
+	// 	defer l.Close(ctx)
+	//
+	// 	err = l.EnsureNotifyInfra(ctx)
+	// 	if err != nil {
+	// 		logging.Error("failed to ensure infra", err)
+	// 		return err
+	// 	}
+	//
+	// 	err = l.RegisterNotify(ctx, "teams", database.Team{})
+	// 	if err != nil {
+	// 		logging.Error("failed to register notify", err)
+	// 		return err
+	// 	}
+	//
+	// 	mixed, err := l.ListenNotify(ctx)
+	// 	if err != nil {
+	// 		logging.Error("failed to get notification channel", err)
+	// 		return err
+	// 	}
+	//
+	// 	for team_update := range dblisten.View[database.Team]("teams", mixed) {
+	// 		eventHandler.HandleIpChange(team_update)
+	// 	}
+	//
+	// 	return nil
+	// })
 
-		err = l.EnsureNotifyInfra(ctx)
-		if err != nil {
-			logging.Error("failed to ensure infra", err)
-			return err
-		}
-
-		err = l.RegisterNotify(ctx, "teams", database.Team{})
-		if err != nil {
-			logging.Error("failed to register notify", err)
-			return err
-		}
-
-		mixed, err := l.ListenNotify(ctx)
-		if err != nil {
-			logging.Error("failed to get notification channel", err)
-			return err
-		}
-
-		for team_update := range dblisten.View[database.Team]("teams", mixed) {
-			eventHandler.HandleIpChange(team_update)
-		}
-
-		return nil
-	})
-
-	// Start gRPC server
-	g.Go(func() error {
-		logging.Info("starting gRPC server...")
-		return srv.Start(cfg.Port)
-	})
-
-	// Wait for termination or error
-	if err := g.Wait(); err != nil && err != context.Canceled {
-		logging.Error("fatal shutdown", err)
-		os.Exit(1)
-	}
-	logging.Info("shutdown complete")
+	// // Start gRPC server
+	// g.Go(func() error {
+	// 	logging.Info("starting gRPC server...")
+	// 	return srv.Start(cfg.Port)
+	// })
+	//
+	// // Wait for termination or error
+	// if err := g.Wait(); err != nil && err != context.Canceled {
+	// 	logging.Error("fatal shutdown", err)
+	// 	os.Exit(1)
+	// }
+	// logging.Info("shutdown complete")
 }
