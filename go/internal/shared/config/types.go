@@ -11,11 +11,12 @@ type HttpConfig struct {
 }
 
 type GrpcConfig struct {
-	AppEnv   string `env_default:"development"`
-	Host     string `env_default:"localhost"`
-	Port     string `env_default:"9090"`
-	DB       DatabaseConfig
-	LogLevel string `env_default:"info"`
+	AppEnv       string `env_default:"development"`
+	Host         string `env_default:"localhost"`
+	Port         string `env_default:"9090"`
+	DB           DatabaseConfig
+	LogLevel     string `env_default:"info"`
+	WallpaperDir string `env_default:"/wallpapers"`
 }
 
 type DomJudgeConfig struct {

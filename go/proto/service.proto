@@ -10,14 +10,14 @@ service FogistrationService {
 }
 
 // Client-to-Server messages
-message ClientMessage {
-}
+message ClientMessage {}
 
 // Server-to-Client messages
 message ServerMessage {
-  oneof message {
-    Reload reload = 1;
-  }
+  oneof message { Wallpaper wallpaper = 2; }
 }
 
-message Reload {}
+message Wallpaper {
+  uint64 size = 1;
+  bytes data = 2;
+}

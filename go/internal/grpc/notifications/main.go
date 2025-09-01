@@ -3,12 +3,23 @@ package notifications
 import (
 	"context"
 
+	"github.com/LuukBlankenstijn/fogistration/internal/grpc/service"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database/dblisten"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 )
 
-func Run(ctx context.Context, dbUrl string) error {
+type notificationHandler struct {
+	*NotificationHandlerContainer
+}
+
+func New(s *service.ServiceContainer, queries *database.Queries) *notificationHandler {
+	return &notificationHandler{
+		newHandlerContainer(s, queries),
+	}
+}
+
+func (n *notificationHandler) Run(ctx context.Context, dbUrl string) error {
 	l, err := dblisten.NewNotify(ctx, dbUrl)
 	if err != nil {
 		return err
@@ -35,19 +46,19 @@ func Run(ctx context.Context, dbUrl string) error {
 				teams = nil
 				continue
 			}
-			logging.Info("received team notification: %+v, %+v", t.New, t.Old)
+			n.Team.Handle(ctx, t)
 		case c, ok := <-clients:
 			if !ok {
 				clients = nil
 				continue
 			}
-			logging.Info("received client notification: %+v, %+v", c.New, c.Old)
+			n.Client.Handle(ctx, c)
 		case c, ok := <-wallpapers:
 			if !ok {
 				clients = nil
 				continue
 			}
-			logging.Info("received wallpaper notification: %+v, %+v", c.New, c.Old)
+			n.Wallpapper.Handle(ctx, c)
 		}
 	}
 }

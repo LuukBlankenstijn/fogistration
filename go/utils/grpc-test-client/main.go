@@ -46,6 +46,7 @@ func main() {
 		if err != nil {
 			log.Fatalf("Failed to receive: %v", err)
 		}
+		logging.Info("received message %+v", msg.Message)
 		switch msg.Message.(type) {
 		case *pb.ServerMessage_Reload:
 			logging.Info("reload")

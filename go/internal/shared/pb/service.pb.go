@@ -63,7 +63,7 @@ type ServerMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Message:
 	//
-	//	*ServerMessage_Reload
+	//	*ServerMessage_Wallpaper
 	Message       isServerMessage_Message `protobuf_oneof:"message"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -106,10 +106,10 @@ func (x *ServerMessage) GetMessage() isServerMessage_Message {
 	return nil
 }
 
-func (x *ServerMessage) GetReload() *Reload {
+func (x *ServerMessage) GetWallpaper() *Wallpaper {
 	if x != nil {
-		if x, ok := x.Message.(*ServerMessage_Reload); ok {
-			return x.Reload
+		if x, ok := x.Message.(*ServerMessage_Wallpaper); ok {
+			return x.Wallpaper
 		}
 	}
 	return nil
@@ -119,32 +119,34 @@ type isServerMessage_Message interface {
 	isServerMessage_Message()
 }
 
-type ServerMessage_Reload struct {
-	Reload *Reload `protobuf:"bytes,1,opt,name=reload,proto3,oneof"`
+type ServerMessage_Wallpaper struct {
+	Wallpaper *Wallpaper `protobuf:"bytes,2,opt,name=wallpaper,proto3,oneof"`
 }
 
-func (*ServerMessage_Reload) isServerMessage_Message() {}
+func (*ServerMessage_Wallpaper) isServerMessage_Message() {}
 
-type Reload struct {
+type Wallpaper struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
+	Size          uint64                 `protobuf:"varint,1,opt,name=size,proto3" json:"size,omitempty"`
+	Data          []byte                 `protobuf:"bytes,2,opt,name=data,proto3" json:"data,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Reload) Reset() {
-	*x = Reload{}
+func (x *Wallpaper) Reset() {
+	*x = Wallpaper{}
 	mi := &file_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Reload) String() string {
+func (x *Wallpaper) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Reload) ProtoMessage() {}
+func (*Wallpaper) ProtoMessage() {}
 
-func (x *Reload) ProtoReflect() protoreflect.Message {
+func (x *Wallpaper) ProtoReflect() protoreflect.Message {
 	mi := &file_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -156,9 +158,23 @@ func (x *Reload) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Reload.ProtoReflect.Descriptor instead.
-func (*Reload) Descriptor() ([]byte, []int) {
+// Deprecated: Use Wallpaper.ProtoReflect.Descriptor instead.
+func (*Wallpaper) Descriptor() ([]byte, []int) {
 	return file_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Wallpaper) GetSize() uint64 {
+	if x != nil {
+		return x.Size
+	}
+	return 0
+}
+
+func (x *Wallpaper) GetData() []byte {
+	if x != nil {
+		return x.Data
+	}
+	return nil
 }
 
 var File_service_proto protoreflect.FileDescriptor
@@ -166,11 +182,13 @@ var File_service_proto protoreflect.FileDescriptor
 const file_service_proto_rawDesc = "" +
 	"\n" +
 	"\rservice.proto\x12\x0ffogistration.v1\"\x0f\n" +
-	"\rClientMessage\"M\n" +
-	"\rServerMessage\x121\n" +
-	"\x06reload\x18\x01 \x01(\v2\x17.fogistration.v1.ReloadH\x00R\x06reloadB\t\n" +
-	"\amessage\"\b\n" +
-	"\x06Reload2a\n" +
+	"\rClientMessage\"V\n" +
+	"\rServerMessage\x12:\n" +
+	"\twallpaper\x18\x02 \x01(\v2\x1a.fogistration.v1.WallpaperH\x00R\twallpaperB\t\n" +
+	"\amessage\"3\n" +
+	"\tWallpaper\x12\x12\n" +
+	"\x04size\x18\x01 \x01(\x04R\x04size\x12\x12\n" +
+	"\x04data\x18\x02 \x01(\fR\x04data2a\n" +
 	"\x13FogistrationService\x12J\n" +
 	"\x06Stream\x12\x1e.fogistration.v1.ClientMessage\x1a\x1e.fogistration.v1.ServerMessage0\x01B\xbd\x01\n" +
 	"\x13com.fogistration.v1B\fServiceProtoP\x01Z;github.com/LuukBlankenstijn/fogistration/internal/shared/pb\xa2\x02\x03FXX\xaa\x02\x0fFogistration.V1\xca\x02\x0fFogistration\\V1\xe2\x02\x1bFogistration\\V1\\GPBMetadata\xea\x02\x10Fogistration::V1b\x06proto3"
@@ -191,10 +209,10 @@ var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_service_proto_goTypes = []any{
 	(*ClientMessage)(nil), // 0: fogistration.v1.ClientMessage
 	(*ServerMessage)(nil), // 1: fogistration.v1.ServerMessage
-	(*Reload)(nil),        // 2: fogistration.v1.Reload
+	(*Wallpaper)(nil),     // 2: fogistration.v1.Wallpaper
 }
 var file_service_proto_depIdxs = []int32{
-	2, // 0: fogistration.v1.ServerMessage.reload:type_name -> fogistration.v1.Reload
+	2, // 0: fogistration.v1.ServerMessage.wallpaper:type_name -> fogistration.v1.Wallpaper
 	0, // 1: fogistration.v1.FogistrationService.Stream:input_type -> fogistration.v1.ClientMessage
 	1, // 2: fogistration.v1.FogistrationService.Stream:output_type -> fogistration.v1.ServerMessage
 	2, // [2:3] is the sub-list for method output_type
@@ -210,7 +228,7 @@ func file_service_proto_init() {
 		return
 	}
 	file_service_proto_msgTypes[1].OneofWrappers = []any{
-		(*ServerMessage_Reload)(nil),
+		(*ServerMessage_Wallpaper)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{

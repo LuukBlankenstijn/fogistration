@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
-	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -39,8 +38,7 @@ func register(ctx context.Context, queries *database.Queries, client database.Cl
 	})
 	if err == pgx.ErrNoRows {
 		// no team available, do nothing
-		logging.Info("no team found for client %s", client.Ip)
-		return nil
+		return sync()
 	}
 	if err != nil {
 		return fmt.Errorf("error when claiming team: %w", err)

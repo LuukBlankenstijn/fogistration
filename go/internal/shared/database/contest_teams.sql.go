@@ -7,6 +7,8 @@ package database
 
 import (
 	"context"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const deleteAllContestTeams = `-- name: DeleteAllContestTeams :exec
@@ -16,6 +18,46 @@ DELETE FROM contest_teams WHERE contest_id = $1
 func (q *Queries) DeleteAllContestTeams(ctx context.Context, contestID int32) error {
 	_, err := q.db.Exec(ctx, deleteAllContestTeams, contestID)
 	return err
+}
+
+const getContestForTeam = `-- name: GetContestForTeam :one
+SELECT contest_id, team_id FROM contest_teams
+WHERE team_id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetContestForTeam(ctx context.Context, teamID int32) (ContestTeam, error) {
+	row := q.db.QueryRow(ctx, getContestForTeam, teamID)
+	var i ContestTeam
+	err := row.Scan(&i.ContestID, &i.TeamID)
+	return i, err
+}
+
+const getIpsForContest = `-- name: GetIpsForContest :many
+SELECT t.ip
+FROM contest_teams ct
+JOIN teams t ON ct.team_id = t.id
+WHERE t.ip IS NOT NULL AND ct.contest_id = $1
+`
+
+func (q *Queries) GetIpsForContest(ctx context.Context, contestID int32) ([]pgtype.Text, error) {
+	rows, err := q.db.Query(ctx, getIpsForContest, contestID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []pgtype.Text
+	for rows.Next() {
+		var ip pgtype.Text
+		if err := rows.Scan(&ip); err != nil {
+			return nil, err
+		}
+		items = append(items, ip)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 type InsertContestTeamsParams struct {

@@ -7,6 +7,7 @@ services:
       - "8081:8081"
     volumes:
       - .:/app
+      - wallpapers:/wallpapers
     entrypoint: ["air", "-c", ".air-http.toml"]
 
   grpc:
@@ -15,6 +16,7 @@ services:
       - "9090:9090"
     volumes:
       - .:/app
+      - wallpapers:/wallpapers
     entrypoint: ["air", "-c", ".air-grpc.toml"]
 
   cmd-handler:
@@ -39,4 +41,5 @@ services:
 
 volumes:
   data:
+  wallpapers:
 

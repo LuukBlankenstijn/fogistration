@@ -16,15 +16,16 @@ func main() {
 		logging.Fatal("failed to get config", err)
 	}
 
-	c, err := client.NewClient(cfg.Server)
+	c, err := client.NewClient(cfg)
 	if err != nil {
 		logging.Fatal("Failed to create client", err)
 	}
 
-	c.RegisterHandler(client.ReloadHandler{}, "reload")
+	c.RegisterHandler(&client.ReloadHandler{})
+	c.RegisterHandler(&client.WallpaperHandler{})
 
 	if err = c.StartReceiving(ctx); err != nil {
-		logging.Fatal("failed start receiving messages", err)
+		logging.Fatal("failed receiving messages", err)
 	}
 
 }

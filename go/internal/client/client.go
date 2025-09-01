@@ -3,8 +3,10 @@ package client
 import (
 	"context"
 	"fmt"
+	"reflect"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/client/service"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/pb"
 	"google.golang.org/grpc"
@@ -14,11 +16,12 @@ import (
 
 type Client struct {
 	client   pb.FogistrationServiceClient
-	handlers map[string]MessageHandler
+	handlers map[reflect.Type]MessageHandler
+	config   config.ClientConfig
 }
 
-func NewClient(server string) (*Client, error) {
-	conn, err := grpc.NewClient(server, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewClient(config config.ClientConfig) (*Client, error) {
+	conn, err := grpc.NewClient(config.Server, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
@@ -27,12 +30,14 @@ func NewClient(server string) (*Client, error) {
 
 	return &Client{
 		client:   client,
-		handlers: make(map[string]MessageHandler),
+		handlers: make(map[reflect.Type]MessageHandler),
+		config:   config,
 	}, nil
 }
 
-func (c *Client) RegisterHandler(handler MessageHandler, messageType string) {
-	c.handlers[messageType] = handler
+func (c *Client) RegisterHandler(handler MessageHandler) {
+	handler.SetConfig(c.config)
+	c.handlers[handler.MessageType()] = handler
 }
 
 func (c *Client) StartReceiving(ctx context.Context) error {
@@ -57,23 +62,11 @@ func (c *Client) StartReceiving(ctx context.Context) error {
 			return fmt.Errorf("failed to receive message: %w", err)
 		}
 
-		messageType := getMessageType(msg)
+		messageType := reflect.TypeOf(msg.GetMessage())
 		if handler, ok := c.handlers[messageType]; ok {
 			handler.HandleMessage(msg)
 		} else {
 			logging.Warn("no handler registered for message type %s", messageType)
 		}
 	}
-}
-
-func getMessageType(msg *pb.ServerMessage) string {
-	var messageType string
-	switch msg.GetMessage().(type) {
-	case *pb.ServerMessage_Reload:
-		messageType = "reload"
-	default:
-		messageType = "unknown"
-	}
-
-	return messageType
 }
