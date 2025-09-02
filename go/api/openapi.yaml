@@ -124,6 +124,8 @@ components:
           $ref: "#/components/schemas/Align"
         color:
           type: string
+        display:
+          type: boolean
         size:
           format: int32
           type: integer
@@ -143,6 +145,7 @@ components:
         - color
         - weight
         - align
+        - display
       type: object
     LoginRequestBody:
       additionalProperties: false

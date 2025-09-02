@@ -36,12 +36,13 @@ func (Align) Schema(r huma.Registry) *huma.Schema {
 }
 
 type LabelSpec struct {
-	X      int32  `json:"x"     `
-	Y      int32  `json:"y"     `
-	Size   int32  `json:"size"  `
-	Color  string `json:"color" `
-	Weight int32  `json:"weight"`
-	Align  Align  `json:"align"`
+	X       int32  `json:"x"     `
+	Y       int32  `json:"y"     `
+	Size    int32  `json:"size"  `
+	Color   string `json:"color" `
+	Weight  int32  `json:"weight"`
+	Align   Align  `json:"align"`
+	Display bool   `json:"display"`
 }
 
 type WallpaperLayout struct {

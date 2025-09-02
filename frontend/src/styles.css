@@ -11,6 +11,8 @@
   --border: 214 17% 92%;
   --brand: 222 89% 55%;
   --on-brand: 210 40% 98%;
+  --input-disabled: 210 10% 90%;
+  --fg-disabled: 215 16% 65%;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -24,5 +26,7 @@
     --border: 217 19% 24%;
     --brand: 222 89% 66%;
     --on-brand: 222 47% 6%;
+    --input-disabled: 222 20% 15%;
+    --fg-disabled: 215 16% 50%;
   }
 }

@@ -38,7 +38,7 @@ func RenderCompleteBackground(basePNG []byte, layout models.WallpaperLayout, tea
 	builder.SetBackground(base)
 
 	// team label
-	if layout.Teamname.Size > 0 {
+	if layout.Teamname.Size > 0 && layout.Teamname.Display {
 		builder.DrawLabel(Label{
 			Text:   teamName,
 			X:      int(layout.Teamname.X),
@@ -50,7 +50,7 @@ func RenderCompleteBackground(basePNG []byte, layout models.WallpaperLayout, tea
 		})
 	}
 	// ip label
-	if layout.IP.Size > 0 {
+	if layout.IP.Size > 0 && layout.IP.Display {
 		builder.DrawLabel(Label{
 			Text:   ip,
 			X:      int(layout.IP.X),

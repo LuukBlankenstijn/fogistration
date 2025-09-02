@@ -9,7 +9,8 @@ export const DEFAULT_WALLPAPER_LAYOUT: WallpaperLayout = {
     size: 44,
     weight: 600,
     x: 100,
-    y: 100
+    y: 100,
+    display: true,
   },
   teamname: {
     align: Align.CENTER,
@@ -17,7 +18,8 @@ export const DEFAULT_WALLPAPER_LAYOUT: WallpaperLayout = {
     size: 88,
     weight: 800,
     x: 960,
-    y: 540
+    y: 540,
+    display: true,
   },
   w: 1920
 }

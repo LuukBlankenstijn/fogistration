@@ -7,7 +7,6 @@ import (
 
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/service"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
-	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/danielgtaylor/huma/v2"
 )
 
@@ -95,8 +94,6 @@ func (h *Handlers) putWallpaperFile(ctx context.Context, request *putWallpaperFi
 			return nil, huma.Error500InternalServerError("unexpected error")
 		}
 	}
-
-	logging.Info("%+v", request.RawBody)
 
 	return &wallpaperFileResponse{
 		ContentType: "image/png",

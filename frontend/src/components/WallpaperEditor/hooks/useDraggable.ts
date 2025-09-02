@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react"
 
 export function useDraggable(
-  ref: React.RefObject<HTMLDivElement | null>,
+  el: HTMLDivElement | null,
   onDelta: (dx: number, dy: number) => void,
   scale = 1
 ) {
@@ -12,7 +12,6 @@ export function useDraggable(
   useEffect(() => { scaleRef.current = scale }, [scale])
 
   useEffect(() => {
-    const el = ref.current
     if (!el) return
     let dragging = false
     let sx = 0, sy = 0
@@ -39,5 +38,5 @@ export function useDraggable(
       window.removeEventListener("mousemove", move)
       window.removeEventListener("mouseup", up)
     }
-  }, [ref])
+  }, [el])
 }

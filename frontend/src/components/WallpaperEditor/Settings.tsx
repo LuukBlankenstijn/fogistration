@@ -3,6 +3,7 @@ import { Card } from "../Card";
 import { NumberInput } from "./controls/NumberInput";
 import { TextInput } from "./controls/TextInput";
 import { Align, type WallpaperLayout } from "@/clients/generated-client";
+import { BooleanInput } from "./controls/BooleanInput";
 
 interface SetttingsProps {
   layout: WallpaperLayout,
@@ -81,11 +82,21 @@ const Settings = ({ layout, setLayout, setFile, save, isPending }: SetttingsProp
           <legend className="px-1 text-sm">teamname</legend>
 
           <div className="grid grid-cols-2 items-center">
+            <label className="text-sm text-[hsl(var(--muted))]">Display</label>
+            <BooleanInput
+              value={layout.teamname.display}
+              onChange={(v) => { setLayout(l => ({ ...l, teamname: { ...l.teamname, display: v } })); }}
+              className="justify-self-end"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 items-center">
             <label className="text-sm text-[hsl(var(--muted))]">Size</label>
             <NumberInput
               value={layout.teamname.size}
               onChange={(v) => { setLayout(l => ({ ...l, teamname: { ...l.teamname, size: v } })); }}
               className="justify-self-end"
+              disabled={!layout.teamname.display}
             />
           </div>
 
@@ -96,6 +107,7 @@ const Settings = ({ layout, setLayout, setFile, save, isPending }: SetttingsProp
               step={100}
               onChange={(v) => { setLayout(l => ({ ...l, teamname: { ...l.teamname, weight: v } })); }}
               className="justify-self-end"
+              disabled={!layout.teamname.display}
             />
           </div>
 
@@ -103,28 +115,58 @@ const Settings = ({ layout, setLayout, setFile, save, isPending }: SetttingsProp
             <label className="text-sm text-[hsl(var(--muted))]">Color</label>
             <input
               type="color"
-              className="justify-self-end h-9 w-12 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--input))]"
+              disabled={!layout.teamname.display}
+              className={
+                "justify-self-end h-9 w-12 rounded-md border px-1 " +
+                (!layout.teamname.display
+                  ? "cursor-not-allowed border-[hsl(var(--border))] bg-[hsl(var(--input-disabled))]"
+                  : "border-[hsl(var(--border))] bg-[hsl(var(--input))]")
+              }
               value={layout.teamname.color}
-              onChange={(e) => { setLayout(l => ({ ...l, teamname: { ...l.teamname, color: e.target.value } })); }}
+              onChange={(e) => {
+                setLayout((l) => ({
+                  ...l,
+                  teamname: { ...l.teamname, color: e.target.value },
+                }));
+              }
+              }
             />
           </div>
 
-          <div className="grid grid-cols-2 items-center">
-            <label className="text-sm text-[hsl(var(--muted))]">Align</label>
-            <select
-              className="justify-self-end rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--input))] px-2 py-2 text-sm"
-              value={layout.teamname.align}
-              onChange={(e) => { setLayout(l => ({ ...l, teamname: { ...l.teamname, align: e.target.value as Align } })); }}
-            >
-              <option value={Align.LEFT}>Left</option>
-              <option value={Align.CENTER}>Center</option>
-              <option value={Align.RIGHT}>Right</option>
-            </select>
-          </div>
+          <select
+            disabled={!layout.teamname.display}
+            className={
+              "justify-self-end rounded-lg border px-2 py-2 text-sm " +
+              (!layout.teamname.display
+                ? "cursor-not-allowed border-[hsl(var(--border))] bg-[hsl(var(--input-disabled))] text-[hsl(var(--fg-disabled))]"
+                : "border-[hsl(var(--border))] bg-[hsl(var(--input))] text-[hsl(var(--fg))]")
+            }
+            value={layout.teamname.align}
+            onChange={(e) => {
+              setLayout((l) => ({
+                ...l,
+                teamname: { ...l.teamname, align: e.target.value as Align },
+              }));
+            }
+            }
+          >
+            <option value={Align.LEFT}>Left</option>
+            <option value={Align.CENTER}>Center</option>
+            <option value={Align.RIGHT}>Right</option>
+          </select>
         </fieldset>
 
         <fieldset className="grid gap-2 rounded-xl border border-[hsl(var(--border))] p-3">
           <legend className="px-1 text-sm">ip</legend>
+
+          <div className="grid grid-cols-2 items-center">
+            <label className="text-sm text-[hsl(var(--muted))]">Display</label>
+            <BooleanInput
+              value={layout.ip.display}
+              onChange={(v) => { setLayout(l => ({ ...l, ip: { ...l.ip, display: v } })); }}
+              className="justify-self-end"
+            />
+          </div>
 
           <div className="grid grid-cols-2 items-center">
             <label className="text-sm text-[hsl(var(--muted))]">Size</label>
@@ -132,6 +174,7 @@ const Settings = ({ layout, setLayout, setFile, save, isPending }: SetttingsProp
               value={layout.ip.size}
               onChange={(v) => { setLayout(l => ({ ...l, ip: { ...l.ip, size: v } })); }}
               className="justify-self-end"
+              disabled={!layout.ip.display}
             />
           </div>
 
@@ -142,6 +185,7 @@ const Settings = ({ layout, setLayout, setFile, save, isPending }: SetttingsProp
               step={100}
               onChange={(v) => { setLayout(l => ({ ...l, ip: { ...l.ip, weight: v } })); }}
               className="justify-self-end"
+              disabled={!layout.ip.display}
             />
           </div>
 
@@ -149,18 +193,40 @@ const Settings = ({ layout, setLayout, setFile, save, isPending }: SetttingsProp
             <label className="text-sm text-[hsl(var(--muted))]">Color</label>
             <input
               type="color"
-              className="justify-self-end h-9 w-12 rounded-md border border-[hsl(var(--border))] bg-[hsl(var(--input))]"
+              disabled={!layout.ip.display}
+              className={
+                "justify-self-end h-9 w-12 rounded-md border px-1 " +
+                (!layout.ip.display
+                  ? "cursor-not-allowed border-[hsl(var(--border))] bg-[hsl(var(--input-disabled))]"
+                  : "border-[hsl(var(--border))] bg-[hsl(var(--input))]")
+              }
               value={layout.ip.color}
-              onChange={(e) => { setLayout(l => ({ ...l, ip: { ...l.ip, color: e.target.value } })); }}
+              onChange={(e) => {
+                setLayout((l) => ({
+                  ...l,
+                  ip: { ...l.ip, color: e.target.value },
+                }));
+              }}
             />
           </div>
 
           <div className="grid grid-cols-2 items-center">
             <label className="text-sm text-[hsl(var(--muted))]">Align</label>
             <select
-              className="justify-self-end rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--input))] px-2 py-2 text-sm"
+              disabled={!layout.ip.display}
+              className={
+                "justify-self-end rounded-lg border px-2 py-2 text-sm " +
+                (!layout.ip.display
+                  ? "cursor-not-allowed border-[hsl(var(--border))] bg-[hsl(var(--input-disabled))] text-[hsl(var(--fg-disabled))]"
+                  : "border-[hsl(var(--border))] bg-[hsl(var(--input))] text-[hsl(var(--fg))]")
+              }
               value={layout.ip.align}
-              onChange={(e) => { setLayout(l => ({ ...l, ip: { ...l.ip, align: e.target.value as Align } })); }}
+              onChange={(e) => {
+                setLayout((l) => ({
+                  ...l,
+                  ip: { ...l.ip, align: e.target.value as Align },
+                }));
+              }}
             >
               <option value={Align.LEFT}>Left</option>
               <option value={Align.CENTER}>Center</option>

@@ -1,4 +1,4 @@
-import { useCallback, useRef } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { Card } from "../Card";
 import { useElementSize } from "./hooks/useElementSize";
 import { useDraggable } from "./hooks/useDraggable";
@@ -25,6 +25,10 @@ export default function Preview({ layout, setLayout, file }: PreviewProps) {
     }))
   }, [])
 
+  const url = useMemo(() => {
+    return file ? URL.createObjectURL(file) : undefined
+  }, [file])
+
   const onIpDrag = useCallback((dx: number, dy: number) => {
     setLayout(l => ({
       ...l,
@@ -42,12 +46,11 @@ export default function Preview({ layout, setLayout, file }: PreviewProps) {
     1
   )
 
-  const teamRef = useRef<HTMLDivElement>(null)
-  const ipRef = useRef<HTMLDivElement>(null)
+  const [teamEl, setTeamEl] = useState<HTMLDivElement | null>(null)
+  const [ipEl, setIpEl] = useState<HTMLDivElement | null>(null)
 
-
-  useDraggable(teamRef, onTeamDrag, scale)
-  useDraggable(ipRef, onIpDrag, scale)
+  useDraggable(teamEl, onTeamDrag, scale)
+  useDraggable(ipEl, onIpDrag, scale)
 
   return (
     <Card className="min-w-0 flex-1 h-full overflow-hidden p-4">
@@ -68,28 +71,32 @@ export default function Preview({ layout, setLayout, file }: PreviewProps) {
           }}
         >
           {file ? (
-            <img src={URL.createObjectURL(file)} alt="bg" className="absolute inset-0 h-full w-full object-cover" />
+            <img src={url} alt="bg" className="absolute inset-0 h-full w-full object-cover" />
           ) : (
             <div className="absolute inset-0 grid place-items-center text-[hsl(var(--muted))]">
               <div className="text-center text-sm">No background — choose a file</div>
             </div>
           )}
 
-          <div
-            ref={teamRef}
-            className="absolute cursor-grab whitespace-pre drop-shadow-[0_2px_6px_rgba(0,0,0,0.60)]"
-            style={labelStyle(layout, "teamname")}
-          >
-            {"{{ teamname }}"}
-          </div>
+          {layout.teamname.display &&
+            <div
+              ref={setTeamEl}
+              className="absolute cursor-grab whitespace-pre drop-shadow-[0_2px_6px_rgba(0,0,0,0.60)]"
+              style={labelStyle(layout, "teamname")}
+            >
+              {"{{ teamname }}"}
+            </div>
+          }
 
-          <div
-            ref={ipRef}
-            className="absolute cursor-grab whitespace-pre drop-shadow-[0_2px_6px_rgba(0,0,0,0.60)]"
-            style={labelStyle(layout, "ip")}
-          >
-            {"{{ ip }}"}
-          </div>
+          {layout.ip.display &&
+            <div
+              ref={setIpEl}
+              className="absolute cursor-grab whitespace-pre drop-shadow-[0_2px_6px_rgba(0,0,0,0.60)]"
+              style={labelStyle(layout, "ip")}
+            >
+              {"{{ ip }}"}
+            </div>
+          }
         </div>
       </div>
     </Card>
