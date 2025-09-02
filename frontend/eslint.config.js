@@ -19,13 +19,10 @@ export default tseslint.config(
                 project: ['./tsconfig.json'],
             },
         },
-    },
-    { ignores: ['./src/clients'] },
-    {
-        files: ['./src/routes/*.tsx', './src/routes/**/*.tsx'],
         rules: {
             '@typescript-eslint/only-throw-error': 'off',
         },
     },
+    { ignores: ['./src/clients'] },
 )
 

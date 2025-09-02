@@ -5,6 +5,7 @@ import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-q
 import { useNavigate } from "@tanstack/react-router"
 
 export const useGetWallpaperConfigQuery = (id: number) => {
+  const queryClient = useQueryClient()
   return useSuspenseQuery({
     queryFn: async ({ queryKey, signal }) => {
       const { data, error } = await getWallpaperLayout({
@@ -12,7 +13,8 @@ export const useGetWallpaperConfigQuery = (id: number) => {
         signal,
       });
       if (error !== undefined) {
-        return DEFAULT_WALLPAPER_LAYOUT
+        queryClient.setQueryData(queryKey, DEFAULT_WALLPAPER_LAYOUT)
+        throw error
       }
       return data;
     },
@@ -23,6 +25,7 @@ export const useGetWallpaperConfigQuery = (id: number) => {
 }
 
 export const useGetWallpaperQuery = (id: number) => {
+  const queryClient = useQueryClient()
   return useSuspenseQuery({
     queryFn: async ({ queryKey, signal }) => {
       const { data, error } = await getWallpaperFile({
@@ -30,7 +33,8 @@ export const useGetWallpaperQuery = (id: number) => {
         signal,
       });
       if (error !== undefined) {
-        return null
+        queryClient.setQueryData(queryKey, null)
+        throw error
       }
       return data;
     },
@@ -87,7 +91,7 @@ export const useWallpaperMutation = (id: number) => {
       if (data.newLayout) {
         queryClient.setQueryData(getWallpaperLayoutQueryKey(options), data.newLayout)
       }
-      if (data.newFile) {
+      if (data.newFile instanceof Blob) {
         queryClient.setQueryData(getWallpaperFileQueryKey(options), data.newFile)
       } else {
         queryClient.setQueryData(getWallpaperFileQueryKey(options), null)

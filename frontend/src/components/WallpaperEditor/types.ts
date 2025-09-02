@@ -1,10 +1,10 @@
-import type { WallpaperLayout } from "@/clients/generated-client";
+import { Align, type WallpaperLayout } from "@/clients/generated-client";
 
 export const DEFAULT_WALLPAPER_LAYOUT: WallpaperLayout = {
-  fontStack: "",
+  fontStack: "Noto Sans",
   h: 1080,
   ip: {
-    align: "",
+    align: Align.LEFT,
     color: "",
     size: 44,
     weight: 600,
@@ -12,7 +12,7 @@ export const DEFAULT_WALLPAPER_LAYOUT: WallpaperLayout = {
     y: 100
   },
   teamname: {
-    align: "",
+    align: Align.CENTER,
     color: "",
     size: 88,
     weight: 800,
