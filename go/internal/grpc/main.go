@@ -23,7 +23,7 @@ func Run(ctx context.Context, cfg config.GrpcConfig) error {
 
 	queries := database.New(pool)
 	pubsub := pubsub.NewManager()
-	server := server.NewServer(queries, pubsub)
+	server := server.NewServer(queries, pubsub, cfg)
 	serviceContainer := service.New(queries, pubsub, cfg)
 
 	g, ctx := errgroup.WithContext(ctx)
@@ -33,7 +33,7 @@ func Run(ctx context.Context, cfg config.GrpcConfig) error {
 	})
 
 	g.Go(func() error {
-		return server.Start(cfg.Port)
+		return server.Start()
 	})
 
 	return g.Wait()

@@ -5,6 +5,7 @@ import (
 	"net"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/grpc/pubsub"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	pb "github.com/LuukBlankenstijn/fogistration/internal/shared/pb"
@@ -17,27 +18,29 @@ type Server struct {
 	pb.UnimplementedFogistrationServiceServer
 	pubsub  *pubsub.Manager
 	queries *database.Queries
+	config  config.GrpcConfig
 }
 
-func NewServer(queries *database.Queries, pubsub *pubsub.Manager) *Server {
+func NewServer(queries *database.Queries, pubsub *pubsub.Manager, config config.GrpcConfig) *Server {
 	return &Server{
 		pubsub:  pubsub,
 		queries: queries,
+		config:  config,
 	}
 }
 
-func (s *Server) Start(port string) error {
-	lis, err := net.Listen("tcp", ":"+port)
+func (s *Server) Start() error {
+	lis, err := net.Listen("tcp", ":"+s.config.Port)
 	if err != nil {
-		return fmt.Errorf("failed to listen on port %s: %w", port, err)
+		return fmt.Errorf("failed to listen on port %s: %w", s.config.Port, err)
 	}
 
 	grpcServer := grpc.NewServer(
-		grpc.StreamInterceptor(streamIpInterceptor(s.queries)),
+		grpc.StreamInterceptor(streamIpInterceptor(s.queries, s.config)),
 	)
 	pb.RegisterFogistrationServiceServer(grpcServer, s)
 
-	logging.Info("Starting gRPC server on port %s", port)
+	logging.Info("Starting gRPC server on port %s", s.config.Port)
 
 	if err := grpcServer.Serve(lis); err != nil {
 		return fmt.Errorf("failed to serve gRPC: %w", err)
