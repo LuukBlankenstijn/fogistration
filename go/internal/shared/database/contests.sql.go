@@ -32,6 +32,30 @@ func (q *Queries) GetContestByExternalId(ctx context.Context, externalID string)
 	return i, err
 }
 
+const getContestByIp = `-- name: GetContestByIp :one
+SELECT c.id, c.external_id, c.formal_name, c.start_time, c.end_time, c.created_at, c.updated_at, c.hash
+FROM contests c
+JOIN contest_teams ct ON c.id = ct.contest_id
+JOIN teams t on ct.team_id = t.id
+WHERE t.ip = $1
+`
+
+func (q *Queries) GetContestByIp(ctx context.Context, ip pgtype.Text) (Contest, error) {
+	row := q.db.QueryRow(ctx, getContestByIp, ip)
+	var i Contest
+	err := row.Scan(
+		&i.ID,
+		&i.ExternalID,
+		&i.FormalName,
+		&i.StartTime,
+		&i.EndTime,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Hash,
+	)
+	return i, err
+}
+
 const getContestHashes = `-- name: GetContestHashes :many
 SELECT id, hash FROM contests
 ORDER BY id

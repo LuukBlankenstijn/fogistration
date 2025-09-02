@@ -14,10 +14,17 @@ message ClientMessage {}
 
 // Server-to-Client messages
 message ServerMessage {
-  oneof message { Wallpaper wallpaper = 2; }
+  oneof message {
+    Update update = 1;
+  }
 }
 
+message Update {
+  ContestUrl contestUrl = 1;
+  Wallpaper wallpaper = 2;
+}
 message Wallpaper {
   uint64 size = 1;
   bytes data = 2;
 }
+message ContestUrl { string url = 1; }

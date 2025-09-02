@@ -63,7 +63,7 @@ type ServerMessage struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Types that are valid to be assigned to Message:
 	//
-	//	*ServerMessage_Wallpaper
+	//	*ServerMessage_Update
 	Message       isServerMessage_Message `protobuf_oneof:"message"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -106,10 +106,10 @@ func (x *ServerMessage) GetMessage() isServerMessage_Message {
 	return nil
 }
 
-func (x *ServerMessage) GetWallpaper() *Wallpaper {
+func (x *ServerMessage) GetUpdate() *Update {
 	if x != nil {
-		if x, ok := x.Message.(*ServerMessage_Wallpaper); ok {
-			return x.Wallpaper
+		if x, ok := x.Message.(*ServerMessage_Update); ok {
+			return x.Update
 		}
 	}
 	return nil
@@ -119,11 +119,63 @@ type isServerMessage_Message interface {
 	isServerMessage_Message()
 }
 
-type ServerMessage_Wallpaper struct {
-	Wallpaper *Wallpaper `protobuf:"bytes,2,opt,name=wallpaper,proto3,oneof"`
+type ServerMessage_Update struct {
+	Update *Update `protobuf:"bytes,1,opt,name=update,proto3,oneof"`
 }
 
-func (*ServerMessage_Wallpaper) isServerMessage_Message() {}
+func (*ServerMessage_Update) isServerMessage_Message() {}
+
+type Update struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ContestUrl    *ContestUrl            `protobuf:"bytes,1,opt,name=contestUrl,proto3" json:"contestUrl,omitempty"`
+	Wallpaper     *Wallpaper             `protobuf:"bytes,2,opt,name=wallpaper,proto3" json:"wallpaper,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Update) Reset() {
+	*x = Update{}
+	mi := &file_service_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Update) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Update) ProtoMessage() {}
+
+func (x *Update) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Update.ProtoReflect.Descriptor instead.
+func (*Update) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *Update) GetContestUrl() *ContestUrl {
+	if x != nil {
+		return x.ContestUrl
+	}
+	return nil
+}
+
+func (x *Update) GetWallpaper() *Wallpaper {
+	if x != nil {
+		return x.Wallpaper
+	}
+	return nil
+}
 
 type Wallpaper struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
@@ -135,7 +187,7 @@ type Wallpaper struct {
 
 func (x *Wallpaper) Reset() {
 	*x = Wallpaper{}
-	mi := &file_service_proto_msgTypes[2]
+	mi := &file_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -147,7 +199,7 @@ func (x *Wallpaper) String() string {
 func (*Wallpaper) ProtoMessage() {}
 
 func (x *Wallpaper) ProtoReflect() protoreflect.Message {
-	mi := &file_service_proto_msgTypes[2]
+	mi := &file_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -160,7 +212,7 @@ func (x *Wallpaper) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Wallpaper.ProtoReflect.Descriptor instead.
 func (*Wallpaper) Descriptor() ([]byte, []int) {
-	return file_service_proto_rawDescGZIP(), []int{2}
+	return file_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Wallpaper) GetSize() uint64 {
@@ -177,18 +229,70 @@ func (x *Wallpaper) GetData() []byte {
 	return nil
 }
 
+type ContestUrl struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Url           string                 `protobuf:"bytes,1,opt,name=url,proto3" json:"url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ContestUrl) Reset() {
+	*x = ContestUrl{}
+	mi := &file_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ContestUrl) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ContestUrl) ProtoMessage() {}
+
+func (x *ContestUrl) ProtoReflect() protoreflect.Message {
+	mi := &file_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ContestUrl.ProtoReflect.Descriptor instead.
+func (*ContestUrl) Descriptor() ([]byte, []int) {
+	return file_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *ContestUrl) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
 var File_service_proto protoreflect.FileDescriptor
 
 const file_service_proto_rawDesc = "" +
 	"\n" +
 	"\rservice.proto\x12\x0ffogistration.v1\"\x0f\n" +
-	"\rClientMessage\"V\n" +
-	"\rServerMessage\x12:\n" +
-	"\twallpaper\x18\x02 \x01(\v2\x1a.fogistration.v1.WallpaperH\x00R\twallpaperB\t\n" +
-	"\amessage\"3\n" +
+	"\rClientMessage\"M\n" +
+	"\rServerMessage\x121\n" +
+	"\x06update\x18\x01 \x01(\v2\x17.fogistration.v1.UpdateH\x00R\x06updateB\t\n" +
+	"\amessage\"\x7f\n" +
+	"\x06Update\x12;\n" +
+	"\n" +
+	"contestUrl\x18\x01 \x01(\v2\x1b.fogistration.v1.ContestUrlR\n" +
+	"contestUrl\x128\n" +
+	"\twallpaper\x18\x02 \x01(\v2\x1a.fogistration.v1.WallpaperR\twallpaper\"3\n" +
 	"\tWallpaper\x12\x12\n" +
 	"\x04size\x18\x01 \x01(\x04R\x04size\x12\x12\n" +
-	"\x04data\x18\x02 \x01(\fR\x04data2a\n" +
+	"\x04data\x18\x02 \x01(\fR\x04data\"\x1e\n" +
+	"\n" +
+	"ContestUrl\x12\x10\n" +
+	"\x03url\x18\x01 \x01(\tR\x03url2a\n" +
 	"\x13FogistrationService\x12J\n" +
 	"\x06Stream\x12\x1e.fogistration.v1.ClientMessage\x1a\x1e.fogistration.v1.ServerMessage0\x01B\xbd\x01\n" +
 	"\x13com.fogistration.v1B\fServiceProtoP\x01Z;github.com/LuukBlankenstijn/fogistration/internal/shared/pb\xa2\x02\x03FXX\xaa\x02\x0fFogistration.V1\xca\x02\x0fFogistration\\V1\xe2\x02\x1bFogistration\\V1\\GPBMetadata\xea\x02\x10Fogistration::V1b\x06proto3"
@@ -205,21 +309,25 @@ func file_service_proto_rawDescGZIP() []byte {
 	return file_service_proto_rawDescData
 }
 
-var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_service_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
 var file_service_proto_goTypes = []any{
 	(*ClientMessage)(nil), // 0: fogistration.v1.ClientMessage
 	(*ServerMessage)(nil), // 1: fogistration.v1.ServerMessage
-	(*Wallpaper)(nil),     // 2: fogistration.v1.Wallpaper
+	(*Update)(nil),        // 2: fogistration.v1.Update
+	(*Wallpaper)(nil),     // 3: fogistration.v1.Wallpaper
+	(*ContestUrl)(nil),    // 4: fogistration.v1.ContestUrl
 }
 var file_service_proto_depIdxs = []int32{
-	2, // 0: fogistration.v1.ServerMessage.wallpaper:type_name -> fogistration.v1.Wallpaper
-	0, // 1: fogistration.v1.FogistrationService.Stream:input_type -> fogistration.v1.ClientMessage
-	1, // 2: fogistration.v1.FogistrationService.Stream:output_type -> fogistration.v1.ServerMessage
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	2, // 0: fogistration.v1.ServerMessage.update:type_name -> fogistration.v1.Update
+	4, // 1: fogistration.v1.Update.contestUrl:type_name -> fogistration.v1.ContestUrl
+	3, // 2: fogistration.v1.Update.wallpaper:type_name -> fogistration.v1.Wallpaper
+	0, // 3: fogistration.v1.FogistrationService.Stream:input_type -> fogistration.v1.ClientMessage
+	1, // 4: fogistration.v1.FogistrationService.Stream:output_type -> fogistration.v1.ServerMessage
+	4, // [4:5] is the sub-list for method output_type
+	3, // [3:4] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() { file_service_proto_init() }
@@ -228,7 +336,7 @@ func file_service_proto_init() {
 		return
 	}
 	file_service_proto_msgTypes[1].OneofWrappers = []any{
-		(*ServerMessage_Wallpaper)(nil),
+		(*ServerMessage_Update)(nil),
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -236,7 +344,7 @@ func file_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_service_proto_rawDesc), len(file_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   5,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

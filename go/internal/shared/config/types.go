@@ -17,6 +17,7 @@ type GrpcConfig struct {
 	DB           DatabaseConfig
 	LogLevel     string `env_default:"info"`
 	WallpaperDir string `env_default:"/wallpapers"`
+	DJHost       string `env_default:"localhost"`
 }
 
 type DomJudgeConfig struct {

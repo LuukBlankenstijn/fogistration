@@ -21,8 +21,7 @@ func main() {
 		logging.Fatal("Failed to create client", err)
 	}
 
-	c.RegisterHandler(&client.ReloadHandler{})
-	c.RegisterHandler(&client.WallpaperHandler{})
+	c.RegisterHandler(&client.UpdateHandler{})
 
 	if err = c.StartReceiving(ctx); err != nil {
 		logging.Fatal("failed receiving messages", err)

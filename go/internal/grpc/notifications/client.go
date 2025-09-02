@@ -23,7 +23,7 @@ func (c *clientNotificationHandler) Handle(ctx context.Context, notification dbl
 
 func (c *clientNotificationHandler) sync(ctx context.Context, notification dblisten.Notification[database.Client]) bool {
 	if notification.New != nil && notification.New.PendingSync {
-		c.s.Reload.PushUpdate(ctx, notification.New.Ip)
+		go c.s.Reload.PushUpdate(ctx, notification.New.Ip)
 		// best effort
 		_ = c.queries.SetPendingSync(ctx, database.SetPendingSyncParams{
 			ID:          notification.New.ID,

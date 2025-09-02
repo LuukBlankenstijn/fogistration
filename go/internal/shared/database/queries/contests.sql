@@ -37,3 +37,10 @@ DO UPDATE SET
     end_time = EXCLUDED.end_time,
     updated_at = NOW(),
     hash = EXCLUDED.hash;
+
+-- name: GetContestByIp :one
+SELECT c.*
+FROM contests c
+JOIN contest_teams ct ON c.id = ct.contest_id
+JOIN teams t on ct.team_id = t.id
+WHERE t.ip = $1;

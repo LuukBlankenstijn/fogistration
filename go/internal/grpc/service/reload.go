@@ -23,35 +23,51 @@ type reloadService struct {
 }
 
 func (r *reloadService) PushUpdate(ctx context.Context, ip string) {
-	go r.pushWallpaper(ctx, ip)
-	go r.pushContestUrl(ctx, ip)
-}
+	wallpaper := r.pushWallpaper(ctx, ip)
+	contestUrl := r.pushContestUrl(ctx, ip)
 
-func (r *reloadService) pushContestUrl(ctx context.Context, ip string) {
-	// TODO: impolement sending the autologinURL
-}
-
-func (r *reloadService) pushWallpaper(ctx context.Context, ip string) {
-	var renderedWallpaper []byte
-	publish := func() {
-		r.pubsub.Publish(ip, &pb.ServerMessage{
-			Message: &pb.ServerMessage_Wallpaper{
-				Wallpaper: &pb.Wallpaper{
-					Size: uint64(len(renderedWallpaper)),
-					Data: renderedWallpaper,
-				},
+	r.pubsub.Publish(ip, &pb.ServerMessage{
+		Message: &pb.ServerMessage_Update{
+			Update: &pb.Update{
+				Wallpaper:  wallpaper,
+				ContestUrl: contestUrl,
 			},
-		})
+		},
+	})
+}
+
+func (r *reloadService) pushContestUrl(ctx context.Context, ip string) *pb.ContestUrl {
+	var url string
+	if contest, err := r.queries.GetContestByIp(ctx, database.PgTextFromString(&ip)); err == nil {
+		url = fmt.Sprintf("http://%s/api/contests/%s", r.config.DJHost, contest.ExternalID)
+	} else {
+		url = ""
+	}
+
+	return &pb.ContestUrl{
+		Url: url,
+	}
+}
+
+func (r *reloadService) pushWallpaper(ctx context.Context, ip string) *pb.Wallpaper {
+	var renderedWallpaper []byte
+	returnWallpaper := func() *pb.Wallpaper {
+		if len(renderedWallpaper) == 0 {
+			return nil
+		}
+		return &pb.Wallpaper{
+			Size: uint64(len(renderedWallpaper)),
+			Data: renderedWallpaper,
+		}
 	}
 	team, err := r.queries.GetTeamByIp(ctx, database.PgTextFromString(&ip))
 	if err != nil {
 		renderedWallpaper, err = utils.RenderNoTeamAssigned(ip)
 		if err != nil {
 			logging.Info(fmt.Sprintf("failed to render wallpaper for client %s: ", ip), err)
-			return
+			return nil
 		}
-		publish()
-		return
+		return returnWallpaper()
 	}
 	var teamName string
 	if team.DisplayName.Valid {
@@ -65,10 +81,9 @@ func (r *reloadService) pushWallpaper(ctx context.Context, ip string) {
 		renderedWallpaper, err = utils.RenderInactiveContest(ip, teamName)
 		if err != nil {
 			logging.Info(fmt.Sprintf("failed to render wallpaper for client %s: ", ip), err)
-			return
+			return nil
 		}
-		publish()
-		return
+		return returnWallpaper()
 	}
 
 	wallpaper, err := r.queries.GetWallpaperById(ctx, contest_team.ContestID)
@@ -78,7 +93,7 @@ func (r *reloadService) pushWallpaper(ctx context.Context, ip string) {
 		renderedWallpaper, err = utils.RenderNoWallpaperWatermark()
 		if err != nil {
 			logging.Info(fmt.Sprintf("failed to render wallpaper for client %s: ", ip), err)
-			return
+			return nil
 		}
 	} else {
 		var baseWallpaper []byte
@@ -94,13 +109,13 @@ func (r *reloadService) pushWallpaper(ctx context.Context, ip string) {
 				renderedWallpaper, err = utils.RenderNoWallpaperWatermark()
 				if err != nil {
 					logging.Info(fmt.Sprintf("failed to render wallpaper for client %s: ", ip), err)
-					return
+					return nil
 				}
 			} else {
 				renderedWallpaper, err = utils.RenderLayoutOnly(*wallpaper.Layout, teamName, ip)
 				if err != nil {
 					logging.Info(fmt.Sprintf("failed to render wallpaper for client %s: ", ip), err)
-					return
+					return nil
 				}
 			}
 		} else {
@@ -110,13 +125,13 @@ func (r *reloadService) pushWallpaper(ctx context.Context, ip string) {
 				renderedWallpaper, err = utils.RenderCompleteBackground(baseWallpaper, *wallpaper.Layout, teamName, ip)
 				if err != nil {
 					logging.Info(fmt.Sprintf("failed to render wallpaper for client %s: ", ip), err)
-					return
+					return nil
 				}
 			}
 		}
 	}
 
-	publish()
+	return returnWallpaper()
 }
 
 func (r *reloadService) loadWallpaperFile(filename string) ([]byte, error) {
