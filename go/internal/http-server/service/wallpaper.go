@@ -13,6 +13,7 @@ import (
 
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -94,12 +95,12 @@ func (s *wallpaperService) SaveWallpaperFile(ctx context.Context, id int32, data
 
 	err := withTx(ctx, s.pool, func(ctx context.Context, q *database.Queries) error {
 		prev, err := q.GetWallpaperById(ctx, id)
-		if err != nil {
+		if err != nil && err != pgx.ErrNoRows {
 			// DB error (or not found) — surface as DB failure
 			return fmt.Errorf("%w: %v", ErrDB, err)
 		}
 
-		if prev.Filename.Valid && prev.Filename.String != "" {
+		if err != pgx.ErrNoRows && prev.Filename.Valid && prev.Filename.String != "" {
 			oldFile = filepath.Base(prev.Filename.String)
 			oldValid = true
 		}
@@ -110,7 +111,7 @@ func (s *wallpaperService) SaveWallpaperFile(ctx context.Context, id int32, data
 		}
 
 		if _, err := q.UpsertWallpaperFilename(ctx, database.UpsertWallpaperFilenameParams{
-			ID:       prev.ID,
+			ID:       id,
 			Filename: database.PgTextFromString(pgText),
 		}); err != nil {
 			return fmt.Errorf("%w: %v", ErrDB, err)
@@ -137,10 +138,7 @@ func (s *wallpaperService) SaveWallpaperFile(ctx context.Context, id int32, data
 
 func (s *wallpaperService) DeleteWallpaperFile(ctx context.Context, id int32) error {
 	wallpaper, err := s.q.GetWallpaperById(ctx, id)
-	if err != nil {
-		return ErrWallpaperNotFound
-	}
-	if !wallpaper.Filename.Valid {
+	if err != nil || !wallpaper.Filename.Valid {
 		return nil
 	}
 	_, err = s.q.UpsertWallpaperFilename(ctx, database.UpsertWallpaperFilenameParams{
