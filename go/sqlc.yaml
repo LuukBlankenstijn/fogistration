@@ -15,6 +15,10 @@ sql:
               import: "github.com/LuukBlankenstijn/fogistration/internal/shared/database/models"
               type: "WallpaperLayout"
               pointer: true 
+          - column: "users.role"
+            go_type:
+              import: "github.com/LuukBlankenstijn/fogistration/internal/shared/database/models"
+              type: "UserRole"
           - column: "*.created_at"
             go_struct_tag: 'hash:"exclude"'
           - column: "*.updated_at"

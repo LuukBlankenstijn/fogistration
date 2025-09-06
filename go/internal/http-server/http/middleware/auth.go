@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/database/models"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -53,8 +54,8 @@ func (m *MiddlewareFactory) FindUser(api huma.API) func(huma.Context, func(huma.
 }
 
 // RequireRoles ensures the authenticated user has one of the allowed roles.
-func (m *MiddlewareFactory) RequireRoles(api huma.API, roles ...string) func(huma.Context, func(huma.Context)) {
-	allowed := map[string]struct{}{}
+func (m *MiddlewareFactory) RequireRoles(api huma.API, roles ...models.UserRole) func(huma.Context, func(huma.Context)) {
+	allowed := map[models.UserRole]struct{}{}
 	for _, r := range roles {
 		allowed[r] = struct{}{}
 	}
@@ -79,7 +80,7 @@ func (m *MiddlewareFactory) RequireRoles(api huma.API, roles ...string) func(hum
 }
 
 // Stacks the VerifyAuth, FindUser, and VerifyAuth middleware
-func (m *MiddlewareFactory) Auth(api huma.API, roles ...string) huma.Middlewares {
+func (m *MiddlewareFactory) Auth(api huma.API, roles ...models.UserRole) huma.Middlewares {
 	middleware := huma.Middlewares{
 		m.ValidateAuth(api),
 		m.FindUser(api),

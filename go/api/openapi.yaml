@@ -285,7 +285,7 @@ components:
           format: int64
           type: integer
         role:
-          type: string
+          $ref: "#/components/schemas/UserRole"
         username:
           type: string
       required:
@@ -294,6 +294,13 @@ components:
         - email
         - role
       type: object
+    UserRole:
+      enum:
+        - admin
+        - user
+        - guest
+      title: UserRole
+      type: string
     WallpaperLayout:
       additionalProperties: false
       properties:

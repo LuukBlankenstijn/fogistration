@@ -8,6 +8,7 @@ package database
 import (
 	"context"
 
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/database/models"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -29,9 +30,9 @@ RETURNING id, username, email, role, external_id, created_at, updated_at, last_l
 `
 
 type CreateLocalUserParams struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Role     string `json:"role"`
+	Username string          `json:"username"`
+	Email    string          `json:"email"`
+	Role     models.UserRole `json:"role"`
 }
 
 func (q *Queries) CreateLocalUser(ctx context.Context, arg CreateLocalUserParams) (User, error) {
@@ -178,10 +179,10 @@ RETURNING id, username, email, role, external_id, created_at, updated_at, last_l
 `
 
 type UpdateUserProfileParams struct {
-	Username pgtype.Text `json:"username"`
-	Email    pgtype.Text `json:"email"`
-	Role     pgtype.Text `json:"role"`
-	ID       int64       `json:"id"`
+	Username pgtype.Text     `json:"username"`
+	Email    pgtype.Text     `json:"email"`
+	Role     models.UserRole `json:"role"`
+	ID       int64           `json:"id"`
 }
 
 func (q *Queries) UpdateUserProfile(ctx context.Context, arg UpdateUserProfileParams) (User, error) {

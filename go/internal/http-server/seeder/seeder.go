@@ -3,9 +3,9 @@ package seeder
 import (
 	"context"
 
-	"github.com/LuukBlankenstijn/fogistration/internal/http-server/models"
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/utils/auth"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/database/models"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -42,7 +42,7 @@ func (s *Seeder) SeedDefaultUser(ctx context.Context) error {
 
 	username := "admin"
 	email := "admin@example.com"
-	role := models.RoleAdmin
+	role := models.Admin
 	password := "admin123"
 
 	salt, hash, err := auth.NewSecret(password, auth.Default)
@@ -53,7 +53,7 @@ func (s *Seeder) SeedDefaultUser(ctx context.Context) error {
 	user, err := qtx.CreateLocalUser(ctx, database.CreateLocalUserParams{
 		Username: username,
 		Email:    email,
-		Role:     string(role),
+		Role:     role,
 	})
 	if err != nil {
 		return err
