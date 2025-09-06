@@ -5,6 +5,7 @@ import (
 
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/container"
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/middleware"
+	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/sse"
 	"github.com/danielgtaylor/huma/v2"
 )
 
@@ -23,6 +24,13 @@ func (h *Handlers) Register(
 ) {
 	clientApi := huma.NewGroup(api, prefixes...)
 	clientApi.UseMiddleware(middlewareFactory.Auth(clientApi)...)
+
+	sse.Register(h.SSE, clientApi, huma.Operation{
+		OperationID: "getClient",
+		Method:      http.MethodGet,
+		Path:        "/{id}",
+		Tags:        []string{"clients"},
+	}, h.getSingleClient)
 
 	huma.Register(clientApi, huma.Operation{
 		OperationID: "listClients",

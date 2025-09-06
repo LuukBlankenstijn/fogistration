@@ -5,6 +5,7 @@ import (
 
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/container"
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/middleware"
+	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/sse"
 	"github.com/danielgtaylor/huma/v2"
 )
 
@@ -25,7 +26,7 @@ func (h *Handlers) Register(
 
 	userApi.UseMiddleware(middlewareFactory.Auth(userApi)...)
 
-	huma.Register(userApi, huma.Operation{
+	sse.Register(h.SSE, userApi, huma.Operation{
 		OperationID: "getCurrentUser",
 		Method:      http.MethodGet,
 		Path:        "/me",

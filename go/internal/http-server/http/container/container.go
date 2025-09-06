@@ -1,6 +1,7 @@
 package container
 
 import (
+	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/sse"
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/service"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
@@ -11,6 +12,7 @@ type Container struct {
 	Cfg *config.HttpConfig
 	Q   *database.Queries
 	S   *service.ServiceRepo
+	SSE *sse.SSEManager
 }
 
 func NewContainer(cfg *config.HttpConfig, pool *pgxpool.Pool) *Container {
@@ -19,5 +21,6 @@ func NewContainer(cfg *config.HttpConfig, pool *pgxpool.Pool) *Container {
 		Cfg: cfg,
 		Q:   q,
 		S:   service.New(pool, cfg),
+		SSE: sse.New(),
 	}
 }

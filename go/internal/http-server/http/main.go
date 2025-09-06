@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"os"
@@ -9,7 +10,10 @@ import (
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/container"
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/handlers"
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/middleware"
+
+	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/sse"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humago"
@@ -19,6 +23,7 @@ import (
 type Server struct {
 	mux *http.ServeMux
 	cfg *config.HttpConfig
+	sse *sse.SSEManager
 }
 
 func NewServer(cfg *config.HttpConfig, pool *pgxpool.Pool) *Server {
@@ -33,6 +38,8 @@ func NewServer(cfg *config.HttpConfig, pool *pgxpool.Pool) *Server {
 	handlers := handlers.NewHandlers(container)
 	handlers.Register(api, middlewareFactory, "/api")
 
+	container.SSE.CreateEndpoint(api)
+
 	if err := saveSpec(api); err != nil {
 		logging.Error("failed to write api spec", err)
 	}
@@ -40,11 +47,13 @@ func NewServer(cfg *config.HttpConfig, pool *pgxpool.Pool) *Server {
 	return &Server{
 		mux,
 		cfg,
+		container.SSE,
 	}
 }
 
-func (s *Server) Run() {
+func (s *Server) Run(ctx context.Context) {
 	address := fmt.Sprintf("%s:%s", s.cfg.Host, s.cfg.Port)
+	go s.sse.Start(ctx, database.GetUrl(&s.cfg.DB))
 	logging.Info("%s", fmt.Sprintf("Starting http server on %s", address))
 	logging.Fatal("failed to run server", http.ListenAndServe(address, s.mux))
 }

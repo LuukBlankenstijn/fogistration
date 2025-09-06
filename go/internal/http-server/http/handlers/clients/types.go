@@ -2,6 +2,10 @@ package clients
 
 import "github.com/LuukBlankenstijn/fogistration/internal/http-server/models"
 
+type getClientRequest struct {
+	ID int32 `path:"id" doc:"Client ID"`
+}
+
 type listClientsResponse struct {
 	Body []models.Client
 }

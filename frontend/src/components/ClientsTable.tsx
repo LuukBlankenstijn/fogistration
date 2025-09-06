@@ -1,14 +1,13 @@
-import { useClients, useSetClientTeamMutation, type ExtendedClient } from "@/query/dashboard";
 import { flexRender, getCoreRowModel, getSortedRowModel, useReactTable, type ColumnDef, type SortingState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { Dropdown } from "./table/Dropdown";
-import { useSuspenseQuery } from "@tanstack/react-query";
 import { formatRelativeDateTime } from "@/utils/date";
-import { listTeamsOptions } from "@/clients/generated-client/@tanstack/react-query.gen";
+import { useTeamsQuery } from "@/query/team";
+import { useClients, useSetClientTeamMutation, type ExtendedClient } from "@/query/client";
 
 export function ClientsTable() {
   const clients = useClients()
-  const { data: teams } = useSuspenseQuery(listTeamsOptions())
+  const teams = useTeamsQuery()
   const { mutate } = useSetClientTeamMutation()
 
   const teamNameById = useMemo(() => {

@@ -6,6 +6,10 @@ type teamResponse struct {
 	Body models.Team
 }
 
+type getTeamRequest struct {
+	ID string `path:"id" doc:"Team external ID"`
+}
+
 type listTeamsResponse struct {
 	Body []models.Team `nullable:"false"`
 }

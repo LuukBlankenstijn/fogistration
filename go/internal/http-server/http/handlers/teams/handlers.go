@@ -4,12 +4,22 @@ import (
 	"context"
 	"errors"
 
+	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/sse"
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/models"
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/service"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/danielgtaylor/huma/v2"
 )
+
+func (h *Handlers) getSingleTeam(ctx context.Context, req *getTeamRequest) (*sse.GetResponse[models.Team], error) {
+	team, err := h.Q.GetTeamByExternalId(ctx, req.ID)
+	if err != nil {
+		return nil, huma.Error400BadRequest("team not found")
+	}
+
+	return &sse.GetResponse[models.Team]{Body: models.MapTeam(team)[0]}, nil
+}
 
 func (h *Handlers) listTeams(ctx context.Context, req *struct{}) (*listTeamsResponse, error) {
 	teams, err := h.Q.GetAllTeams(ctx)

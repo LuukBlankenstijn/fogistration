@@ -35,5 +35,5 @@ func main() {
 		logging.Error("seeder failed", err)
 	}
 
-	httpServer.NewServer(&cfg, dbpool).Run()
+	httpServer.NewServer(&cfg, dbpool).Run(ctx)
 }

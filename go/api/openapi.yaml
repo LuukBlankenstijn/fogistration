@@ -117,6 +117,9 @@ components:
           format: uri
           type: string
       type: object
+    InitMessage:
+      additionalProperties: false
+      type: object
     LabelSpec:
       additionalProperties: false
       properties:
@@ -166,6 +169,58 @@ components:
       required:
         - username
         - password
+      type: object
+    SSEOperation:
+      enum:
+        - create
+        - update
+        - delete
+      title: SSEOperation
+      type: string
+    SSEUpdateClient:
+      additionalProperties: false
+      properties:
+        Data:
+          $ref: "#/components/schemas/Client"
+        Id:
+          format: int64
+          type: integer
+        Operation:
+          $ref: "#/components/schemas/SSEOperation"
+      required:
+        - Operation
+        - Id
+        - Data
+      type: object
+    SSEUpdateTeam:
+      additionalProperties: false
+      properties:
+        Data:
+          $ref: "#/components/schemas/Team"
+        Id:
+          format: int64
+          type: integer
+        Operation:
+          $ref: "#/components/schemas/SSEOperation"
+      required:
+        - Operation
+        - Id
+        - Data
+      type: object
+    SSEUpdateUser:
+      additionalProperties: false
+      properties:
+        Data:
+          $ref: "#/components/schemas/User"
+        Id:
+          format: int64
+          type: integer
+        Operation:
+          $ref: "#/components/schemas/SSEOperation"
+      required:
+        - Operation
+        - Id
+        - Data
       type: object
     SetClientRequestBody:
       additionalProperties: false
@@ -365,6 +420,33 @@ paths:
           description: Error
       tags:
         - clients
+  /api/clients/{id}:
+    get:
+      operationId: getClient
+      parameters:
+        - description: Client ID
+          in: path
+          name: id
+          required: true
+          schema:
+            description: Client ID
+            format: int32
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      tags:
+        - clients
   /api/clients/{id}/team:
     post:
       operationId: setClientTeam
@@ -437,6 +519,99 @@ paths:
           description: Error
       tags:
         - contests
+  /api/sse:
+    get:
+      operationId: sse
+      responses:
+        "200":
+          content:
+            text/event-stream:
+              schema:
+                description: Each oneOf object in the array represents one possible Server Sent Events (SSE) message, serialized as UTF-8 text according to the SSE specification.
+                items:
+                  oneOf:
+                    - properties:
+                        data:
+                          $ref: "#/components/schemas/SSEUpdateClient"
+                        event:
+                          const: getClient
+                          description: The event name.
+                          type: string
+                        id:
+                          description: The event ID.
+                          type: integer
+                        retry:
+                          description: The retry time in milliseconds.
+                          type: integer
+                      required:
+                        - data
+                        - event
+                      title: Event getClient
+                      type: object
+                    - properties:
+                        data:
+                          $ref: "#/components/schemas/SSEUpdateUser"
+                        event:
+                          const: getCurrentUser
+                          description: The event name.
+                          type: string
+                        id:
+                          description: The event ID.
+                          type: integer
+                        retry:
+                          description: The retry time in milliseconds.
+                          type: integer
+                      required:
+                        - data
+                        - event
+                      title: Event getCurrentUser
+                      type: object
+                    - properties:
+                        data:
+                          $ref: "#/components/schemas/SSEUpdateTeam"
+                        event:
+                          const: getTeam
+                          description: The event name.
+                          type: string
+                        id:
+                          description: The event ID.
+                          type: integer
+                        retry:
+                          description: The retry time in milliseconds.
+                          type: integer
+                      required:
+                        - data
+                        - event
+                      title: Event getTeam
+                      type: object
+                    - properties:
+                        data:
+                          $ref: "#/components/schemas/InitMessage"
+                        event:
+                          const: initMessage
+                          description: The event name.
+                          type: string
+                        id:
+                          description: The event ID.
+                          type: integer
+                        retry:
+                          description: The retry time in milliseconds.
+                          type: integer
+                      required:
+                        - data
+                        - event
+                      title: Event initMessage
+                      type: object
+                title: Server Sent Events
+                type: array
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      summary: Server-sent events
   /api/teams/:
     get:
       operationId: listTeams
@@ -448,6 +623,32 @@ paths:
                 items:
                   $ref: "#/components/schemas/Team"
                 type: array
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      tags:
+        - teams
+  /api/teams/{id}:
+    get:
+      operationId: getTeam
+      parameters:
+        - description: Team external ID
+          in: path
+          name: id
+          required: true
+          schema:
+            description: Team external ID
+            type: string
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Team"
           description: OK
         default:
           content:

@@ -1,14 +1,13 @@
-import { useClients, useSetTeamClientMutation } from "@/query/dashboard";
 import { flexRender, getCoreRowModel, getSortedRowModel, useReactTable, type ColumnDef, type SortingState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { Dropdown } from "./table/Dropdown";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { listTeamsOptions } from "@/clients/generated-client/@tanstack/react-query.gen";
 import type { Team } from "@/clients/generated-client";
+import { useSetTeamClientMutation, useTeamsQuery } from "@/query/team";
+import { useClients } from "@/query/client";
 
 export function TeamsTable() {
   const clients = useClients()
-  const { data: teams } = useSuspenseQuery(listTeamsOptions())
+  const teams = useTeamsQuery()
   const { mutate } = useSetTeamClientMutation()
 
   const availableIps = useMemo(() => {
