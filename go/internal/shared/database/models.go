@@ -63,7 +63,7 @@ type User struct {
 	ID          int64              `json:"id"`
 	Username    string             `json:"username"`
 	Email       string             `json:"email"`
-	Role        string             `json:"role"`
+	Role        models.UserRole    `json:"role"`
 	ExternalID  pgtype.Text        `json:"external_id"`
 	CreatedAt   pgtype.Timestamptz `hash:"exclude" json:"created_at"`
 	UpdatedAt   pgtype.Timestamptz `hash:"exclude" json:"updated_at"`

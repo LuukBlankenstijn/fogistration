@@ -79,7 +79,7 @@ func (s *authService) Authenticate(ctx context.Context, username, password strin
 		token = t
 	}
 
-	return AuthResult{User: models.MapUser(u), Token: token}, nil
+	return AuthResult{User: models.MapUsers(u)[0], Token: token}, nil
 }
 
 func (s *authService) DummyAuthenticate(ctx context.Context) (AuthResult, error) {
@@ -97,7 +97,7 @@ func (s *authService) DummyAuthenticate(ctx context.Context) (AuthResult, error)
 		token = t
 	}
 
-	return AuthResult{User: models.MapUser(u), Token: token}, nil
+	return AuthResult{User: models.MapUsers(u)[0], Token: token}, nil
 }
 
 func (s *authService) Validate(cookie *http.Cookie, sec string) (int64, error) {

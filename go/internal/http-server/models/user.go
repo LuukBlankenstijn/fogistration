@@ -1,30 +1,31 @@
 package models
 
-import "github.com/LuukBlankenstijn/fogistration/internal/shared/database"
-
-type Role string
-
-const (
-	RoleAdmin Role = "admin"
-	RoleUser  Role = "user"
+import (
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/database/models"
 )
 
 type User struct {
-	ID       int64  `json:"id"`
-	Username string `json:"username"`
-	Email    string `json:"email"`
-	Role     Role   `json:"role"`
+	ID       int32           `json:"id"`
+	Username string          `json:"username"`
+	Email    string          `json:"email"`
+	Role     models.UserRole `json:"role"`
 }
 
-func MapUser(user database.User) User {
-	role := Role(user.Role)
-	if role != RoleUser && role != RoleAdmin {
-		role = RoleUser
+func MapUsers(users ...database.User) []User {
+	var newUsers []User
+	for _, user := range users {
+		role := models.UserRole(user.Role)
+		if role != models.User && role != models.Admin && role != models.Guest {
+			role = models.User
+		}
+
+		newUsers = append(newUsers, User{
+			ID:       int32(user.ID),
+			Username: user.Username,
+			Email:    user.Email,
+			Role:     role,
+		})
 	}
-	return User{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-		Role:     role,
-	}
+	return newUsers
 }

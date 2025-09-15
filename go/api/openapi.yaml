@@ -282,10 +282,10 @@ components:
         email:
           type: string
         id:
-          format: int64
+          format: int32
           type: integer
         role:
-          type: string
+          $ref: "#/components/schemas/UserRole"
         username:
           type: string
       required:
@@ -294,6 +294,51 @@ components:
         - email
         - role
       type: object
+    UserPatch:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://example.com/schemas/UserPatch.json
+          format: uri
+          readOnly: true
+          type: string
+        email:
+          type: string
+        role:
+          $ref: "#/components/schemas/UserRole"
+        username:
+          type: string
+      type: object
+    UserPut:
+      additionalProperties: false
+      properties:
+        $schema:
+          description: A URL to the JSON Schema for this object.
+          examples:
+            - https://example.com/schemas/UserPut.json
+          format: uri
+          readOnly: true
+          type: string
+        email:
+          type: string
+        role:
+          $ref: "#/components/schemas/UserRole"
+        username:
+          type: string
+      required:
+        - username
+        - email
+        - role
+      type: object
+    UserRole:
+      enum:
+        - admin
+        - user
+        - guest
+      title: UserRole
+      type: string
     WallpaperLayout:
       additionalProperties: false
       properties:
@@ -550,24 +595,6 @@ paths:
                       type: object
                     - properties:
                         data:
-                          $ref: "#/components/schemas/SSEUpdateUser"
-                        event:
-                          const: getCurrentUser
-                          description: The event name.
-                          type: string
-                        id:
-                          description: The event ID.
-                          type: integer
-                        retry:
-                          description: The retry time in milliseconds.
-                          type: integer
-                      required:
-                        - data
-                        - event
-                      title: Event getCurrentUser
-                      type: object
-                    - properties:
-                        data:
                           $ref: "#/components/schemas/SSEUpdateTeam"
                         event:
                           const: getTeam
@@ -583,6 +610,24 @@ paths:
                         - data
                         - event
                       title: Event getTeam
+                      type: object
+                    - properties:
+                        data:
+                          $ref: "#/components/schemas/SSEUpdateUser"
+                        event:
+                          const: getUser
+                          description: The event name.
+                          type: string
+                        id:
+                          description: The event ID.
+                          type: integer
+                        retry:
+                          description: The retry time in milliseconds.
+                          type: integer
+                      required:
+                        - data
+                        - event
+                      title: Event getUser
                       type: object
                     - properties:
                         data:
@@ -691,6 +736,27 @@ paths:
       summary: Set team client
       tags:
         - teams
+  /api/users/:
+    get:
+      operationId: listUsers
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: "#/components/schemas/User"
+                type: array
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      summary: Get all users
+      tags:
+        - users
   /api/users/me:
     get:
       operationId: getCurrentUser
@@ -707,7 +773,101 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorModel"
           description: Error
-      summary: Get Current user
+      summary: Get the current logged in user
+      tags:
+        - users
+  /api/users/{id}:
+    get:
+      operationId: getUser
+      parameters:
+        - description: User ID
+          in: path
+          name: id
+          required: true
+          schema:
+            description: User ID
+            format: int32
+            type: integer
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      summary: Get a user by id
+      tags:
+        - users
+    patch:
+      operationId: patchUser
+      parameters:
+        - description: User ID
+          in: path
+          name: id
+          required: true
+          schema:
+            description: User ID
+            format: int32
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserPatch"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      summary: Patch a user
+      tags:
+        - users
+    put:
+      operationId: putUser
+      parameters:
+        - description: User ID
+          in: path
+          name: id
+          required: true
+          schema:
+            description: User ID
+            format: int32
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserPut"
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+          description: OK
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      summary: Create or replace a user by id
       tags:
         - users
   /api/wallpapers/{id}/file:
