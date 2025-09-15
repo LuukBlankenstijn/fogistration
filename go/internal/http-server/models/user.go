@@ -6,21 +6,26 @@ import (
 )
 
 type User struct {
-	ID       int64           `json:"id"`
+	ID       int32           `json:"id"`
 	Username string          `json:"username"`
 	Email    string          `json:"email"`
 	Role     models.UserRole `json:"role"`
 }
 
-func MapUser(user database.User) User {
-	role := models.UserRole(user.Role)
-	if role != models.User && role != models.Admin && role != models.Guest {
-		role = models.User
+func MapUsers(users ...database.User) []User {
+	var newUsers []User
+	for _, user := range users {
+		role := models.UserRole(user.Role)
+		if role != models.User && role != models.Admin && role != models.Guest {
+			role = models.User
+		}
+
+		newUsers = append(newUsers, User{
+			ID:       int32(user.ID),
+			Username: user.Username,
+			Email:    user.Email,
+			Role:     role,
+		})
 	}
-	return User{
-		ID:       user.ID,
-		Username: user.Username,
-		Email:    user.Email,
-		Role:     role,
-	}
+	return newUsers
 }

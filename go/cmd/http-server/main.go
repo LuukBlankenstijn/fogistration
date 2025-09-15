@@ -29,10 +29,12 @@ func main() {
 	defer dbpool.Close()
 	queries := database.New(dbpool)
 
-	sdr := seeder.New(dbpool, queries)
-	err = sdr.SeedDefaultUser(ctx)
-	if err != nil {
-		logging.Error("seeder failed", err)
+	if cfg.AppEnv == "development" {
+		sdr := seeder.New(dbpool, queries)
+		err = sdr.SeedDefaultUser(ctx)
+		if err != nil {
+			logging.Error("seeder failed", err)
+		}
 	}
 
 	httpServer.NewServer(&cfg, dbpool).Run(ctx)

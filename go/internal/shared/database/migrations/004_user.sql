@@ -12,7 +12,9 @@ CREATE TABLE users (
 );
 
 -- case-insensitive unique username
-CREATE UNIQUE INDEX ux_users_username_ci ON users (lower(username));
+CREATE UNIQUE INDEX IF NOT EXISTS users_local_username_ci_uniq
+  ON users (lower(username))
+  WHERE external_id IS NULL;
 
 -- external_id unique when present
 CREATE UNIQUE INDEX ux_users_external_id ON users (external_id) WHERE external_id IS NOT NULL;

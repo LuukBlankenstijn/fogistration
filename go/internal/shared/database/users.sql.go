@@ -108,16 +108,10 @@ func (q *Queries) GetUserByUsernameCI(ctx context.Context, lower string) (User, 
 const listUsers = `-- name: ListUsers :many
 SELECT id, username, email, role, external_id, created_at, updated_at, last_login_at FROM users
 ORDER BY id
-LIMIT $1 OFFSET $2
 `
 
-type ListUsersParams struct {
-	Limit  int32 `json:"limit"`
-	Offset int32 `json:"offset"`
-}
-
-func (q *Queries) ListUsers(ctx context.Context, arg ListUsersParams) ([]User, error) {
-	rows, err := q.db.Query(ctx, listUsers, arg.Limit, arg.Offset)
+func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsers)
 	if err != nil {
 		return nil, err
 	}

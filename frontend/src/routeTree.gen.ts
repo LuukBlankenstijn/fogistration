@@ -13,8 +13,10 @@ import { Route as PrivateRouteImport } from './routes/_private'
 import { Route as AuthRouteImport } from './routes/_auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PrivateDashboardRouteImport } from './routes/_private/dashboard'
+import { Route as PrivateAdminRouteImport } from './routes/_private/admin'
 import { Route as AuthLoginRouteImport } from './routes/_auth/login'
 import { Route as PrivateWallpaperIdRouteImport } from './routes/_private/wallpaper/$id'
+import { Route as PrivateAdminSettingsRouteImport } from './routes/_private/_admin/settings'
 
 const PrivateRoute = PrivateRouteImport.update({
   id: '/_private',
@@ -34,6 +36,11 @@ const PrivateDashboardRoute = PrivateDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => PrivateRoute,
 } as any)
+const PrivateAdminRoute = PrivateAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => PrivateRoute,
+} as any)
 const AuthLoginRoute = AuthLoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -44,17 +51,26 @@ const PrivateWallpaperIdRoute = PrivateWallpaperIdRouteImport.update({
   path: '/wallpaper/$id',
   getParentRoute: () => PrivateRoute,
 } as any)
+const PrivateAdminSettingsRoute = PrivateAdminSettingsRouteImport.update({
+  id: '/_admin/settings',
+  path: '/settings',
+  getParentRoute: () => PrivateRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
+  '/admin': typeof PrivateAdminRoute
   '/dashboard': typeof PrivateDashboardRoute
+  '/settings': typeof PrivateAdminSettingsRoute
   '/wallpaper/$id': typeof PrivateWallpaperIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof AuthLoginRoute
+  '/admin': typeof PrivateAdminRoute
   '/dashboard': typeof PrivateDashboardRoute
+  '/settings': typeof PrivateAdminSettingsRoute
   '/wallpaper/$id': typeof PrivateWallpaperIdRoute
 }
 export interface FileRoutesById {
@@ -63,21 +79,31 @@ export interface FileRoutesById {
   '/_auth': typeof AuthRouteWithChildren
   '/_private': typeof PrivateRouteWithChildren
   '/_auth/login': typeof AuthLoginRoute
+  '/_private/admin': typeof PrivateAdminRoute
   '/_private/dashboard': typeof PrivateDashboardRoute
+  '/_private/_admin/settings': typeof PrivateAdminSettingsRoute
   '/_private/wallpaper/$id': typeof PrivateWallpaperIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/dashboard' | '/wallpaper/$id'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/admin'
+    | '/dashboard'
+    | '/settings'
+    | '/wallpaper/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/login' | '/dashboard' | '/wallpaper/$id'
+  to: '/' | '/login' | '/admin' | '/dashboard' | '/settings' | '/wallpaper/$id'
   id:
     | '__root__'
     | '/'
     | '/_auth'
     | '/_private'
     | '/_auth/login'
+    | '/_private/admin'
     | '/_private/dashboard'
+    | '/_private/_admin/settings'
     | '/_private/wallpaper/$id'
   fileRoutesById: FileRoutesById
 }
@@ -117,6 +143,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PrivateDashboardRouteImport
       parentRoute: typeof PrivateRoute
     }
+    '/_private/admin': {
+      id: '/_private/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof PrivateAdminRouteImport
+      parentRoute: typeof PrivateRoute
+    }
     '/_auth/login': {
       id: '/_auth/login'
       path: '/login'
@@ -129,6 +162,13 @@ declare module '@tanstack/react-router' {
       path: '/wallpaper/$id'
       fullPath: '/wallpaper/$id'
       preLoaderRoute: typeof PrivateWallpaperIdRouteImport
+      parentRoute: typeof PrivateRoute
+    }
+    '/_private/_admin/settings': {
+      id: '/_private/_admin/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof PrivateAdminSettingsRouteImport
       parentRoute: typeof PrivateRoute
     }
   }
@@ -145,12 +185,16 @@ const AuthRouteChildren: AuthRouteChildren = {
 const AuthRouteWithChildren = AuthRoute._addFileChildren(AuthRouteChildren)
 
 interface PrivateRouteChildren {
+  PrivateAdminRoute: typeof PrivateAdminRoute
   PrivateDashboardRoute: typeof PrivateDashboardRoute
+  PrivateAdminSettingsRoute: typeof PrivateAdminSettingsRoute
   PrivateWallpaperIdRoute: typeof PrivateWallpaperIdRoute
 }
 
 const PrivateRouteChildren: PrivateRouteChildren = {
+  PrivateAdminRoute: PrivateAdminRoute,
   PrivateDashboardRoute: PrivateDashboardRoute,
+  PrivateAdminSettingsRoute: PrivateAdminSettingsRoute,
   PrivateWallpaperIdRoute: PrivateWallpaperIdRoute,
 }
 
