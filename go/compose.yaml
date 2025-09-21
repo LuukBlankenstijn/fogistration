@@ -1,7 +1,9 @@
 name: fogistration
 services:
   http:
-    build: .
+    build:
+      context: .
+      target: dev
     ports:
       - "8080:8080"
       - "8081:8081"
@@ -11,7 +13,9 @@ services:
     entrypoint: ["air", "-c", ".air-http.toml"]
 
   grpc:
-    build: .
+    build:
+      context: .
+      target: dev
     ports:
       - "9090:9090"
     volumes:
@@ -20,7 +24,9 @@ services:
     entrypoint: ["air", "-c", ".air-grpc.toml"]
 
   cmd-handler:
-    build: .
+    build:
+      context: .
+      target: dev
     volumes:
       - .:/app
     entrypoint: ["air", "-c", ".air-cmdhandler.toml"]
