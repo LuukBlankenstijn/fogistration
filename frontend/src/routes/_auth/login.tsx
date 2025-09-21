@@ -1,4 +1,5 @@
 import { useAuth } from '@/auth'
+import { useOIDCEnabledCheck } from '@/query/auth'
 import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 
@@ -9,6 +10,7 @@ export const Route = createFileRoute('/_auth/login')({
 function Login() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
+  const { isSuccess } = useOIDCEnabledCheck()
   const { login, devLogin } = useAuth()
 
   const signIn = () => {
@@ -62,29 +64,37 @@ function Login() {
             Sign in
           </button>
 
-          <div className="relative py-2 text-center text-xs text-[hsl(var(--muted))]">
-            <span className="bg-[hsl(var(--panel))] px-2 relative z-10">or continue with</span>
-            <span className="absolute left-0 right-0 top-1/2 -z-0 h-px -translate-y-1/2 bg-[hsl(var(--border))]" />
-          </div>
+          {(import.meta.env.DEV || isSuccess) &&
+            <>
 
-          <div className="grid grid-cols-1 gap-3">
-            {import.meta.env.DEV &&
-              <button
-                type="button"
-                className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--input))] px-4 py-2 text-sm transition hover:bg-[hsl(var(--hover))]"
-                onClick={devLogin}
-              >
-                Dev Login
-              </button>
-            }
-            <button
-              type="button"
-              className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--input))] px-4 py-2 text-sm transition hover:bg-[hsl(var(--hover))]"
-              onClick={() => { window.location.href = "/api/auth/oidc/login" }}
-            >
-              OIDC
-            </button>
-          </div>
+              <div className="relative py-2 text-center text-xs text-[hsl(var(--muted))]">
+                <span className="bg-[hsl(var(--panel))] px-2 relative z-10">or continue with</span>
+                <span className="absolute left-0 right-0 top-1/2 -z-0 h-px -translate-y-1/2 bg-[hsl(var(--border))]" />
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+
+                {import.meta.env.DEV &&
+                  <button
+                    type="button"
+                    className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--input))] px-4 py-2 text-sm transition hover:bg-[hsl(var(--hover))]"
+                    onClick={devLogin}
+                  >
+                    Dev Login
+                  </button>
+                }
+                {isSuccess &&
+                  <button
+                    type="button"
+                    className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--input))] px-4 py-2 text-sm transition hover:bg-[hsl(var(--hover))]"
+                    onClick={() => { window.location.href = "/api/auth/oidc/login" }}
+                  >
+                    OIDC
+                  </button>
+                }
+              </div>
+            </>
+          }
         </form>
       </div>
     </div>

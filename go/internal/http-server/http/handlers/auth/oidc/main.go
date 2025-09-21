@@ -29,6 +29,7 @@ func (h *Handlers) Register(
 		Path:          "/login",
 		Tags:          []string{"auth"},
 		DefaultStatus: 302,
+		Summary:       "OIDC login",
 	}, h.handleLogin)
 
 	huma.Register(oidcApi, huma.Operation{
@@ -37,6 +38,16 @@ func (h *Handlers) Register(
 		Path:          "/callback",
 		Tags:          []string{"auth"},
 		DefaultStatus: 302,
+		Summary:       "OIDC callback",
 	}, h.handleCallback)
+
+	huma.Register(oidcApi, huma.Operation{
+		OperationID: "oidcEnabled",
+		Method:      http.MethodGet,
+		Path:        "/enabled",
+		Tags:        []string{"auth"},
+		Summary:     "OIDC enabled check",
+		Description: "Returns 204 when oidc is enabled, 404 otherwise",
+	}, h.handleIsEnabled)
 
 }

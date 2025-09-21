@@ -82,6 +82,10 @@ func (h *Handlers) handleCallback(ctx context.Context, req *CallbackRequest) (*C
 		},
 	}, nil
 }
+
+func (h *Handlers) handleIsEnabled(ctx context.Context, _ *struct{}) (*struct{}, error) {
+	return &struct{}{}, nil
+}
 func randStr(n int) string {
 	b := make([]byte, n)
 	_, _ = rand.Read(b)
