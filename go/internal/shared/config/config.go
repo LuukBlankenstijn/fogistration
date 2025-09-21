@@ -14,10 +14,8 @@ import (
 )
 
 func Load(cfg any, files ...string) error {
-	err := godotenv.Load(files...)
-	if err != nil {
-		return err
-	}
+	// try to load provided files
+	_ = godotenv.Load(files...)
 	return loadEnv(cfg, "")
 }
 
