@@ -4,3 +4,5 @@ docs
 .idea
 
 build
+
+internal/http-server/http/spa/frontend/
