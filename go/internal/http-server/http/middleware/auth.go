@@ -9,12 +9,13 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 )
 
+const AUTH_COOKIE = "auth_token"
+
 // Auth validates the "auth_token" cookie and injects the user ID into context.
 func (m *MiddlewareFactory) ValidateAuth(api huma.API) func(huma.Context, func(huma.Context)) {
 	return func(ctx huma.Context, next func(huma.Context)) {
-		c, err := huma.ReadCookie(ctx, "auth_token")
+		c, err := huma.ReadCookie(ctx, AUTH_COOKIE)
 		if c == nil || c.Value == "" || err != nil {
-			logging.Warn("Auth middleware: missing auth_token cookie")
 			_ = huma.WriteErr(api, ctx, http.StatusUnauthorized, "missing auth cookie")
 			return
 		}

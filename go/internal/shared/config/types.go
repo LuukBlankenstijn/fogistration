@@ -8,6 +8,7 @@ type HttpConfig struct {
 	DB           DatabaseConfig
 	LogLevel     string `env_default:"info"`
 	WallpaperDir string `env_default:"/wallpapers"`
+	OIDC         *OIDCConfig
 }
 
 type GrpcConfig struct {
@@ -44,4 +45,12 @@ type DatabaseConfig struct {
 	Password string `env_default:"postgres"`
 	Name     string `env_default:"fogistration"`
 	SSLMode  string `env_default:"disable"`
+}
+
+type OIDCConfig struct {
+	IssuerURL    string
+	ClientID     string
+	ClientSecret string
+	RedirectURL  string
+	Scopes       []string
 }

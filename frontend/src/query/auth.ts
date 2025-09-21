@@ -1,6 +1,6 @@
-import type { User } from "@/clients/generated-client";
-import { devLoginMutation, getCurrentUserOptions, getCurrentUserQueryKey, loginMutation, logoutMutation } from "@/clients/generated-client/@tanstack/react-query.gen";
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import { type User } from "@/clients/generated-client";
+import { devLoginMutation, getCurrentUserOptions, getCurrentUserQueryKey, loginMutation, logoutMutation, oidcEnabledOptions } from "@/clients/generated-client/@tanstack/react-query.gen";
+import { useMutation, useQuery, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 
 export const useLogin = () => {
   const queryClient = useQueryClient()
@@ -52,3 +52,9 @@ export const useDevLogin = () => {
   });
 };
 
+export const useOIDCEnabledCheck = () => {
+  return useQuery({
+    ...oidcEnabledOptions(),
+    retry: false
+  })
+}
