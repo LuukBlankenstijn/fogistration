@@ -23,6 +23,40 @@ func (q *Queries) CountUsers(ctx context.Context) (int64, error) {
 	return count, err
 }
 
+const createExternalUser = `-- name: CreateExternalUser :one
+INSERT INTO users (username, email, role, external_id)
+VALUES ($1, $2, $3, $4)
+RETURNING id, username, email, role, external_id, created_at, updated_at, last_login_at
+`
+
+type CreateExternalUserParams struct {
+	Username   string          `json:"username"`
+	Email      string          `json:"email"`
+	Role       models.UserRole `json:"role"`
+	ExternalID pgtype.Text     `json:"external_id"`
+}
+
+func (q *Queries) CreateExternalUser(ctx context.Context, arg CreateExternalUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, createExternalUser,
+		arg.Username,
+		arg.Email,
+		arg.Role,
+		arg.ExternalID,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Role,
+		&i.ExternalID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.LastLoginAt,
+	)
+	return i, err
+}
+
 const createLocalUser = `-- name: CreateLocalUser :one
 INSERT INTO users (username, email, role)
 VALUES ($1, $2, $3)
@@ -59,6 +93,28 @@ WHERE id = $1
 func (q *Queries) DeleteUser(ctx context.Context, id int64) error {
 	_, err := q.db.Exec(ctx, deleteUser, id)
 	return err
+}
+
+const getExternaluserById = `-- name: GetExternaluserById :one
+SELECT id, username, email, role, external_id, created_at, updated_at, last_login_at FROM users
+WHERE external_id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetExternaluserById(ctx context.Context, externalID pgtype.Text) (User, error) {
+	row := q.db.QueryRow(ctx, getExternaluserById, externalID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Username,
+		&i.Email,
+		&i.Role,
+		&i.ExternalID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.LastLoginAt,
+	)
+	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one

@@ -3,9 +3,19 @@ INSERT INTO users (username, email, role)
 VALUES ($1, $2, $3)
 RETURNING *;
 
+-- name: CreateExternalUser :one
+INSERT INTO users (username, email, role, external_id)
+VALUES ($1, $2, $3, $4)
+RETURNING *;
+
 -- name: GetUserByID :one
 SELECT * FROM users
 WHERE id = $1
+LIMIT 1;
+
+-- name: GetExternaluserById :one
+SELECT * FROM users
+WHERE external_id = $1
 LIMIT 1;
 
 -- name: GetUserByUsernameCI :one

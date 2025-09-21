@@ -72,7 +72,7 @@ func (s *authService) Authenticate(ctx context.Context, username, password strin
 
 	token := ""
 	if s.jwt != nil {
-		t, err := s.issueJWT(u)
+		t, err := s.IssueJWT(u)
 		if err != nil {
 			return AuthResult{}, err
 		}
@@ -90,7 +90,7 @@ func (s *authService) DummyAuthenticate(ctx context.Context) (AuthResult, error)
 
 	token := ""
 	if s.jwt != nil {
-		t, err := s.issueJWT(u)
+		t, err := s.IssueJWT(u)
 		if err != nil {
 			return AuthResult{}, err
 		}
@@ -153,7 +153,7 @@ func (s *authService) Validate(cookie *http.Cookie, sec string) (int64, error) {
 
 }
 
-func (s *authService) issueJWT(u database.User) (string, error) {
+func (s *authService) IssueJWT(u database.User) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":  strconv.Itoa(int(u.ID)),
 		"name": u.Username,

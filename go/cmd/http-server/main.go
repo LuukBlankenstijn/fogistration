@@ -18,6 +18,7 @@ func main() {
 	if err != nil {
 		logging.Fatal("Failed to load config: %v", err)
 	}
+	logging.Info("%+v", cfg)
 
 	logging.SetupLogger(cfg.LogLevel, cfg.AppEnv)
 

@@ -445,6 +445,155 @@ paths:
       summary: Logout
       tags:
         - auth
+  /api/auth/oidc/callback:
+    get:
+      operationId: oidcCallback
+      parameters:
+        - explode: false
+          in: query
+          name: code
+          schema:
+            type: string
+        - explode: false
+          in: query
+          name: state
+          schema:
+            type: string
+        - in: cookie
+          name: oidc_state
+          schema:
+            type: string
+        - in: cookie
+          name: oidc_nonce
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Found
+          headers:
+            Domain:
+              schema:
+                type: string
+            Expires:
+              schema:
+                type: string
+            HttpOnly:
+              schema:
+                type: boolean
+            Location:
+              schema:
+                type: string
+            MaxAge:
+              schema:
+                format: int64
+                type: integer
+            Name:
+              schema:
+                type: string
+            Partitioned:
+              schema:
+                type: boolean
+            Path:
+              schema:
+                type: string
+            Quoted:
+              schema:
+                type: boolean
+            Raw:
+              schema:
+                type: string
+            RawExpires:
+              schema:
+                type: string
+            SameSite:
+              schema:
+                format: int64
+                type: integer
+            Secure:
+              schema:
+                type: boolean
+            Set-Cookie:
+              schema:
+                type: string
+            Unparsed:
+              schema:
+                type: string
+            Value:
+              schema:
+                type: string
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      tags:
+        - auth
+  /api/auth/oidc/login:
+    get:
+      operationId: oidcLogin
+      responses:
+        "302":
+          description: Found
+          headers:
+            Domain:
+              schema:
+                type: string
+            Expires:
+              schema:
+                type: string
+            HttpOnly:
+              schema:
+                type: boolean
+            Location:
+              schema:
+                type: string
+            MaxAge:
+              schema:
+                format: int64
+                type: integer
+            Name:
+              schema:
+                type: string
+            Partitioned:
+              schema:
+                type: boolean
+            Path:
+              schema:
+                type: string
+            Quoted:
+              schema:
+                type: boolean
+            Raw:
+              schema:
+                type: string
+            RawExpires:
+              schema:
+                type: string
+            SameSite:
+              schema:
+                format: int64
+                type: integer
+            Secure:
+              schema:
+                type: boolean
+            Set-Cookie:
+              schema:
+                type: string
+            Unparsed:
+              schema:
+                type: string
+            Value:
+              schema:
+                type: string
+        default:
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/ErrorModel"
+          description: Error
+      tags:
+        - auth
   /api/clients/:
     get:
       operationId: listClients

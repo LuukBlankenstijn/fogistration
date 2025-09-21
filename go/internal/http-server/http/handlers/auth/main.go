@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/container"
+	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/handlers/auth/oidc"
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/middleware"
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -49,5 +50,9 @@ func (h *Handlers) Register(
 			Description: "Login into an admin account without credentials in development",
 			Tags:        []string{"auth"},
 		}, h.devLogin)
+	}
+
+	if h.Cfg.OIDC != nil {
+		oidc.NewHandlers(h.Container).Register(authAPI, middlewareFactory, "/oidc")
 	}
 }

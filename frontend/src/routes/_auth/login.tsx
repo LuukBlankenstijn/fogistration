@@ -80,6 +80,7 @@ function Login() {
             <button
               type="button"
               className="rounded-lg border border-[hsl(var(--border))] bg-[hsl(var(--input))] px-4 py-2 text-sm transition hover:bg-[hsl(var(--hover))]"
+              onClick={() => { window.location.href = "/api/auth/oidc/login" }}
             >
               OIDC
             </button>
