@@ -53,7 +53,7 @@ type Team struct {
 	ExternalID  string           `json:"external_id"`
 	Name        string           `json:"name"`
 	DisplayName pgtype.Text      `json:"display_name"`
-	Ip          pgtype.Text      `json:"ip"`
+	Ip          pgtype.Text      `hash:"exclude" json:"ip"`
 	CreatedAt   pgtype.Timestamp `hash:"exclude" json:"created_at"`
 	UpdatedAt   pgtype.Timestamp `hash:"exclude" json:"updated_at"`
 	Hash        string           `hash:"exclude" json:"hash"`

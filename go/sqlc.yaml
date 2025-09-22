@@ -25,3 +25,5 @@ sql:
             go_struct_tag: 'hash:"exclude"'
           - column: "*.hash"
             go_struct_tag: 'hash:"exclude"'
+          - column: "teams.ip"
+            go_struct_tag: 'hash:"exclude"'

@@ -3,6 +3,7 @@ package sse
 import (
 	"context"
 	"net/http"
+	"reflect"
 	"sync"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
@@ -71,6 +72,11 @@ func (s *SSEManager) CreateEndpoint(api huma.API) {
 	message := s.messages
 	message["initMessage"] = struct{}{}
 
+	messageTypes := map[reflect.Type]struct{}{}
+	for _, message := range s.messages {
+		messageTypes[reflect.TypeOf(message)] = struct{}{}
+	}
+
 	sse.Register(api, huma.Operation{
 		OperationID: "sse", Method: http.MethodGet, Path: "/api/sse", Summary: "Server-sent events",
 	}, s.messages, func(ctx context.Context, _ *struct{}, send sse.Sender) {
@@ -83,6 +89,9 @@ func (s *SSEManager) CreateEndpoint(api huma.API) {
 			case <-ctx.Done():
 				return
 			case msg := <-ch:
+				if _, ok := messageTypes[reflect.TypeOf(msg)]; !ok {
+					continue
+				}
 				if err := send.Data(msg); err != nil {
 					return
 				}

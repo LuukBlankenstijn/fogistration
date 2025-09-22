@@ -28,7 +28,7 @@ RETURNING t.id, t.external_id, t.name, t.display_name, t.ip, t.created_at, t.upd
 `
 
 type ClaimTeamParams struct {
-	Ip        pgtype.Text `json:"ip"`
+	Ip        pgtype.Text `hash:"exclude" json:"ip"`
 	ContestID int32       `json:"contest_id"`
 }
 
@@ -183,7 +183,7 @@ RETURNING id, external_id, name, display_name, ip, created_at, updated_at, hash
 
 type UpdateIpParams struct {
 	ExternalID string      `json:"external_id"`
-	Ip         pgtype.Text `json:"ip"`
+	Ip         pgtype.Text `hash:"exclude" json:"ip"`
 }
 
 func (q *Queries) UpdateIp(ctx context.Context, arg UpdateIpParams) (Team, error) {
@@ -230,7 +230,7 @@ type UpsertTeamParams struct {
 	ExternalID  string      `json:"external_id"`
 	Name        string      `json:"name"`
 	DisplayName pgtype.Text `json:"display_name"`
-	Ip          pgtype.Text `json:"ip"`
+	Ip          pgtype.Text `hash:"exclude" json:"ip"`
 	Hash        string      `hash:"exclude" json:"hash"`
 }
 

@@ -3,6 +3,7 @@ package processor
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database/dblisten"
@@ -10,7 +11,7 @@ import (
 )
 
 func (w *Worker) startDBListen(ctx context.Context, dbURL string) error {
-	l, err := dblisten.NewNotify(ctx, dbURL)
+	l, err := dblisten.NewQueue(ctx, dbURL, 5, time.Second*20)
 	if err != nil {
 		return fmt.Errorf("failed to create database listener: %w", err)
 	}

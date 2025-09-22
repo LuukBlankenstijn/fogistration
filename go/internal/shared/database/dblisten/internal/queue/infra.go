@@ -19,8 +19,12 @@ CREATE TABLE IF NOT EXISTS public.row_change_queue (
 );
 CREATE OR REPLACE FUNCTION public.enqueue_row_change_pk() RETURNS trigger AS $$
 BEGIN
-  INSERT INTO public.row_change_queue(tbl, op, new_json, old_json)
+  INSERT INTO public.row_change_queue(row_id, tbl, op, new_json, old_json)
   VALUES (
+    CASE 
+      WHEN TG_OP IN ('UPDATE','DELETE') THEN OLD.id
+      ELSE NEW.id
+    END,
     TG_TABLE_SCHEMA || '.' || TG_TABLE_NAME,
     TG_OP,
     CASE WHEN TG_OP IN ('INSERT','UPDATE') THEN to_jsonb(NEW) ELSE NULL END,
