@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"strings"
+	"time"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
@@ -40,7 +41,7 @@ func streamIpInterceptor(queries *database.Queries, config config.GrpcConfig) gr
 			return status.Error(codes.Internal, "")
 		}
 		defer tx.Rollback(ctx)
-		queries = queries.WithTx(tx)
+		txQueries := queries.WithTx(tx)
 
 		md, ok := metadata.FromIncomingContext(ss.Context())
 		if !ok {
@@ -56,13 +57,13 @@ func streamIpInterceptor(queries *database.Queries, config config.GrpcConfig) gr
 			return status.Error(codes.InvalidArgument, "invalid ipv4")
 		}
 
-		client, err := queries.UpsertClient(ss.Context(), ip)
+		client, err := txQueries.UpsertClient(ss.Context(), ip)
 		if err != nil {
 			logging.Error("failed to upsert client in database", err)
 			return status.Error(codes.Internal, "failed to upsert client")
 		}
 
-		err = register(ctx, queries, client)
+		err = register(ctx, txQueries, client)
 		if err != nil {
 			logging.Error(fmt.Sprintf("failed to register client %s", client.Ip), err)
 		}
@@ -72,6 +73,21 @@ func streamIpInterceptor(queries *database.Queries, config config.GrpcConfig) gr
 			logging.Error("failed to commit transaction", err)
 			return status.Error(codes.Internal, "failed to commit transaction")
 		}
+
+		go func(ctx context.Context, ip string) {
+			ticker := time.NewTicker(4 * time.Second)
+			defer ticker.Stop()
+			for {
+				select {
+				case <-ctx.Done():
+					return
+				case <-ticker.C:
+					if err := queries.UpdateClientLastSeen(ctx, ip); err != nil {
+						logging.Error("failed to update last_seen for %s", err)
+					}
+				}
+			}
+		}(ss.Context(), client.Ip)
 
 		ctxWithClient := withClient(ctx, client)
 

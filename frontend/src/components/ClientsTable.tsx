@@ -1,9 +1,9 @@
 import { flexRender, getCoreRowModel, getSortedRowModel, useReactTable, type ColumnDef, type SortingState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { Dropdown } from "./table/Dropdown";
-import { formatRelativeDateTime } from "@/utils/date";
 import { useTeamsQuery } from "@/query/team";
 import { useClients, useSetClientTeamMutation, type ExtendedClient } from "@/query/client";
+import ConnectionStatusCell from "./ConnectionStatusCell";
 
 export function ClientsTable() {
   const clients = useClients()
@@ -23,8 +23,8 @@ export function ClientsTable() {
     { accessorKey: "ip", header: "IP" },
     {
       accessorKey: "lastSeen",
-      header: "Last Seen",
-      cell: ({ getValue }) => formatRelativeDateTime(getValue<Date>()),
+      header: "Connected",
+      cell: ({ getValue }) => <ConnectionStatusCell lastSeen={getValue<Date>()} />
     },
     {
       id: "team",
