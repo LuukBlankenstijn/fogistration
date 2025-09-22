@@ -1,0 +1,57 @@
+name: Build & Publish tern-migrate
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'go/internal/shared/database/migrations/**'
+      - 'go/tern.conf'
+      - '.github/workflows/tern-migrate.yml'
+  pull_request:
+    paths:
+      - 'go/internal/shared/database/migrations/**'
+      - 'go/tern.conf'
+      - '.github/workflows/tern-migrate.yml'
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Downcase repo for GHCR tags
+        run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build & Push tern-migrate
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile.tern    # name this Dockerfile however you like
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.REPO_LC }}-tern-migrate:${{ github.sha }}
+            ${{ env.REGISTRY }}/${{ env.REPO_LC }}-tern-migrate:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          labels: |
+            org.opencontainers.image.source=${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}

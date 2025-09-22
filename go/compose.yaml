@@ -11,6 +11,7 @@ services:
       - .:/app
       - wallpapers:/wallpapers
     entrypoint: ["air", "-c", ".air-http.toml"]
+    env_file: .env-http
 
   grpc:
     build:

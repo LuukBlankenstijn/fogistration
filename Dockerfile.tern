@@ -1,0 +1,21 @@
+# syntax=docker/dockerfile:1.7
+
+FROM alpine:3.20 AS downloader
+WORKDIR /tmp
+
+# install curl + tar
+RUN apk add --no-cache curl tar
+
+RUN curl -sSL https://github.com/jackc/tern/releases/download/v2.3.2/tern_2.3.2_linux_amd64.tar.gz \
+    | tar -xz -C /usr/local/bin tern
+
+FROM alpine:3.20
+RUN apk add --no-cache ca-certificates
+WORKDIR /app
+
+COPY --from=downloader /usr/local/bin/tern /usr/local/bin/tern
+
+COPY go/internal/shared/database/migrations /app/migrations
+COPY go/tern.conf /app/tern.conf
+
+ENTRYPOINT ["tern", "migrate", "-c", "/app/tern.conf", "--migrations", "/app/migrations"]
