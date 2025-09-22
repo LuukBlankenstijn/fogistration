@@ -1,17 +1,8 @@
 name: Build & Publish tern-migrate
 
 on:
-  push:
-    branches: [ main ]
-    paths:
-      - 'go/internal/shared/database/migrations/**'
-      - 'go/tern.conf'
-      - '.github/workflows/tern-migrate.yml'
-  pull_request:
-    paths:
-      - 'go/internal/shared/database/migrations/**'
-      - 'go/tern.conf'
-      - '.github/workflows/tern-migrate.yml'
+  release:
+    types: [published]
 
 permissions:
   contents: read

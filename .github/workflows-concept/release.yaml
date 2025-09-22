@@ -1,0 +1,133 @@
+name: Build & Publish all backends
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include:
+          - target: http-server
+            suffix: http-server
+          - target: grpc
+            suffix: grpc
+          - target: cmdhandler
+            suffix: cmdhandler
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # we need tags history for diff
+
+      - name: Downcase repo for GHCR tags
+        run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
+      - name: Resolve current & previous tag
+        id: tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          CUR="${GITHUB_REF_NAME}"
+          # previous tag by creation time (skip current)
+          PREV="$(git tag --sort=-creatordate | grep -vxF "$CUR" | head -n1 || true)"
+          echo "current=$CUR" >> "$GITHUB_OUTPUT"
+          echo "previous=$PREV" >> "$GITHUB_OUTPUT"
+          if [[ -z "$PREV" ]]; then
+            echo "first_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "first_release=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Paths filter (what changed since previous tag)
+        id: filter
+        if: steps.tags.outputs.first_release == 'false'
+        uses: dorny/paths-filter@v3
+        with:
+          base: refs/tags/${{ steps.tags.outputs.previous }}
+          ref:  refs/tags/${{ steps.tags.outputs.current }}
+          filters: |
+            http:
+              - 'go/cmd/http-server/**'
+              - 'go/internal/http-server/**'
+              - 'go/internal/shared/**'
+              - 'go/go.mod'
+              - 'go/go.sum'
+              - 'frontend/**'
+            grpc:
+              - 'go/cmd/grpc/**'
+              - 'go/internal/grpc'
+              - 'go/internal/shared/**'
+              - 'go/go.mod'
+              - 'go/go.sum'
+            cmd:
+              - 'go/cmd/cmdhandler/**'
+              - 'go/internal/cmdhandler'
+              - 'go/internal/shared/**"
+              - 'go/go.mod'
+              - 'go/go.sum'
+
+      - name: Set build flags (first release builds everything)
+        id: decide
+        run: |
+          if [ "${{ steps.tags.outputs.first_release }}" = "true" ]; then
+            echo "build_http=true" >> "$GITHUB_OUTPUT"
+            echo "build_grpc=true" >> "$GITHUB_OUTPUT"
+            echo "build_cmd=true"  >> "$GITHUB_OUTPUT"
+          else
+            echo "build_http=${{ steps.filter.outputs.http }}" >> "$GITHUB_OUTPUT"
+            echo "build_grpc=${{ steps.filter.outputs.grpc }}" >> "$GITHUB_OUTPUT"
+            echo "build_cmd=${{ steps.filter.outputs.cmd }}"  >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build only if the corresponding paths changed
+      - name: Build & Push (${{ matrix.target }})
+        if: |
+          (matrix.target == 'http-server' && steps.decide.outputs.build_http == 'true') ||
+          (matrix.target == 'grpc'        && steps.decide.outputs.build_grpc == 'true') ||
+          (matrix.target == 'cmdhandler'  && steps.decide.outputs.build_cmd  == 'true')
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          dockerfile: ./go/Dockerfile
+          target: ${{ matrix.target }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.REPO_LC }}-${{ matrix.suffix }}:${{ github.ref_name }}
+            ${{ env.REGISTRY }}/${{ env.REPO_LC }}-${{ matrix.suffix }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          labels: |
+            org.opencontainers.image.source=${{ github.repository }}
+            org.opencontainers.image.version=${{ github.ref_name }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Skip reason
+        if: |
+          (matrix.target == 'http-server' && steps.decide.outputs.build_http != 'true') ||
+          (matrix.target == 'grpc'        && steps.decide.outputs.build_grpc != 'true') ||
+          (matrix.target == 'cmdhandler'  && steps.decide.outputs.build_cmd  != 'true')
+        run: echo "Skipping ${{ matrix.target }} (no relevant path changes)"
