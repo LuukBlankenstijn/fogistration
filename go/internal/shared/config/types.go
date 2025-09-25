@@ -5,11 +5,12 @@ type HttpConfig struct {
 	Host         string `env_default:"localhost"`
 	Secret       string `env_default:"super_secret"`
 	Port         string `env_default:"8080"`
+	UseHttps     bool   `env_default:"true"`
 	DB           DatabaseConfig
 	LogLevel     string `env_default:"info"`
 	WallpaperDir string `env_default:"/wallpapers"`
 	OIDC         *OIDCConfig
-	Migrator     *Migrator
+	Seeder       *Seeder
 }
 
 type GrpcConfig struct {
@@ -56,7 +57,7 @@ type OIDCConfig struct {
 	Scopes       []string
 }
 
-type Migrator struct {
+type Seeder struct {
 	AdminUsername string
 	AdminPassword string
 }

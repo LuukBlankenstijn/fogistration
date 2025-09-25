@@ -20,7 +20,7 @@ func New(db *pgxpool.Pool, q *database.Queries) *Seeder {
 	return &Seeder{db: db, q: q}
 }
 
-func (s *Seeder) SeedDefaultAdminUser(ctx context.Context, migrator config.Migrator) error {
+func (s *Seeder) SeedDefaultAdminUser(ctx context.Context, migrator config.Seeder) error {
 	_, err := s.q.GetUserByUsernameCI(ctx, migrator.AdminUsername)
 	if err == nil {
 		logging.Info("Users already exist, skipping seeding.")
