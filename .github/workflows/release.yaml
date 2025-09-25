@@ -75,7 +75,7 @@ jobs:
             cmd:
               - 'go/cmd/cmdhandler/**'
               - 'go/internal/cmdhandler'
-              - 'go/internal/shared/**"
+              - 'go/internal/shared/**'
               - 'go/go.mod'
               - 'go/go.sum'
 

@@ -18,6 +18,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Get tags
+        id: tags
+        run: |
+          git fetch --tags --force
+          echo "current=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          prev="$(git tag --sort=-creatordate | grep -v "^${GITHUB_REF_NAME}$" | head -n1 || true)"
+          echo "previous=${prev}" >> "$GITHUB_OUTPUT"
+          echo "first_release=$([ -z "$prev" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      - name: Paths filter (changed since previous tag)
+        id: filter
+        if: steps.tags.outputs.first_release == 'false'
+        uses: dorny/paths-filter@v3
+        with:
+          base: refs/tags/${{ steps.tags.outputs.previous }}
+          ref:  refs/tags/${{ steps.tags.outputs.current }}
+          filters: |
+            migrations:
+              - 'go/internal/shared/database/migrations/**'
+
       - name: Downcase repo for GHCR tags
         run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
 
@@ -32,6 +52,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build & Push tern-migrate
+        if: steps.tags.outputs.first_release == 'true' || steps.filter.outputs.migrations == 'true'
         uses: docker/build-push-action@v6
         with:
           context: .
