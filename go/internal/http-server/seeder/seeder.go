@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/utils/auth"
+	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database/models"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
@@ -19,19 +20,14 @@ func New(db *pgxpool.Pool, q *database.Queries) *Seeder {
 	return &Seeder{db: db, q: q}
 }
 
-func (s *Seeder) SeedDefaultUser(ctx context.Context) error {
-	count, err := s.q.CountUsers(ctx)
-	if err != nil {
-		return err
-	}
-
-	if count > 0 {
+func (s *Seeder) SeedDefaultAdminUser(ctx context.Context, migrator config.Migrator) error {
+	_, err := s.q.GetUserByUsernameCI(ctx, migrator.AdminUsername)
+	if err == nil {
 		logging.Info("Users already exist, skipping seeding.")
 		return nil
 	}
 	logging.Info("seeding ")
 
-	// Start transaction
 	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return err
@@ -40,18 +36,16 @@ func (s *Seeder) SeedDefaultUser(ctx context.Context) error {
 
 	qtx := s.q.WithTx(tx)
 
-	username := "admin"
 	email := "admin@example.com"
 	role := models.Admin
-	password := "admin123"
 
-	salt, hash, err := auth.NewSecret(password, auth.Default)
+	salt, hash, err := auth.NewSecret(migrator.AdminPassword, auth.Default)
 	if err != nil {
 		return err
 	}
 
 	user, err := qtx.CreateLocalUser(ctx, database.CreateLocalUserParams{
-		Username: username,
+		Username: migrator.AdminUsername,
 		Email:    email,
 		Role:     role,
 	})
@@ -71,6 +65,6 @@ func (s *Seeder) SeedDefaultUser(ctx context.Context) error {
 		return err
 	}
 
-	logging.Info("Seeded default user: {username: %s, password: %s}", username, password)
+	logging.Info("Seeded default user: {username: %s, password: %s}", migrator.AdminUsername, migrator.AdminPassword)
 	return nil
 }

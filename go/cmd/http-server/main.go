@@ -29,9 +29,9 @@ func main() {
 	defer dbpool.Close()
 	queries := database.New(dbpool)
 
-	if cfg.AppEnv == "development" {
+	if cfg.Migrator != nil {
 		sdr := seeder.New(dbpool, queries)
-		err = sdr.SeedDefaultUser(ctx)
+		err = sdr.SeedDefaultAdminUser(ctx, *cfg.Migrator)
 		if err != nil {
 			logging.Error("seeder failed", err)
 		}

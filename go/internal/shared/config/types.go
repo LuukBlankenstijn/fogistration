@@ -9,6 +9,7 @@ type HttpConfig struct {
 	LogLevel     string `env_default:"info"`
 	WallpaperDir string `env_default:"/wallpapers"`
 	OIDC         *OIDCConfig
+	Migrator     *Migrator
 }
 
 type GrpcConfig struct {
@@ -53,4 +54,9 @@ type OIDCConfig struct {
 	ClientSecret string
 	RedirectURL  string
 	Scopes       []string
+}
+
+type Migrator struct {
+	AdminUsername string
+	AdminPassword string
 }
