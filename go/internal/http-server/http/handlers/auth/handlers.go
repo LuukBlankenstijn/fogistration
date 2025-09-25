@@ -21,7 +21,7 @@ func (h *Handlers) login(ctx context.Context, request *loginRequest) (*loginResp
 		Value:    result.Token,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   h.Cfg.AppEnv != "development",
+		Secure:   h.Cfg.UseHttps,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   int((24 * time.Hour).Seconds()),
 	}
@@ -35,7 +35,7 @@ func (h *Handlers) logout(ctx context.Context, request *struct{}) (*logoutRespon
 		Value:    "",
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   h.Cfg.AppEnv != "development",
+		Secure:   h.Cfg.UseHttps,
 		SameSite: http.SameSiteStrictMode,
 		Expires:  time.Unix(0, 0),
 		MaxAge:   -1,
@@ -59,7 +59,7 @@ func (h *Handlers) devLogin(ctx context.Context, request *struct{}) (*loginRespo
 		Value:    result.Token,
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   h.Cfg.AppEnv != "development",
+		Secure:   h.Cfg.UseHttps,
 		SameSite: http.SameSiteStrictMode,
 		MaxAge:   int((24 * time.Hour).Seconds()),
 	}

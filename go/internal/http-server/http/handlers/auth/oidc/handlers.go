@@ -30,7 +30,7 @@ func (h *Handlers) handleLogin(ctx context.Context, _ *struct{}) (*LoginResponse
 				Path:     "/",
 				MaxAge:   300,
 				HttpOnly: true,
-				Secure:   true,
+				Secure:   h.Cfg.UseHttps,
 				SameSite: http.SameSiteLaxMode,
 			},
 			http.Cookie{
@@ -39,7 +39,7 @@ func (h *Handlers) handleLogin(ctx context.Context, _ *struct{}) (*LoginResponse
 				Path:     "/",
 				MaxAge:   300,
 				HttpOnly: true,
-				Secure:   true,
+				Secure:   h.Cfg.UseHttps,
 				SameSite: http.SameSiteLaxMode,
 			}},
 	}, nil
@@ -62,7 +62,7 @@ func (h *Handlers) handleCallback(ctx context.Context, req *CallbackRequest) (*C
 				Value:    res.Token,
 				Path:     "/",
 				HttpOnly: true,
-				Secure:   true,
+				Secure:   h.Cfg.UseHttps,
 				SameSite: http.SameSiteLaxMode,
 			},
 			http.Cookie{
