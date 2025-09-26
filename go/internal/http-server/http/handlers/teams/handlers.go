@@ -10,6 +10,7 @@ import (
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/jackc/pgx/v5"
 )
 
 func (h *Handlers) getSingleTeam(ctx context.Context, req *getTeamRequest) (*sse.GetResponse[models.Team], error) {
@@ -67,4 +68,23 @@ func (h *Handlers) setClient(ctx context.Context, request *setClientRequest) (*t
 	}
 
 	return &teamResponse{Body: models.MapTeam(updated)[0]}, nil
+}
+
+func (h *Handlers) getPrintInfo(ctx context.Context, request *getPrintInfoRequest) (*getPrintInfoResponse, error) {
+	response := getPrintInfoResponse{}
+	user, err := h.Q.GetTeamByIp(ctx, database.PgTextFromString(&request.Ip))
+	if err == pgx.ErrNoRows {
+		response.Body.Name = "## NO TEAM FOUND FOR IP ##"
+	} else if err != nil {
+		response.Body.Name = "## ERROR ##"
+	} else {
+		if !user.DisplayName.Valid {
+			response.Body.Name = user.DisplayName.String
+		} else {
+			response.Body.Name = user.Name
+		}
+	}
+
+	return &response, nil
+
 }

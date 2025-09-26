@@ -23,6 +23,14 @@ func (h *Handlers) Register(
 	prefixes ...string,
 ) {
 	clientApi := huma.NewGroup(api, prefixes...)
+	huma.Register(clientApi, huma.Operation{
+		OperationID: "getPrintInfo",
+		Method:      http.MethodGet,
+		Path:        "/print",
+		Summary:     "Get print info for a team",
+		Tags:        []string{"teams"},
+	}, h.getPrintInfo)
+
 	clientApi.UseMiddleware(middlewareFactory.Auth(clientApi)...)
 
 	sse.Register(h.SSE, clientApi, huma.Operation{

@@ -20,3 +20,13 @@ type setClientRequest struct {
 	}
 	ID string `path:"id" doc:"Team external ID"`
 }
+
+type getPrintInfoRequest struct {
+	Ip string `query:"ip"`
+}
+
+type getPrintInfoResponse struct {
+	Body struct {
+		Name string `json:"teamname"`
+	}
+}
