@@ -11,6 +11,7 @@ func (l *Listener) EnsureQueueInfra(ctx context.Context) error {
 	_, err := l.pool.Exec(ctx, `
 CREATE TABLE IF NOT EXISTS public.row_change_queue (
   id           bigserial PRIMARY KEY,
+  row_id       bigint NOT NULL,
   tbl          text      NOT NULL,
   op           text      NOT NULL,
   new_json     jsonb,
