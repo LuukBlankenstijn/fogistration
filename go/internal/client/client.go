@@ -67,7 +67,6 @@ func (c *Client) StartReceiving(ctx context.Context) error {
 			handler.HandleMessage(msg)
 		} else {
 			logging.Warn("no handler registered for message type %s", messageType)
-			logging.Warn("failed to handle message %+v", msg.GetMessage())
 		}
 	}
 }

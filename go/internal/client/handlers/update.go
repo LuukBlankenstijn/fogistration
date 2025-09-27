@@ -1,4 +1,4 @@
-package client
+package handlers
 
 import (
 	"bytes"
@@ -12,21 +12,16 @@ import (
 	"reflect"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/client/service"
-	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/pb"
 )
 
 type UpdateHandler struct {
-	config config.ClientConfig
+	baseHandler
 }
 
 func (u *UpdateHandler) MessageType() reflect.Type {
 	return reflect.TypeOf(&pb.ServerMessage_Update{})
-}
-
-func (u *UpdateHandler) SetConfig(config config.ClientConfig) {
-	u.config = config
 }
 
 func (u *UpdateHandler) HandleMessage(m *pb.ServerMessage) {
