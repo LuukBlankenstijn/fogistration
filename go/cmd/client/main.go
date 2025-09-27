@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"time"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/client"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
@@ -23,8 +24,30 @@ func main() {
 
 	c.RegisterHandler(&client.UpdateHandler{})
 
-	if err = c.StartReceiving(ctx); err != nil {
-		logging.Fatal("failed receiving messages", err)
-	}
+	for {
+		err := c.StartReceiving(ctx)
+		if err != nil {
+			logging.Error("failed receiving messages", err)
+		}
 
+		const (
+			baseDelay = 500 * time.Millisecond
+			maxDelay  = 10 * time.Second
+		)
+		for delay := baseDelay; err != nil; delay *= 2 {
+			if delay > maxDelay {
+				delay = maxDelay
+			}
+			select {
+			case <-time.After(delay):
+				err = c.StartReceiving(ctx)
+				if err == nil {
+					break
+				}
+				logging.Error("retry failed", err)
+			case <-ctx.Done():
+				return
+			}
+		}
+	}
 }
