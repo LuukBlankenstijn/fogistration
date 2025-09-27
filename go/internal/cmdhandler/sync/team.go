@@ -1,7 +1,6 @@
 package syncer
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/cmdhandler/client"
@@ -57,11 +56,6 @@ func (s *DomJudgeSyncer) syncTeams(queries *database.Queries) error {
 		teams = append(teams, team)
 	}
 
-	// Now push IPs to remote using IPs from LOCAL DB
-	if err := s.updateIps(s.ctx, teams); err != nil {
-		return fmt.Errorf("failed to update remote ips: %w", err)
-	}
-
 	if err := queries.DeleteAllContestTeams(s.ctx, nextContest.ID); err != nil {
 		return fmt.Errorf("failed to delete all teams for contest %d: %w", nextContest.ID, err)
 	}
@@ -90,41 +84,4 @@ func mapTeamToDb(c client.Team) database.Team {
 	team.Hash = hash
 
 	return team
-}
-
-func (s *DomJudgeSyncer) updateIps(ctx context.Context, teams []database.Team) error {
-	users, err := s.client.ListUsers(ctx, &client.GetV4AppApiUserListParams{})
-	if err != nil {
-		return fmt.Errorf("failed to get users: %w", err)
-	}
-
-	var usermap = map[string][]client.User{}
-	for _, user := range users {
-		if user.TeamId == nil {
-			continue
-		}
-		if _, ok := usermap[*user.TeamId]; !ok {
-			usermap[*user.TeamId] = []client.User{}
-		}
-		usermap[*user.TeamId] = append(usermap[*user.TeamId], user)
-	}
-
-	for _, team := range teams {
-		users, ok := usermap[team.ExternalID]
-		if !ok {
-			continue
-		}
-		for _, user := range users {
-			params := client.UpdateUser{
-				Ip:    &team.Ip.String,
-				Roles: &[]string{},
-			}
-			_, err = s.client.UpdateUser(ctx, *user.Id, params)
-			if err != nil {
-				logging.Error("failed update user ip", err)
-			}
-		}
-	}
-
-	return nil
 }

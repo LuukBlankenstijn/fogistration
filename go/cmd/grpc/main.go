@@ -20,6 +20,7 @@ func main() {
 	if err := config.Load(&cfg, ".env-grpc"); err != nil {
 		logging.Fatal("failed to load config", err)
 	}
+	logging.Info("%+v", cfg)
 
 	_ = grpc.Run(ctx, cfg)
 

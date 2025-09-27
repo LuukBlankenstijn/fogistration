@@ -18,6 +18,7 @@ func (c *Worker) handleSetIpCommand(ctx context.Context, change dblisten.Notific
 	}
 
 	if change.New == nil || change.Old == nil {
+		logging.Info("operation is creation or deletion, not setting ip")
 		return nil
 	}
 
@@ -37,7 +38,7 @@ func (c *Worker) handleSetIpCommand(ctx context.Context, change dblisten.Notific
 		}
 		_, err = c.client.UpdateUser(ctx, *user.Id, params)
 		if err != nil {
-			logging.Error("failed update user ip", err)
+			logging.Error("failed update ip", err, "teamname", team.Name)
 		}
 	}
 

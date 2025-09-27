@@ -39,7 +39,7 @@ func (r *reloadService) PushUpdate(ctx context.Context, ip string) {
 func (r *reloadService) pushContestUrl(ctx context.Context, ip string) *pb.ContestUrl {
 	var url string
 	if contest, err := r.queries.GetContestByIp(ctx, database.PgTextFromString(&ip)); err == nil {
-		url = fmt.Sprintf("http://%s/api/contests/%s", r.config.DJHost, contest.ExternalID)
+		url = fmt.Sprintf("%s/api/contests/%s", r.config.DJHost, contest.ExternalID)
 	} else {
 		url = ""
 	}
