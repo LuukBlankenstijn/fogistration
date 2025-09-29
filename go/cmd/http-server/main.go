@@ -4,7 +4,6 @@ import (
 	"context"
 
 	httpServer "github.com/LuukBlankenstijn/fogistration/internal/http-server/http"
-	"github.com/LuukBlankenstijn/fogistration/internal/http-server/seeder"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/config"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/database"
 	"github.com/LuukBlankenstijn/fogistration/internal/shared/logging"
@@ -27,15 +26,6 @@ func main() {
 		logging.Fatal("unable to create dbpool: %w", err)
 	}
 	defer dbpool.Close()
-	queries := database.New(dbpool)
-
-	if cfg.Seeder != nil {
-		sdr := seeder.New(dbpool, queries)
-		err = sdr.SeedDefaultAdminUser(ctx, *cfg.Seeder)
-		if err != nil {
-			logging.Error("seeder failed", err)
-		}
-	}
 
 	httpServer.NewServer(&cfg, dbpool).Run(ctx)
 }

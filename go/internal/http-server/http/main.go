@@ -12,7 +12,6 @@ import (
 
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/container"
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/handlers"
-	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/middleware"
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/spa"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/sse"
@@ -37,10 +36,9 @@ func NewServer(cfg *config.HttpConfig, pool *pgxpool.Pool) *Server {
 	api := humago.New(mux, humaCfg)
 
 	container := container.NewContainer(cfg, pool)
-	middlewareFactory := middleware.NewMiddlewareFactory(container)
 
 	handlers := handlers.NewHandlers(container)
-	handlers.Register(api, middlewareFactory, "/api")
+	handlers.Register(api, "/api")
 
 	container.SSE.CreateEndpoint(api)
 

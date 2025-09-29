@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/container"
-	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/middleware"
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/sse"
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -19,11 +18,9 @@ func NewHandlers(container *container.Container) *Handlers {
 
 func (h *Handlers) Register(
 	api huma.API,
-	middlewareFactory *middleware.MiddlewareFactory,
 	prefixes ...string,
 ) {
 	clientApi := huma.NewGroup(api, prefixes...)
-	clientApi.UseMiddleware(middlewareFactory.Auth(clientApi)...)
 
 	sse.Register(h.SSE, clientApi, huma.Operation{
 		OperationID: "getClient",

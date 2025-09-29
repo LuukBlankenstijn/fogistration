@@ -6,7 +6,7 @@ import { TeamsTable } from '@/components/TeamsTable'
 import queryClient from '@/query/query-client'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_private/dashboard')({
+export const Route = createFileRoute('/dashboard')({
   loader: () => {
     void queryClient.ensureQueryData(getActiveContestOptions())
   },
