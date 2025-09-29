@@ -50,11 +50,11 @@ type DatabaseConfig struct {
 }
 
 type OIDCConfig struct {
-	IssuerURL    string
-	ClientID     string
-	ClientSecret string
-	RedirectURL  string
-	Scopes       []string
+	IssuerURL     string
+	ClientID      string
+	ClientSecret  string
+	RedirectURL   string
+	AllowedGroups []string
 }
 
 type Seeder struct {

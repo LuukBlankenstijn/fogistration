@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/container"
-	"github.com/LuukBlankenstijn/fogistration/internal/http-server/http/middleware"
 	"github.com/danielgtaylor/huma/v2"
 )
 
@@ -18,11 +17,9 @@ func NewHandlers(container *container.Container) *Handlers {
 
 func (h *Handlers) Register(
 	api huma.API,
-	middlewareFactory *middleware.MiddlewareFactory,
 	prefixes ...string,
 ) {
 	groupApi := huma.NewGroup(api, prefixes...)
-	groupApi.UseMiddleware(middlewareFactory.Auth(groupApi)...)
 
 	huma.Register(groupApi, huma.Operation{
 		OperationID: "getActiveContest",

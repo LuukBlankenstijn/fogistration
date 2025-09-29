@@ -1,7 +1,7 @@
 import WallpaperEditor from '@/components/WallpaperEditor/WallpaperEditor'
 import { createFileRoute } from '@tanstack/react-router'
 
-export const Route = createFileRoute('/_private/wallpaper/$id')({
+export const Route = createFileRoute('/wallpaper/$id')({
   component: RouteComponent,
   params: {
     parse: (raw) => {

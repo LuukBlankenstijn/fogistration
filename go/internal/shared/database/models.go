@@ -9,14 +9,6 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type AuthSecret struct {
-	UserID       int64              `json:"user_id"`
-	PasswordHash string             `json:"password_hash"`
-	Salt         string             `json:"salt"`
-	CreatedAt    pgtype.Timestamptz `hash:"exclude" json:"created_at"`
-	UpdatedAt    pgtype.Timestamptz `hash:"exclude" json:"updated_at"`
-}
-
 type Client struct {
 	ID          int32            `json:"id"`
 	Ip          string           `json:"ip"`
@@ -57,17 +49,6 @@ type Team struct {
 	CreatedAt   pgtype.Timestamp `hash:"exclude" json:"created_at"`
 	UpdatedAt   pgtype.Timestamp `hash:"exclude" json:"updated_at"`
 	Hash        string           `hash:"exclude" json:"hash"`
-}
-
-type User struct {
-	ID          int64              `json:"id"`
-	Username    string             `json:"username"`
-	Email       string             `json:"email"`
-	Role        models.UserRole    `json:"role"`
-	ExternalID  pgtype.Text        `json:"external_id"`
-	CreatedAt   pgtype.Timestamptz `hash:"exclude" json:"created_at"`
-	UpdatedAt   pgtype.Timestamptz `hash:"exclude" json:"updated_at"`
-	LastLoginAt pgtype.Timestamptz `json:"last_login_at"`
 }
 
 type Wallpaper struct {
