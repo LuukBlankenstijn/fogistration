@@ -1,13 +1,14 @@
 import { ChevronLeft } from "lucide-react"
 import { useNavigate } from "@tanstack/react-router"
 import { useEffect } from "react"
+import type { Route } from "@/routeTree"
 
 
-export function GoBackButton() {
+export function GoBackButton({ to }: { to: Route }) {
   const navigate = useNavigate()
 
   const goBack = () => {
-    void navigate({ to: "/dashboard" })
+    void navigate({ to: to })
   }
 
   useEffect(() => {

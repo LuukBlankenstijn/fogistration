@@ -1,6 +1,6 @@
 import { listClients, setClientTeam, type Client, type Team } from "@/clients/generated-client";
 import { getClientQueryKey, getTeamQueryKey, listClientsQueryKey } from "@/clients/generated-client/@tanstack/react-query.gen";
-import { useMutation, useQueries, useQueryClient, useSuspenseQuery, type UseQueryOptions } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery, useQueryClient, type UseQueryOptions } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { useTeamsQuery } from "./team";
 
@@ -8,7 +8,7 @@ export type ExtendedClient = Client & { teamId?: string | undefined }
 
 function useClientIdsQuery() {
   const qc = useQueryClient();
-  const clientsQ = useSuspenseQuery({
+  const clientsQ = useQuery({
     queryKey: listClientsQueryKey(),
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await listClients({ ...queryKey[0], signal, throwOnError: true });
@@ -16,16 +16,17 @@ function useClientIdsQuery() {
     },
     staleTime: 60_000,
     refetchOnWindowFocus: false,
+    placeholderData: []
   });
 
   useEffect(() => {
-    clientsQ.data.forEach((t) => {
+    clientsQ.data?.forEach((t) => {
       const key = getClientQueryKey({ path: { id: t.id } } as const);
       qc.setQueryData<Client>(key, t);
     });
   }, [qc, clientsQ.data]);
 
-  const ids = useMemo(() => clientsQ.data.map((c) => c.id), [clientsQ.data]);
+  const ids = useMemo(() => clientsQ.data?.map((c) => c.id), [clientsQ.data]) ?? [];
   // eslint-disable-next-line @tanstack/query/no-rest-destructuring
   return { ...clientsQ, data: ids };
 }
@@ -57,7 +58,7 @@ export function useClientsQuery(): Client[] {
 
 export const useClients = () => {
   const clients = useClientsQuery()
-  const teams: Team[] = useTeamsQuery()
+  const teams = useTeamsQuery()
 
   const augmentedClients = useMemo((): ExtendedClient[] => {
     const teamIdByIp = new Map<string, string>()

@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
-import { Card } from "../Card";
 import { useElementSize } from "./hooks/useElementSize";
 import { useDraggable } from "./hooks/useDraggable";
-import { GoBackButton } from "../GoBack";
 import { Align, type WallpaperLayout } from "@/clients/generated-client";
+import { Card } from "@/components/Card";
+import { GoBackButton } from "@/components/GoBack";
 
 interface PreviewProps {
   layout: WallpaperLayout,
@@ -55,7 +55,7 @@ export default function Preview({ layout, setLayout, file }: PreviewProps) {
   return (
     <Card className="min-w-0 flex-1 h-full overflow-hidden p-4">
       <div className="mb-2 flex items-center gap-2">
-        <GoBackButton />
+        <GoBackButton to="/contests" />
         <h2 className="text-lg font-semibold">Wallpaper preview</h2>
       </div>
       {/* measuring target */}

@@ -1,9 +1,9 @@
 import { useRef } from "react";
-import { Card } from "../Card";
 import { NumberInput } from "./controls/NumberInput";
 import { TextInput } from "./controls/TextInput";
 import { Align, type WallpaperLayout } from "@/clients/generated-client";
 import { BooleanInput } from "./controls/BooleanInput";
+import { Card } from "@/components/Card";
 
 interface SetttingsProps {
   layout: WallpaperLayout,

@@ -1,6 +1,6 @@
 import { deleteWallpaperFile, deleteWallpaperLayout, getWallpaperFile, getWallpaperLayout, putWallpaperFile, putWallpaperLayout, type WallpaperLayout } from "@/clients/generated-client"
 import { getWallpaperFileQueryKey, getWallpaperLayoutQueryKey } from "@/clients/generated-client/@tanstack/react-query.gen"
-import { DEFAULT_WALLPAPER_LAYOUT } from "@/components/WallpaperEditor/types"
+import { DEFAULT_WALLPAPER_LAYOUT } from "@/pages/WallpaperEditor/types"
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query"
 import { useNavigate } from "@tanstack/react-router"
 
@@ -96,7 +96,7 @@ export const useWallpaperMutation = (id: number) => {
       } else {
         queryClient.setQueryData(getWallpaperFileQueryKey(options), null)
       }
-      void navigate({ to: "/dashboard" })
+      void navigate({ to: "/contests" })
     }
   })
 }

@@ -9,13 +9,15 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as SidebarRouteImport } from './routes/_sidebar'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as WallpaperIdRouteImport } from './routes/wallpaper/$id'
+import { Route as SidebarTeamsRouteImport } from './routes/_sidebar/teams'
+import { Route as SidebarContestsRouteImport } from './routes/_sidebar/contests'
+import { Route as SidebarClientsRouteImport } from './routes/_sidebar/clients'
 
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const SidebarRoute = SidebarRouteImport.update({
+  id: '/_sidebar',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -28,44 +30,73 @@ const WallpaperIdRoute = WallpaperIdRouteImport.update({
   path: '/wallpaper/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SidebarTeamsRoute = SidebarTeamsRouteImport.update({
+  id: '/teams',
+  path: '/teams',
+  getParentRoute: () => SidebarRoute,
+} as any)
+const SidebarContestsRoute = SidebarContestsRouteImport.update({
+  id: '/contests',
+  path: '/contests',
+  getParentRoute: () => SidebarRoute,
+} as any)
+const SidebarClientsRoute = SidebarClientsRouteImport.update({
+  id: '/clients',
+  path: '/clients',
+  getParentRoute: () => SidebarRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/clients': typeof SidebarClientsRoute
+  '/contests': typeof SidebarContestsRoute
+  '/teams': typeof SidebarTeamsRoute
   '/wallpaper/$id': typeof WallpaperIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/clients': typeof SidebarClientsRoute
+  '/contests': typeof SidebarContestsRoute
+  '/teams': typeof SidebarTeamsRoute
   '/wallpaper/$id': typeof WallpaperIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/_sidebar': typeof SidebarRouteWithChildren
+  '/_sidebar/clients': typeof SidebarClientsRoute
+  '/_sidebar/contests': typeof SidebarContestsRoute
+  '/_sidebar/teams': typeof SidebarTeamsRoute
   '/wallpaper/$id': typeof WallpaperIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard' | '/wallpaper/$id'
+  fullPaths: '/' | '/clients' | '/contests' | '/teams' | '/wallpaper/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard' | '/wallpaper/$id'
-  id: '__root__' | '/' | '/dashboard' | '/wallpaper/$id'
+  to: '/' | '/clients' | '/contests' | '/teams' | '/wallpaper/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_sidebar'
+    | '/_sidebar/clients'
+    | '/_sidebar/contests'
+    | '/_sidebar/teams'
+    | '/wallpaper/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
+  SidebarRoute: typeof SidebarRouteWithChildren
   WallpaperIdRoute: typeof WallpaperIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
+    '/_sidebar': {
+      id: '/_sidebar'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof SidebarRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -82,12 +113,48 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WallpaperIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_sidebar/teams': {
+      id: '/_sidebar/teams'
+      path: '/teams'
+      fullPath: '/teams'
+      preLoaderRoute: typeof SidebarTeamsRouteImport
+      parentRoute: typeof SidebarRoute
+    }
+    '/_sidebar/contests': {
+      id: '/_sidebar/contests'
+      path: '/contests'
+      fullPath: '/contests'
+      preLoaderRoute: typeof SidebarContestsRouteImport
+      parentRoute: typeof SidebarRoute
+    }
+    '/_sidebar/clients': {
+      id: '/_sidebar/clients'
+      path: '/clients'
+      fullPath: '/clients'
+      preLoaderRoute: typeof SidebarClientsRouteImport
+      parentRoute: typeof SidebarRoute
+    }
   }
 }
 
+interface SidebarRouteChildren {
+  SidebarClientsRoute: typeof SidebarClientsRoute
+  SidebarContestsRoute: typeof SidebarContestsRoute
+  SidebarTeamsRoute: typeof SidebarTeamsRoute
+}
+
+const SidebarRouteChildren: SidebarRouteChildren = {
+  SidebarClientsRoute: SidebarClientsRoute,
+  SidebarContestsRoute: SidebarContestsRoute,
+  SidebarTeamsRoute: SidebarTeamsRoute,
+}
+
+const SidebarRouteWithChildren =
+  SidebarRoute._addFileChildren(SidebarRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
+  SidebarRoute: SidebarRouteWithChildren,
   WallpaperIdRoute: WallpaperIdRoute,
 }
 export const routeTree = rootRouteImport

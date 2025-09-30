@@ -1,4 +1,4 @@
-import WallpaperEditor from '@/components/WallpaperEditor/WallpaperEditor'
+import WallpaperEditor from '@/pages/WallpaperEditor/WallpaperEditor'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/wallpaper/$id')({
