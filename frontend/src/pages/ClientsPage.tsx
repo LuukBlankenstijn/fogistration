@@ -5,6 +5,8 @@ import { useClients, useSetClientTeamMutation, type ExtendedClient } from "@/que
 import { useTeamsQuery } from "@/query/team"
 import { type SortingState, type ColumnDef, useReactTable, getCoreRowModel, getSortedRowModel } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
+import { createActionsColumn } from "@/components/table/actions/main";
+import { generateAnsibleAction, generateClusterSSHAction } from "@/components/table/actions/client";
 
 const ClientsPage = () => {
   const clients = useClients()
@@ -48,6 +50,12 @@ const ClientsPage = () => {
         )
       },
     },
+    createActionsColumn({
+      headerActions: [
+        generateAnsibleAction,
+        generateClusterSSHAction
+      ]
+    })
   ], [teams, mutate, teamNameById])
 
   const table = useReactTable({
@@ -59,7 +67,9 @@ const ClientsPage = () => {
     getSortedRowModel: getSortedRowModel(),
   })
 
-  return <StyledTable tableData={table} />
+  return <StyledTable
+    table={table}
+  />
 }
 
 export default ClientsPage
