@@ -54,7 +54,7 @@ const TeamsPage = () => {
   })
 
   return (
-    <StyledTable tableData={table} />
+    <StyledTable table={table} />
   )
 }
 

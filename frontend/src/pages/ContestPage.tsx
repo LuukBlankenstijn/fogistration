@@ -79,7 +79,7 @@ const ContestPage = () => {
   })
 
   return (
-    <StyledTable tableData={table} />
+    <StyledTable table={table} />
   )
 }
 
