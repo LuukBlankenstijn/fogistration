@@ -16,7 +16,7 @@ function ConnectionStatusCell({ lastSeen }: { lastSeen: Date }) {
   }
 
   return (
-    <span className="text-red-500">
+    <span className="text-red-700">
       Disconnected (last seen {formatRelativeDateTime(lastSeen)})
     </span>
   );

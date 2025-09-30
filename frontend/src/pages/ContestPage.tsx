@@ -43,7 +43,7 @@ const ContestPage = () => {
       }
     },
     {
-      id: "actions",
+      id: "wallpaper",
       header: "wallpaper",
       enableSorting: false,
       cell: ({ row }) => {
